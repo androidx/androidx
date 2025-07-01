@@ -31,6 +31,7 @@ import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.text.TextRange
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 
 internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGesturesTest() {
@@ -124,6 +125,7 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
 
     // Regression for magnifier not showing when the text field begins empty,
     // then text is added, the magnifier continues not to show.
+    @Ignore // b/424585312
     @Test
     fun whenTouch_withNoText_thenLongPressAndDrag_thenAddText_longPressAndDragAgain() {
         textContent = ""

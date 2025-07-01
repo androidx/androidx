@@ -126,8 +126,7 @@ class SelectionContainerContextMenuBuilderTest {
                 }
             }
 
-        val fakeClipboard =
-            FakeClipboard(initialText = initialClipboardText, supportsClipEntry = true)
+        val fakeClipboard = FakeClipboard(initialClipboardText)
 
         val reader = TestTextContextMenuDataInvoker()
         var selection by mutableStateOf<Selection?>(null)

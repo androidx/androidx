@@ -177,7 +177,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
 
     val contextMenuAreaModifier
         get() =
-            Modifier.textContextMenuGestures()
+            Modifier.textContextMenuGestures { notifyPlatformSelectionBehaviorsOnShowContextMenu() }
                 .textContextMenuToolbarHandler(
                     requester = toolbarRequester,
                     computeContentBounds = { destinationCoordinates ->
@@ -190,6 +190,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
                             destinationCoordinates = destinationCoordinates,
                         )
                     },
+                    onShow = { notifyPlatformSelectionBehaviorsOnShowContextMenu() },
                 )
 
     private var previousPosition: Offset? = null
@@ -399,6 +400,11 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
                 updateSelectionToolbar()
             }
         }
+    }
+
+    private suspend fun notifyPlatformSelectionBehaviorsOnShowContextMenu() {
+        val (text, selection) = getContextTextAndSelection() ?: return
+        platformSelectionBehaviors?.onShowContextMenu(text = text, selection = selection)
     }
 
     private fun suggestSelectionForLongPressOrDoubleClick() {
@@ -670,6 +676,52 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
                 true
             }
         }
+    }
+
+    /**
+     * Returns the selected text along with some surrounding context from the selectable(s).
+     * - For a single selected selectable, returns its full text, with the `TextRange` marking the
+     *   original selection within that text.
+     * - For multiple selected selectables, concatenates their relevant portions:
+     *     - First selectable: Text from its start up to the end of its selection, joined by '\n'.
+     *     - Intermediate selectables: Their selected text portions, joined by `\n`.
+     *     - Last selectable: Text from the start of its selection to its end. The `TextRange` marks
+     *       the overall selection bounds within this concatenated string.
+     *
+     * Returns `null` if there's no selection or no selectables.
+     *
+     * @return A `Pair` of the context [AnnotatedString] and the [TextRange] of the selection within
+     *   it, or `null` if no selection.
+     */
+    internal fun getContextTextAndSelection(): Pair<AnnotatedString, TextRange>? {
+        if (selection == null || selectionRegistrar.selectables.isEmpty()) {
+            return null
+        }
+
+        var start = -1
+        var end = -1
+        val text = buildAnnotatedString {
+            forEachSelectableWithSelection { _, text, selection, isLastSelectable ->
+                if (start == -1) {
+                    start = selection.min
+                    append(text, 0, selection.min)
+                }
+
+                append(text, selection.min, selection.max)
+                if (!isLastSelectable) {
+                    append('\n')
+                } else {
+                    // set end to current length in AnnotatedString. Builder before appending the
+                    // trailing text in the last selectable.
+                    end = length
+                    append(text, selection.max, text.length)
+                }
+                true
+            }
+        }
+        if (start == -1 || end == -1) return null
+
+        return Pair(text, TextRange(start, end))
     }
 
     /**

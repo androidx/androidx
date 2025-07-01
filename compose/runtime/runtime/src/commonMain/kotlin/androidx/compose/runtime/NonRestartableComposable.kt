@@ -24,4 +24,4 @@ package androidx.compose.runtime
  */
 @Retention(AnnotationRetention.SOURCE)
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER)
-annotation class NonRestartableComposable
+public annotation class NonRestartableComposable

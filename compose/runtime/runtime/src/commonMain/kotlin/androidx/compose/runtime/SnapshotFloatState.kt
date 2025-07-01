@@ -55,7 +55,8 @@ import kotlin.reflect.KProperty
  * @see mutableDoubleStateOf
  */
 @StateFactoryMarker
-fun mutableFloatStateOf(value: Float): MutableFloatState = createSnapshotMutableFloatState(value)
+public fun mutableFloatStateOf(value: Float): MutableFloatState =
+    createSnapshotMutableFloatState(value)
 
 /**
  * A value holder where reads to the [floatValue] property during the execution of a [Composable]
@@ -66,17 +67,18 @@ fun mutableFloatStateOf(value: Float): MutableFloatState = createSnapshotMutable
  */
 @Stable
 @JvmDefaultWithCompatibility
-interface FloatState : State<Float> {
+public interface FloatState : State<Float> {
     @get:AutoboxingStateValueProperty("floatValue")
     override val value: Float
         @Suppress("AutoBoxing") get() = floatValue
 
-    val floatValue: Float
+    public val floatValue: Float
 }
 
 /** Permits property delegation of `val`s using `by` for [FloatState]. */
 @Suppress("NOTHING_TO_INLINE")
-inline operator fun FloatState.getValue(thisObj: Any?, property: KProperty<*>): Float = floatValue
+public inline operator fun FloatState.getValue(thisObj: Any?, property: KProperty<*>): Float =
+    floatValue
 
 /**
  * A value holder where reads to the [floatValue] property during the execution of a [Composable]
@@ -90,7 +92,7 @@ inline operator fun FloatState.getValue(thisObj: Any?, property: KProperty<*>): 
  */
 @Stable
 @JvmDefaultWithCompatibility
-interface MutableFloatState : FloatState, MutableState<Float> {
+public interface MutableFloatState : FloatState, MutableState<Float> {
     @get:AutoboxingStateValueProperty("floatValue")
     @set:AutoboxingStateValueProperty("floatValue")
     override var value: Float
@@ -104,7 +106,7 @@ interface MutableFloatState : FloatState, MutableState<Float> {
 
 /** Permits property delegation of `var`s using `by` for [MutableFloatState]. */
 @Suppress("NOTHING_TO_INLINE")
-inline operator fun MutableFloatState.setValue(
+public inline operator fun MutableFloatState.setValue(
     thisObj: Any?,
     property: KProperty<*>,
     value: Float,

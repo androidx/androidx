@@ -67,8 +67,7 @@ class AllParametersChecks(
     }
 
     fun assertTextNode(composable: ComposableNode, expectedText: String) {
-        // TODO(b/408492167) "$0" should be "text"
-        assertNode(composable, "Text", "$0", expectedText)
+        assertNode(composable, "Text", "text", expectedText)
     }
 
     fun assertNoNode(composableList: List<ComposableNode>, unwantedNodeName: String) {
@@ -91,8 +90,7 @@ class AllParametersChecks(
     }
 
     fun parameterTextValue(composable: ComposableNode): String? {
-        // TODO(b/408492167) "$0" should be "text"
-        return parameterStringValue(composable, "$0")
+        return parameterStringValue(composable, "text")
     }
 
     fun parameterStringValue(composable: ComposableNode, parameterName: String): String? {

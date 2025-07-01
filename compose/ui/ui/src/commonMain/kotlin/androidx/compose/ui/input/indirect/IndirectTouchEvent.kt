@@ -47,6 +47,7 @@ internal interface PlatformIndirectTouchEvent : IndirectTouchEvent
 @kotlin.jvm.JvmInline
 @ExperimentalIndirectTouchTypeApi
 value class IndirectTouchEventType private constructor(internal val value: Int) {
+    @ExperimentalIndirectTouchTypeApi
     companion object {
 
         /** An unknown reason for the event. */

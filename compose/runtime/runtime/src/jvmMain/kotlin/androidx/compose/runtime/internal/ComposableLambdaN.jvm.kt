@@ -132,11 +132,11 @@ internal class ComposableLambdaNImpl(
     }
 }
 
-@Stable @ComposeCompilerApi interface ComposableLambdaN : FunctionN<Any?>
+@Stable @ComposeCompilerApi public interface ComposableLambdaN : FunctionN<Any?>
 
 @Suppress("unused")
 @ComposeCompilerApi
-fun composableLambdaN(
+public fun composableLambdaN(
     composer: Composer,
     key: Int,
     tracked: Boolean,
@@ -162,7 +162,7 @@ fun composableLambdaN(
 @Suppress
 @ComposeCompilerApi
 @Composable
-fun rememberComposableLambdaN(
+public fun rememberComposableLambdaN(
     key: Int,
     tracked: Boolean,
     arity: Int,
@@ -172,7 +172,7 @@ fun rememberComposableLambdaN(
 
 @Suppress("unused")
 @ComposeCompilerApi
-fun composableLambdaNInstance(
+public fun composableLambdaNInstance(
     key: Int,
     tracked: Boolean,
     arity: Int,

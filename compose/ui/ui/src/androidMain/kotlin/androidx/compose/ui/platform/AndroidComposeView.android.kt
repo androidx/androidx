@@ -1072,10 +1072,6 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         // we just return false to indicate that nothing can be focused.
         if (processingRequestFocusForNextNonChildView) return false
 
-        // If there is currently a focusRequest() in operation, a clearFocus() due to AndroidView
-        // may cause a recursive requestFocus(). This prevents that reentrant call.
-        if (focusOwner.focusTransactionManager.ongoingTransaction) return false
-
         val focusDirection = toFocusDirection(direction) ?: Enter
 
         // If the root has focus, it means a sub-view is focused,

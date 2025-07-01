@@ -716,6 +716,7 @@ internal class TextFieldDecoratorModifierNode(
             event = event,
             textFieldState = textFieldState,
             textFieldSelectionState = textFieldSelectionState,
+            // remove after `ComposeFoundationFlags.isTextFieldDpadNavigationFixEnabled` is removed
             focusManager = currentValueOf(LocalFocusManager),
             keyboardController = requireKeyboardController(),
         )
@@ -728,6 +729,7 @@ internal class TextFieldDecoratorModifierNode(
             textLayoutState = textLayoutState,
             textFieldSelectionState = textFieldSelectionState,
             clipboardKeyCommandsHandler = clipboardKeyCommandsHandler,
+            keyboardController = requireKeyboardController(),
             editable = enabled && !readOnly,
             singleLine = singleLine,
             onSubmit = { onImeActionPerformed(keyboardOptions.imeActionOrDefault) },

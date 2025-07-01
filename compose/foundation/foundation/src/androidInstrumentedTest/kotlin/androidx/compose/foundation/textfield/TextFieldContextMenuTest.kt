@@ -28,6 +28,7 @@ import androidx.compose.foundation.internal.toClipEntry
 import androidx.compose.foundation.text.BasicSecureTextField
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.FocusedWindowTest
+import androidx.compose.foundation.text.PlatformSelectionBehaviorsRule
 import androidx.compose.foundation.text.contextmenu.ProcessTextApi23Impl
 import androidx.compose.foundation.text.contextmenu.test.ContextMenuFlagFlipperRunner
 import androidx.compose.foundation.text.contextmenu.test.ContextMenuFlagSuppress
@@ -78,6 +79,8 @@ class TextFieldContextMenuTest : FocusedWindowTest {
             ContextMenuItemLabels.PROCESS_TEXT_1,
             ContextMenuItemLabels.PROCESS_TEXT_2,
         )
+
+    @get:Rule val platformSelectionBehaviorsRule = PlatformSelectionBehaviorsRule()
 
     // region BTF1 Context Menu Gesture Tests
     @Test
@@ -235,7 +238,7 @@ class TextFieldContextMenuTest : FocusedWindowTest {
 
         var value by mutableStateOf(TextFieldValue(text = text, selection = selection))
 
-        val clipboard = FakeClipboard(initialText = initialClipboardText, supportsClipEntry = true)
+        val clipboard = FakeClipboard(initialClipboardText)
 
         rule.setTextFieldTestContent {
             CompositionLocalProvider(LocalClipboard provides clipboard) {
@@ -530,7 +533,7 @@ class TextFieldContextMenuTest : FocusedWindowTest {
             if (isPassword) PasswordVisualTransformation() else VisualTransformation.None
 
         val clipboard =
-            FakeClipboard(supportsClipEntry = true).apply {
+            FakeClipboard().apply {
                 if (isEmptyClipboard) {
                     setClipEntry(null)
                 } else {
@@ -705,7 +708,7 @@ class TextFieldContextMenuTest : FocusedWindowTest {
 
         val state = TextFieldState(initialText = text, initialSelection = selection)
 
-        val clipboard = FakeClipboard(initialText = initialClipboardText, supportsClipEntry = true)
+        val clipboard = FakeClipboard(initialClipboardText)
 
         rule.setTextFieldTestContent {
             CompositionLocalProvider(LocalClipboard provides clipboard) {
@@ -976,7 +979,7 @@ class TextFieldContextMenuTest : FocusedWindowTest {
             )
 
         val clipboard =
-            FakeClipboard(supportsClipEntry = true).apply {
+            FakeClipboard().apply {
                 if (isEmptyClipboard) {
                     setClipEntry(null)
                 } else {

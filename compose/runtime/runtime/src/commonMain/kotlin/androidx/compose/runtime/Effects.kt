@@ -49,7 +49,7 @@ import kotlinx.coroutines.launch
 @NonRestartableComposable
 @ExplicitGroupsComposable
 @OptIn(InternalComposeApi::class)
-fun SideEffect(effect: () -> Unit) {
+public fun SideEffect(effect: () -> Unit) {
     currentComposer.recordSideEffect(effect)
 }
 
@@ -57,12 +57,12 @@ fun SideEffect(effect: () -> Unit) {
  * Receiver scope for [DisposableEffect] that offers the [onDispose] clause that should be the last
  * statement in any call to [DisposableEffect].
  */
-class DisposableEffectScope {
+public class DisposableEffectScope {
     /**
      * Provide [onDisposeEffect] to the [DisposableEffect] to run when it leaves the composition or
      * its key changes.
      */
-    inline fun onDispose(crossinline onDisposeEffect: () -> Unit): DisposableEffectResult =
+    public inline fun onDispose(crossinline onDisposeEffect: () -> Unit): DisposableEffectResult =
         object : DisposableEffectResult {
             override fun dispose() {
                 onDisposeEffect()
@@ -70,8 +70,8 @@ class DisposableEffectScope {
         }
 }
 
-interface DisposableEffectResult {
-    fun dispose()
+public interface DisposableEffectResult {
+    public fun dispose()
 }
 
 private val InternalDisposableEffectScope = DisposableEffectScope()
@@ -117,7 +117,7 @@ private const val LaunchedEffectNoParamError =
 @NonRestartableComposable
 @Suppress("DeprecatedCallableAddReplaceWith", "UNUSED_PARAMETER")
 @Deprecated(DisposableEffectNoParamError, level = DeprecationLevel.ERROR)
-fun DisposableEffect(effect: DisposableEffectScope.() -> DisposableEffectResult): Unit =
+public fun DisposableEffect(effect: DisposableEffectScope.() -> DisposableEffectResult): Unit =
     error(DisposableEffectNoParamError)
 
 /**
@@ -148,7 +148,10 @@ fun DisposableEffect(effect: DisposableEffectScope.() -> DisposableEffectResult)
  */
 @Composable
 @NonRestartableComposable
-fun DisposableEffect(key1: Any?, effect: DisposableEffectScope.() -> DisposableEffectResult) {
+public fun DisposableEffect(
+    key1: Any?,
+    effect: DisposableEffectScope.() -> DisposableEffectResult,
+) {
     remember(key1) { DisposableEffectImpl(effect) }
 }
 
@@ -181,7 +184,7 @@ fun DisposableEffect(key1: Any?, effect: DisposableEffectScope.() -> DisposableE
  */
 @Composable
 @NonRestartableComposable
-fun DisposableEffect(
+public fun DisposableEffect(
     key1: Any?,
     key2: Any?,
     effect: DisposableEffectScope.() -> DisposableEffectResult,
@@ -218,7 +221,7 @@ fun DisposableEffect(
  */
 @Composable
 @NonRestartableComposable
-fun DisposableEffect(
+public fun DisposableEffect(
     key1: Any?,
     key2: Any?,
     key3: Any?,
@@ -256,7 +259,7 @@ fun DisposableEffect(
 @Composable
 @NonRestartableComposable
 @Suppress("ArrayReturn")
-fun DisposableEffect(
+public fun DisposableEffect(
     vararg keys: Any?,
     effect: DisposableEffectScope.() -> DisposableEffectResult,
 ) {
@@ -319,7 +322,7 @@ internal class LaunchedEffectImpl(
 @Deprecated(LaunchedEffectNoParamError, level = DeprecationLevel.ERROR)
 @Suppress("DeprecatedCallableAddReplaceWith", "UNUSED_PARAMETER")
 @Composable
-fun LaunchedEffect(block: suspend CoroutineScope.() -> Unit): Unit =
+public fun LaunchedEffect(block: suspend CoroutineScope.() -> Unit): Unit =
     error(LaunchedEffectNoParamError)
 
 /**
@@ -336,7 +339,7 @@ fun LaunchedEffect(block: suspend CoroutineScope.() -> Unit): Unit =
 @Composable
 @NonRestartableComposable
 @OptIn(InternalComposeApi::class)
-fun LaunchedEffect(key1: Any?, block: suspend CoroutineScope.() -> Unit) {
+public fun LaunchedEffect(key1: Any?, block: suspend CoroutineScope.() -> Unit) {
     val applyContext = currentComposer.applyCoroutineContext
     remember(key1) { LaunchedEffectImpl(applyContext, block) }
 }
@@ -355,7 +358,7 @@ fun LaunchedEffect(key1: Any?, block: suspend CoroutineScope.() -> Unit) {
 @Composable
 @NonRestartableComposable
 @OptIn(InternalComposeApi::class)
-fun LaunchedEffect(key1: Any?, key2: Any?, block: suspend CoroutineScope.() -> Unit) {
+public fun LaunchedEffect(key1: Any?, key2: Any?, block: suspend CoroutineScope.() -> Unit) {
     val applyContext = currentComposer.applyCoroutineContext
     remember(key1, key2) { LaunchedEffectImpl(applyContext, block) }
 }
@@ -374,7 +377,12 @@ fun LaunchedEffect(key1: Any?, key2: Any?, block: suspend CoroutineScope.() -> U
 @Composable
 @NonRestartableComposable
 @OptIn(InternalComposeApi::class)
-fun LaunchedEffect(key1: Any?, key2: Any?, key3: Any?, block: suspend CoroutineScope.() -> Unit) {
+public fun LaunchedEffect(
+    key1: Any?,
+    key2: Any?,
+    key3: Any?,
+    block: suspend CoroutineScope.() -> Unit,
+) {
     val applyContext = currentComposer.applyCoroutineContext
     remember(key1, key2, key3) { LaunchedEffectImpl(applyContext, block) }
 }
@@ -397,7 +405,7 @@ private class LeftCompositionCancellationException :
 @NonRestartableComposable
 @Suppress("ArrayReturn")
 @OptIn(InternalComposeApi::class)
-fun LaunchedEffect(vararg keys: Any?, block: suspend CoroutineScope.() -> Unit) {
+public fun LaunchedEffect(vararg keys: Any?, block: suspend CoroutineScope.() -> Unit) {
     val applyContext = currentComposer.applyCoroutineContext
     remember(*keys) { LaunchedEffectImpl(applyContext, block) }
 }
@@ -551,7 +559,7 @@ internal class RememberedCoroutineScope(
 internal fun createCompositionCoroutineScope(
     coroutineContext: CoroutineContext,
     composer: Composer,
-) =
+): CoroutineScope =
     if (coroutineContext[Job] != null) {
         CoroutineScope(
             Job().apply {
@@ -592,7 +600,7 @@ internal fun createCompositionCoroutineScope(
  * jobs.
  */
 @Composable
-inline fun rememberCoroutineScope(
+public inline fun rememberCoroutineScope(
     crossinline getContext: @DisallowComposableCalls () -> CoroutineContext = {
         EmptyCoroutineContext
     }

@@ -16,6 +16,8 @@
 
 package androidx.compose.foundation.text.input
 
+import android.database.ContentObserver
+import android.net.Uri
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
@@ -25,12 +27,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicSecureTextField
+import androidx.compose.foundation.text.ContentResolverForSecureTextField
+import androidx.compose.foundation.text.contentResolverForSecureTextField
 import androidx.compose.foundation.text.contextmenu.internal.ProvidePlatformTextContextMenuToolbar
 import androidx.compose.foundation.text.contextmenu.test.ContextMenuFlagFlipperRunner
 import androidx.compose.foundation.text.contextmenu.test.ContextMenuFlagSuppress
 import androidx.compose.foundation.text.contextmenu.test.SpyTextActionModeCallback
 import androidx.compose.foundation.text.contextmenu.test.assertNotNull
 import androidx.compose.foundation.text.contextmenu.test.items
+import androidx.compose.foundation.text.resetContentResolverForSecureTextField
 import androidx.compose.foundation.text.selection.FakeTextToolbar
 import androidx.compose.foundation.text.selection.fetchTextLayoutResult
 import androidx.compose.runtime.CompositionLocalProvider
@@ -622,6 +627,156 @@ internal class BasicSecureTextFieldTest {
         rule.runOnIdle {
             assertThat(scrollState.maxValue).isNotEqualTo(0)
             assertThat(scrollState.value).isNotEqualTo(0)
+        }
+    }
+
+    @Test
+    fun defaultTextObfuscationMode_isRevealLastTypedEnabled() {
+        assertThat(TextObfuscationMode.Default).isEqualTo(TextObfuscationMode.RevealLastTyped)
+    }
+
+    @Test
+    fun revealLastTypedEnabled_initializesWithPlatformSettings() = testSystemShowPassword {
+        inputMethodInterceptor.setContent {
+            BasicSecureTextField(
+                state = rememberTextFieldState(),
+                textObfuscationMode = TextObfuscationMode.RevealLastTyped,
+                textObfuscationCharacter = '*',
+                modifier = Modifier.testTag(Tag),
+            )
+        }
+
+        with(rule.onNodeWithTag(Tag)) {
+            performTextInput("a")
+            rule.mainClock.advanceTimeBy(200)
+            // Acts as hidden
+            assertThat(fetchTextLayoutResult().layoutInput.text.text).isEqualTo("*")
+        }
+    }
+
+    @Test
+    fun secureTextFields_registerContentObserver_individually() = testSystemShowPassword {
+        val shouldCompose = mutableStateOf(listOf(true, true, true))
+        rule.setContent {
+            Column {
+                shouldCompose.value
+                    .filter { it }
+                    .forEach { _ -> BasicSecureTextField(rememberTextFieldState()) }
+            }
+        }
+
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+        assertRegistrationCount(3)
+        assertUnregistrationCount(0)
+
+        shouldCompose.value = listOf(true, true, false)
+
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+        assertUnregistrationCount(1)
+
+        shouldCompose.value = listOf(true, false, false)
+
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+        assertUnregistrationCount(2)
+
+        shouldCompose.value = listOf(false, false, false)
+
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+        assertUnregistrationCount(3)
+
+        shouldCompose.value = listOf(true, false, false)
+
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+        // re-register when one appears again
+        assertRegistrationCount(4)
+    }
+
+    @Test
+    fun revealLastTypedEnabled_observesPlatformSettings() = testSystemShowPassword {
+        rule.setContent {
+            BasicSecureTextField(
+                state = rememberTextFieldState(),
+                textObfuscationMode = TextObfuscationMode.RevealLastTyped,
+                textObfuscationCharacter = '*',
+                modifier = Modifier.testTag(Tag),
+            )
+        }
+
+        with(rule.onNodeWithTag(Tag)) {
+            performTextInput("a")
+            rule.mainClock.advanceTimeBy(200)
+            // Acts as hidden
+            assertThat(fetchTextLayoutResult().layoutInput.text.text).isEqualTo("*")
+        }
+
+        setShowPassword(true)
+        rule.mainClock.advanceTimeByFrame()
+
+        with(rule.onNodeWithTag(Tag)) {
+            performTextInput("a")
+            rule.mainClock.advanceTimeBy(200)
+            // Acts as RevealLastTyped
+            assertThat(fetchTextLayoutResult().layoutInput.text.text).isEqualTo("*a")
+        }
+    }
+
+    private inline fun testSystemShowPassword(block: SystemPasswordControl.() -> Unit) {
+        try {
+            block(SystemPasswordControl())
+        } finally {
+            resetContentResolverForSecureTextField()
+        }
+    }
+
+    private class SystemPasswordControl() {
+        var registeredContentObserver: ContentObserver? = null
+        var registerCount: Int = 0
+        var unregisterCount: Int = 0
+
+        // initialize to false
+        var currentShowPassword = false
+
+        init {
+            contentResolverForSecureTextField = {
+                object : ContentResolverForSecureTextField {
+                    override fun registerContentObserver(
+                        uri: Uri,
+                        notifyForDescendants: Boolean,
+                        observer: ContentObserver,
+                    ) {
+                        registeredContentObserver = observer
+                        registerCount++
+                    }
+
+                    override fun unregisterContentObserver(observer: ContentObserver) {
+                        registeredContentObserver = null
+                        unregisterCount++
+                    }
+
+                    override val showPassword: Boolean
+                        get() = currentShowPassword
+                }
+            }
+        }
+
+        fun setShowPassword(enabled: Boolean) {
+            if (currentShowPassword != enabled) {
+                currentShowPassword = enabled
+                registeredContentObserver?.onChange(true)
+            }
+        }
+
+        fun assertRegistrationCount(count: Int) {
+            assertThat(registerCount).isEqualTo(count)
+        }
+
+        fun assertUnregistrationCount(count: Int) {
+            assertThat(unregisterCount).isEqualTo(count)
         }
     }
 }

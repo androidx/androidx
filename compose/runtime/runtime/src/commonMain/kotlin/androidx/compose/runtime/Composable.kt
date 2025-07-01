@@ -55,4 +55,4 @@ package androidx.compose.runtime
     //   @Composable get() { ... }
     AnnotationTarget.PROPERTY_GETTER,
 )
-annotation class Composable
+public annotation class Composable

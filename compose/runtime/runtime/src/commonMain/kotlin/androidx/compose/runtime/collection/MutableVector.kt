@@ -28,7 +28,7 @@ import kotlin.math.max
  * [ArrayList].
  */
 @OptIn(ExperimentalContracts::class)
-class MutableVector<T>
+public class MutableVector<T>
 @PublishedApi
 internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, size: Int) :
     RandomAccess {
@@ -36,22 +36,22 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
     private var list: MutableList<T>? = null
 
     /** The number of elements in the [MutableVector]. */
-    var size: Int = size
+    public var size: Int = size
         private set
 
     /** Returns the last valid index in the [MutableVector]. */
-    inline val lastIndex: Int
+    public inline val lastIndex: Int
         get() = size - 1
 
     /** Returns an [IntRange] of the valid indices for this [MutableVector]. */
-    inline val indices: IntRange
+    public inline val indices: IntRange
         get() = 0 until size
 
     // Added for compatibility with `content` previously defined without @JvmField
-    @PublishedApi internal fun getContent() = content
+    @PublishedApi internal fun getContent(): Array<T?> = content
 
     /** Adds [element] to the [MutableVector] and returns `true`. */
-    fun add(element: T): Boolean {
+    public fun add(element: T): Boolean {
         ensureCapacity(size + 1)
         content[size] = element
         size++
@@ -62,7 +62,7 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
      * Adds [element] to the [MutableVector] at the given [index], shifting over any elements that
      * are in the way.
      */
-    fun add(index: Int, element: T) {
+    public fun add(index: Int, element: T) {
         ensureCapacity(size + 1)
         val content = content
         if (index != size) {
@@ -81,7 +81,7 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
      * Adds all [elements] to the [MutableVector] at the given [index], shifting over any elements
      * that are in the way.
      */
-    fun addAll(index: Int, elements: List<T>): Boolean {
+    public fun addAll(index: Int, elements: List<T>): Boolean {
         if (elements.isEmpty()) return false
         val elementsSize = elements.size
         ensureCapacity(size + elementsSize)
@@ -105,7 +105,7 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
      * Adds all [elements] to the [MutableVector] at the given [index], shifting over any elements
      * that are in the way.
      */
-    fun addAll(index: Int, elements: MutableVector<T>): Boolean {
+    public fun addAll(index: Int, elements: MutableVector<T>): Boolean {
         val elementsSize = elements.size
         if (elementsSize == 0) return false
         ensureCapacity(size + elementsSize)
@@ -132,7 +132,7 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
      * Adds all [elements] to the end of the [MutableVector] and returns `true` if the
      * [MutableVector] was changed.
      */
-    inline fun addAll(elements: List<T>): Boolean {
+    public inline fun addAll(elements: List<T>): Boolean {
         return addAll(size, elements)
     }
 
@@ -140,7 +140,7 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
      * Adds all [elements] to the end of the [MutableVector] and returns `true` if the
      * [MutableVector] was changed.
      */
-    inline fun addAll(elements: MutableVector<T>): Boolean {
+    public inline fun addAll(elements: MutableVector<T>): Boolean {
         return addAll(size, elements)
     }
 
@@ -148,7 +148,7 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
      * Adds all [elements] to the end of the [MutableVector] and returns `true` if the
      * [MutableVector] was changed.
      */
-    fun addAll(@Suppress("ArrayReturn") elements: Array<T>): Boolean {
+    public fun addAll(@Suppress("ArrayReturn") elements: Array<T>): Boolean {
         val elementsSize = elements.size
         if (elementsSize == 0) {
             return false
@@ -163,7 +163,7 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
      * Adds all [elements] to the [MutableVector] at the given [index], shifting over any elements
      * that are in the way.
      */
-    fun addAll(index: Int, elements: Collection<T>): Boolean {
+    public fun addAll(index: Int, elements: Collection<T>): Boolean {
         if (elements.isEmpty()) return false
         val elementsSize = elements.size
         ensureCapacity(size + elementsSize)
@@ -185,12 +185,12 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
      * Adds all [elements] to the end of the [MutableVector] and returns `true` if the
      * [MutableVector] was changed.
      */
-    fun addAll(elements: Collection<T>): Boolean {
+    public fun addAll(elements: Collection<T>): Boolean {
         return addAll(size, elements)
     }
 
     /** Returns `true` if any of the elements give a `true` return value for [predicate]. */
-    inline fun any(predicate: (T) -> Boolean): Boolean {
+    public inline fun any(predicate: (T) -> Boolean): Boolean {
         contract { callsInPlace(predicate) }
         val content = content as Array<T>
         val size = size
@@ -204,7 +204,7 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
      * Returns `true` if any of the elements give a `true` return value for [predicate] while
      * iterating in the reverse order.
      */
-    inline fun reversedAny(predicate: (T) -> Boolean): Boolean {
+    public inline fun reversedAny(predicate: (T) -> Boolean): Boolean {
         contract { callsInPlace(predicate) }
         val content = content as Array<T>
         var i = size - 1
@@ -216,12 +216,12 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
     }
 
     /** Returns [MutableList] interface access to the [MutableVector]. */
-    fun asMutableList(): MutableList<T> {
+    public fun asMutableList(): MutableList<T> {
         return list ?: MutableVectorList(this).also { list = it }
     }
 
     /** Removes all elements in the [MutableVector]. */
-    fun clear() {
+    public fun clear() {
         val content = content
         for (i in 0 until size) {
             content[i] = null
@@ -230,7 +230,7 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
     }
 
     /** Returns `true` if the [MutableVector] contains [element] or `false` otherwise. */
-    operator fun contains(element: T): Boolean {
+    public operator fun contains(element: T): Boolean {
         for (i in 0..lastIndex) {
             if (get(i) == element) return true
         }
@@ -241,7 +241,7 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
      * Returns `true` if the [MutableVector] contains all elements in [elements] or `false` if one
      * or more are missing.
      */
-    fun containsAll(elements: List<T>): Boolean {
+    public fun containsAll(elements: List<T>): Boolean {
         for (i in elements.indices) {
             if (!contains(elements[i])) return false
         }
@@ -252,7 +252,7 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
      * Returns `true` if the [MutableVector] contains all elements in [elements] or `false` if one
      * or more are missing.
      */
-    fun containsAll(elements: Collection<T>): Boolean {
+    public fun containsAll(elements: Collection<T>): Boolean {
         elements.forEach { if (!contains(it)) return false }
         return true
     }
@@ -261,7 +261,7 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
      * Returns `true` if the [MutableVector] contains all elements in [elements] or `false` if one
      * or more are missing.
      */
-    fun containsAll(elements: MutableVector<T>): Boolean {
+    public fun containsAll(elements: MutableVector<T>): Boolean {
         for (i in elements.indices) {
             if (!contains(elements[i])) return false
         }
@@ -272,7 +272,7 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
      * Returns `true` if the contents of the [MutableVector] are the same or `false` if there is any
      * difference. This uses equality comparisons on each element rather than reference equality.
      */
-    fun contentEquals(other: MutableVector<T>): Boolean {
+    public fun contentEquals(other: MutableVector<T>): Boolean {
         if (other.size != size) {
             return false
         }
@@ -285,7 +285,7 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
     }
 
     /** Ensures that there is enough space to store [capacity] elements in the [MutableVector]. */
-    inline fun ensureCapacity(capacity: Int) {
+    public inline fun ensureCapacity(capacity: Int) {
         if (content.size < capacity) {
             resizeStorage(capacity)
         }
@@ -305,7 +305,7 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
      * Returns the first element in the [MutableVector] or throws a [NoSuchElementException] if it
      * [isEmpty].
      */
-    fun first(): T {
+    public fun first(): T {
         if (isEmpty()) {
             throwNoSuchElementException()
         }
@@ -316,7 +316,7 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
      * Returns the first element in the [MutableVector] for which [predicate] returns `true` or
      * throws [NoSuchElementException] if nothing matches.
      */
-    inline fun first(predicate: (T) -> Boolean): T {
+    public inline fun first(predicate: (T) -> Boolean): T {
         contract { callsInPlace(predicate) }
         val content = content as Array<T>
         val size = size
@@ -337,13 +337,13 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
     }
 
     /** Returns the first element in the [MutableVector] or `null` if it [isEmpty]. */
-    inline fun firstOrNull() = if (isEmpty()) null else get(0)
+    public inline fun firstOrNull(): T? = if (isEmpty()) null else get(0)
 
     /**
      * Returns the first element in the [MutableVector] for which [predicate] returns `true` or
      * returns `null` if nothing matches.
      */
-    inline fun firstOrNull(predicate: (T) -> Boolean): T? {
+    public inline fun firstOrNull(predicate: (T) -> Boolean): T? {
         contract { callsInPlace(predicate) }
         val content = content as Array<T>
         val size = size
@@ -358,7 +358,7 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
      * Accumulates values, starting with [initial], and applying [operation] to each element in the
      * [MutableVector] in order.
      */
-    inline fun <R> fold(initial: R, operation: (acc: R, T) -> R): R {
+    public inline fun <R> fold(initial: R, operation: (acc: R, T) -> R): R {
         contract { callsInPlace(operation) }
         var acc = initial
         val content = content as Array<T>
@@ -373,7 +373,7 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
      * Accumulates values, starting with [initial], and applying [operation] to each element in the
      * [MutableVector] in order.
      */
-    inline fun <R> foldIndexed(initial: R, operation: (index: Int, acc: R, T) -> R): R {
+    public inline fun <R> foldIndexed(initial: R, operation: (index: Int, acc: R, T) -> R): R {
         contract { callsInPlace(operation) }
         var acc = initial
         val content = content as Array<T>
@@ -388,7 +388,7 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
      * Accumulates values, starting with [initial], and applying [operation] to each element in the
      * [MutableVector] in reverse order.
      */
-    inline fun <R> foldRight(initial: R, operation: (T, acc: R) -> R): R {
+    public inline fun <R> foldRight(initial: R, operation: (T, acc: R) -> R): R {
         contract { callsInPlace(operation) }
         var acc = initial
         var i = size - 1
@@ -405,7 +405,7 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
      * Accumulates values, starting with [initial], and applying [operation] to each element in the
      * [MutableVector] in reverse order.
      */
-    inline fun <R> foldRightIndexed(initial: R, operation: (index: Int, T, acc: R) -> R): R {
+    public inline fun <R> foldRightIndexed(initial: R, operation: (index: Int, T, acc: R) -> R): R {
         contract { callsInPlace(operation) }
         var acc = initial
         var i = size - 1
@@ -419,7 +419,7 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
     }
 
     /** Calls [block] for each element in the [MutableVector], in order. */
-    inline fun forEach(block: (T) -> Unit) {
+    public inline fun forEach(block: (T) -> Unit) {
         contract { callsInPlace(block) }
         var i = 0
         val content = content as Array<T>
@@ -431,7 +431,7 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
     }
 
     /** Calls [block] for each element in the [MutableVector] along with its index, in order. */
-    inline fun forEachIndexed(block: (Int, T) -> Unit) {
+    public inline fun forEachIndexed(block: (Int, T) -> Unit) {
         contract { callsInPlace(block) }
         var i = 0
         val content = content as Array<T>
@@ -443,7 +443,7 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
     }
 
     /** Calls [block] for each element in the [MutableVector] in reverse order. */
-    inline fun forEachReversed(block: (T) -> Unit) {
+    public inline fun forEachReversed(block: (T) -> Unit) {
         contract { callsInPlace(block) }
         var i = size - 1
         val content = content as Array<T>
@@ -457,7 +457,7 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
     /**
      * Calls [block] for each element in the [MutableVector] along with its index, in reverse order.
      */
-    inline fun forEachReversedIndexed(block: (Int, T) -> Unit) {
+    public inline fun forEachReversedIndexed(block: (Int, T) -> Unit) {
         contract { callsInPlace(block) }
         var i = size - 1
         val content = content as Array<T>
@@ -469,10 +469,10 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
     }
 
     /** Returns the element at the given [index]. */
-    inline operator fun get(index: Int): T = content[index] as T
+    public inline operator fun get(index: Int): T = content[index] as T
 
     /** Returns the index of [element] in the [MutableVector] or `-1` if [element] is not there. */
-    fun indexOf(element: T): Int {
+    public fun indexOf(element: T): Int {
         val content = content as Array<T>
         val size = size
         for (i in 0 until size) {
@@ -485,7 +485,7 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
      * Returns the index if the first element in the [MutableVector] for which [predicate] returns
      * `true`.
      */
-    inline fun indexOfFirst(predicate: (T) -> Boolean): Int {
+    public inline fun indexOfFirst(predicate: (T) -> Boolean): Int {
         contract { callsInPlace(predicate) }
         val content = content as Array<T>
         val size = size
@@ -499,7 +499,7 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
      * Returns the index if the last element in the [MutableVector] for which [predicate] returns
      * `true`.
      */
-    inline fun indexOfLast(predicate: (T) -> Boolean): Int {
+    public inline fun indexOfLast(predicate: (T) -> Boolean): Int {
         contract { callsInPlace(predicate) }
         var i = size - 1
         val content = content as Array<T>
@@ -513,16 +513,16 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
     }
 
     /** Returns `true` if the [MutableVector] has no elements in it or `false` otherwise. */
-    inline fun isEmpty(): Boolean = size == 0
+    public inline fun isEmpty(): Boolean = size == 0
 
     /** Returns `true` if there are elements in the [MutableVector] or `false` if it is empty. */
-    inline fun isNotEmpty(): Boolean = size != 0
+    public inline fun isNotEmpty(): Boolean = size != 0
 
     /**
      * Returns the last element in the [MutableVector] or throws a [NoSuchElementException] if it
      * [isEmpty].
      */
-    fun last(): T {
+    public fun last(): T {
         if (isEmpty()) {
             throwNoSuchElementException("MutableVector is empty.")
         }
@@ -533,7 +533,7 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
      * Returns the last element in the [MutableVector] for which [predicate] returns `true` or
      * throws [NoSuchElementException] if nothing matches.
      */
-    inline fun last(predicate: (T) -> Boolean): T {
+    public inline fun last(predicate: (T) -> Boolean): T {
         contract { callsInPlace(predicate) }
         var i = size - 1
         val content = content as Array<T>
@@ -549,7 +549,7 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
      * Returns the index of the last element in the [MutableVector] that is the same as [element] or
      * `-1` if no elements match.
      */
-    fun lastIndexOf(element: T): Int {
+    public fun lastIndexOf(element: T): Int {
         var i = size - 1
         val content = content as Array<T>
         while (i >= 0) {
@@ -560,13 +560,13 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
     }
 
     /** Returns the last element in the [MutableVector] or `null` if it [isEmpty]. */
-    inline fun lastOrNull() = if (isEmpty()) null else get(lastIndex)
+    public inline fun lastOrNull(): T? = if (isEmpty()) null else get(lastIndex)
 
     /**
      * Returns the last element in the [MutableVector] for which [predicate] returns `true` or
      * returns `null` if nothing matches.
      */
-    inline fun lastOrNull(predicate: (T) -> Boolean): T? {
+    public inline fun lastOrNull(predicate: (T) -> Boolean): T? {
         contract { callsInPlace(predicate) }
         var i = size - 1
         val content = content as Array<T>
@@ -583,7 +583,7 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
      * will be the same size as this.
      */
     @Suppress("ArrayReturn")
-    inline fun <reified R> map(transform: (T) -> R): Array<R> {
+    public inline fun <reified R> map(transform: (T) -> R): Array<R> {
         contract { callsInPlace(transform) }
         return Array(size) { transform(get(it)) }
     }
@@ -593,7 +593,7 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
      * will be the same size as this.
      */
     @Suppress("ArrayReturn")
-    inline fun <reified R> mapIndexed(transform: (index: Int, T) -> R): Array<R> {
+    public inline fun <reified R> mapIndexed(transform: (index: Int, T) -> R): Array<R> {
         contract { callsInPlace(transform) }
         return Array(size) { transform(it, get(it)) }
     }
@@ -602,7 +602,9 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
      * Returns an [MutableVector] of results of transforming each element in the [MutableVector],
      * excluding those transformed values that are `null`.
      */
-    inline fun <reified R> mapIndexedNotNull(transform: (index: Int, T) -> R?): MutableVector<R> {
+    public inline fun <reified R> mapIndexedNotNull(
+        transform: (index: Int, T) -> R?
+    ): MutableVector<R> {
         contract { callsInPlace(transform) }
         val size = size
         val arr = arrayOfNulls<R>(size)
@@ -621,7 +623,7 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
      * Returns an [MutableVector] of results of transforming each element in the [MutableVector],
      * excluding those transformed values that are `null`.
      */
-    inline fun <reified R> mapNotNull(transform: (T) -> R?): MutableVector<R> {
+    public inline fun <reified R> mapNotNull(transform: (T) -> R?): MutableVector<R> {
         contract { callsInPlace(transform) }
         val size = size
         val arr = arrayOfNulls<R>(size)
@@ -637,12 +639,12 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
     }
 
     /** [add] [element] to the [MutableVector]. */
-    inline operator fun plusAssign(element: T) {
+    public inline operator fun plusAssign(element: T) {
         add(element)
     }
 
     /** [remove] [element] from the [MutableVector] */
-    inline operator fun minusAssign(element: T) {
+    public inline operator fun minusAssign(element: T) {
         remove(element)
     }
 
@@ -650,7 +652,7 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
      * Removes [element] from the [MutableVector]. If [element] was in the [MutableVector] and was
      * removed, `true` will be returned, or `false` will be returned if the element was not found.
      */
-    fun remove(element: T): Boolean {
+    public fun remove(element: T): Boolean {
         val index = indexOf(element)
         if (index >= 0) {
             removeAt(index)
@@ -662,7 +664,7 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
     /**
      * Removes all [elements] from the [MutableVector] and returns `true` if anything was removed.
      */
-    fun removeAll(elements: List<T>): Boolean {
+    public fun removeAll(elements: List<T>): Boolean {
         val initialSize = size
         for (i in elements.indices) {
             remove(elements[i])
@@ -673,7 +675,7 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
     /**
      * Removes all [elements] from the [MutableVector] and returns `true` if anything was removed.
      */
-    fun removeAll(elements: MutableVector<T>): Boolean {
+    public fun removeAll(elements: MutableVector<T>): Boolean {
         val initialSize = size
         for (i in 0..elements.lastIndex) {
             remove(elements[i])
@@ -684,7 +686,7 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
     /**
      * Removes all [elements] from the [MutableVector] and returns `true` if anything was removed.
      */
-    fun removeAll(elements: Collection<T>): Boolean {
+    public fun removeAll(elements: Collection<T>): Boolean {
         if (elements.isEmpty()) {
             return false
         }
@@ -694,7 +696,7 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
     }
 
     /** Removes the element at the given [index] and returns it. */
-    fun removeAt(index: Int): T {
+    public fun removeAt(index: Int): T {
         val content = content
         val item = content[index] as T
         if (index != lastIndex) {
@@ -711,7 +713,7 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
     }
 
     /** Removes items from index [start] (inclusive) to [end] (exclusive). */
-    fun removeRange(start: Int, end: Int) {
+    public fun removeRange(start: Int, end: Int) {
         if (end > start) {
             if (end < size) {
                 content.fastCopyInto(
@@ -736,7 +738,7 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
     }
 
     /** Removes items that satisfy [predicate] */
-    inline fun removeIf(predicate: (T) -> Boolean) {
+    public inline fun removeIf(predicate: (T) -> Boolean) {
         var gap = 0
         val size = size
         for (i in 0 until size) {
@@ -754,7 +756,7 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
     }
 
     /** Keeps only [elements] in the [MutableVector] and removes all other values. */
-    fun retainAll(elements: Collection<T>): Boolean {
+    public fun retainAll(elements: Collection<T>): Boolean {
         val initialSize = size
         for (i in lastIndex downTo 0) {
             val item = get(i)
@@ -766,7 +768,7 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
     }
 
     /** Sets the value at [index] to [element]. */
-    operator fun set(index: Int, element: T): T {
+    public operator fun set(index: Int, element: T): T {
         val content = content
         val old = content[index] as T
         content[index] = element
@@ -774,14 +776,14 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
     }
 
     /** Sorts the [MutableVector] using [comparator] to order the items. */
-    fun sortWith(comparator: Comparator<T>) {
+    public fun sortWith(comparator: Comparator<T>) {
         (content as Array<T>).sortWith(comparator = comparator, fromIndex = 0, toIndex = size)
     }
 
     /**
      * Returns the sum of all values produced by [selector] for each element in the [MutableVector].
      */
-    inline fun sumBy(selector: (T) -> Int): Int {
+    public inline fun sumBy(selector: (T) -> Int): Int {
         contract { callsInPlace(selector) }
         var sum = 0
         val content = content as Array<T>
@@ -1080,7 +1082,7 @@ private fun throwReversedIndicesException(fromIndex: Int, toIndex: Int) {
  *
  * @see MutableVector.ensureCapacity
  */
-inline fun <reified T> MutableVector(capacity: Int = 16) =
+public inline fun <reified T> MutableVector(capacity: Int = 16): MutableVector<T> =
     MutableVector(arrayOfNulls<T>(capacity), 0)
 
 /**
@@ -1092,19 +1094,22 @@ inline fun <reified T> MutableVector(capacity: Int = 16) =
  */
 @Suppress("LEAKED_IN_PLACE_LAMBDA")
 @OptIn(ExperimentalContracts::class)
-inline fun <reified T> MutableVector(size: Int, noinline init: (Int) -> T): MutableVector<T> {
+public inline fun <reified T> MutableVector(
+    size: Int,
+    noinline init: (Int) -> T,
+): MutableVector<T> {
     contract { callsInPlace(init) }
     val arr = Array(size, init)
     return MutableVector(arr as Array<T?>, size)
 }
 
 /** Creates an empty [MutableVector] with a [capacity][MutableVector.ensureCapacity] of 16. */
-inline fun <reified T> mutableVectorOf() = MutableVector<T>()
+public inline fun <reified T> mutableVectorOf(): MutableVector<T> = MutableVector<T>()
 
 /**
  * Creates a [MutableVector] with the given values. This will use the passed vararg [elements]
  * storage.
  */
-inline fun <reified T> mutableVectorOf(vararg elements: T): MutableVector<T> {
+public inline fun <reified T> mutableVectorOf(vararg elements: T): MutableVector<T> {
     return MutableVector(elements as Array<T?>, elements.size)
 }

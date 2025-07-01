@@ -18,4 +18,4 @@ package androidx.compose.runtime.tooling
 
 @RequiresOptIn("This API is for tooling only and is likely to change in the future.")
 @Retention(AnnotationRetention.BINARY)
-annotation class ComposeToolingApi
+public annotation class ComposeToolingApi

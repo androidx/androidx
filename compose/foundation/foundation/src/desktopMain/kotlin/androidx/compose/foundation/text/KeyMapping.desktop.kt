@@ -50,6 +50,7 @@ internal actual object MappedKeys {
     actual val DirectionRight: Key = Key(AwtKeyEvent.VK_RIGHT)
     actual val DirectionUp: Key = Key(AwtKeyEvent.VK_UP)
     actual val DirectionDown: Key = Key(AwtKeyEvent.VK_DOWN)
+    actual val DirectionCenter: Key = Key(AwtKeyEvent.VK_ACCEPT)
     actual val PageUp: Key = Key(AwtKeyEvent.VK_PAGE_UP)
     actual val PageDown: Key = Key(AwtKeyEvent.VK_PAGE_DOWN)
     actual val MoveHome: Key = Key(AwtKeyEvent.VK_HOME)

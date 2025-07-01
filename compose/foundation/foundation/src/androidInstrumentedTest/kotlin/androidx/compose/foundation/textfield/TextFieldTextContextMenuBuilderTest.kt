@@ -411,7 +411,7 @@ class TextFieldTextContextMenuBuilderTest : FocusedWindowTest {
         expectedKeys: List<Any>,
         content: @Composable () -> Unit,
     ) {
-        val clipboard = FakeClipboard(supportsClipEntry = true)
+        val clipboard = FakeClipboard()
 
         lateinit var data: TextContextMenuData
         val fakeProvider = FakeTextContextMenuProvider { data = it.data() }

@@ -25,18 +25,25 @@ import androidx.compose.runtime.Stable
 
 @ComposeCompilerApi
 @Stable
-actual interface ComposableLambda {
-    actual operator fun invoke(p1: Composer, p2: Int): Any?
+public actual interface ComposableLambda {
+    public actual operator fun invoke(p1: Composer, p2: Int): Any?
 
-    actual operator fun invoke(p1: Any?, p2: Composer, p3: Int): Any?
+    public actual operator fun invoke(p1: Any?, p2: Composer, p3: Int): Any?
 
-    actual operator fun invoke(p1: Any?, p2: Any?, p3: Composer, p4: Int): Any?
+    public actual operator fun invoke(p1: Any?, p2: Any?, p3: Composer, p4: Int): Any?
 
-    actual operator fun invoke(p1: Any?, p2: Any?, p3: Any?, p4: Composer, p5: Int): Any?
+    public actual operator fun invoke(p1: Any?, p2: Any?, p3: Any?, p4: Composer, p5: Int): Any?
 
-    actual operator fun invoke(p1: Any?, p2: Any?, p3: Any?, p4: Any?, p5: Composer, p6: Int): Any?
+    public actual operator fun invoke(
+        p1: Any?,
+        p2: Any?,
+        p3: Any?,
+        p4: Any?,
+        p5: Composer,
+        p6: Int,
+    ): Any?
 
-    actual operator fun invoke(
+    public actual operator fun invoke(
         p1: Any?,
         p2: Any?,
         p3: Any?,
@@ -46,7 +53,7 @@ actual interface ComposableLambda {
         p7: Int,
     ): Any?
 
-    actual operator fun invoke(
+    public actual operator fun invoke(
         p1: Any?,
         p2: Any?,
         p3: Any?,
@@ -57,7 +64,7 @@ actual interface ComposableLambda {
         p8: Int,
     ): Any?
 
-    actual operator fun invoke(
+    public actual operator fun invoke(
         p1: Any?,
         p2: Any?,
         p3: Any?,
@@ -69,7 +76,7 @@ actual interface ComposableLambda {
         p9: Int,
     ): Any?
 
-    actual operator fun invoke(
+    public actual operator fun invoke(
         p1: Any?,
         p2: Any?,
         p3: Any?,
@@ -82,7 +89,7 @@ actual interface ComposableLambda {
         p10: Int,
     ): Any?
 
-    actual operator fun invoke(
+    public actual operator fun invoke(
         p1: Any?,
         p2: Any?,
         p3: Any?,
@@ -96,7 +103,7 @@ actual interface ComposableLambda {
         p11: Int,
     ): Any?
 
-    actual operator fun invoke(
+    public actual operator fun invoke(
         p1: Any?,
         p2: Any?,
         p3: Any?,
@@ -112,7 +119,7 @@ actual interface ComposableLambda {
         p13: Int,
     ): Any?
 
-    actual operator fun invoke(
+    public actual operator fun invoke(
         p1: Any?,
         p2: Any?,
         p3: Any?,
@@ -129,7 +136,7 @@ actual interface ComposableLambda {
         p14: Int,
     ): Any?
 
-    actual operator fun invoke(
+    public actual operator fun invoke(
         p1: Any?,
         p2: Any?,
         p3: Any?,
@@ -147,7 +154,7 @@ actual interface ComposableLambda {
         p15: Int,
     ): Any?
 
-    actual operator fun invoke(
+    public actual operator fun invoke(
         p1: Any?,
         p2: Any?,
         p3: Any?,
@@ -166,7 +173,7 @@ actual interface ComposableLambda {
         p16: Int,
     ): Any?
 
-    actual operator fun invoke(
+    public actual operator fun invoke(
         p1: Any?,
         p2: Any?,
         p3: Any?,
@@ -186,7 +193,7 @@ actual interface ComposableLambda {
         p17: Int,
     ): Any?
 
-    actual operator fun invoke(
+    public actual operator fun invoke(
         p1: Any?,
         p2: Any?,
         p3: Any?,
@@ -207,7 +214,7 @@ actual interface ComposableLambda {
         p18: Int,
     ): Any?
 
-    actual operator fun invoke(
+    public actual operator fun invoke(
         p1: Any?,
         p2: Any?,
         p3: Any?,
@@ -229,7 +236,7 @@ actual interface ComposableLambda {
         p19: Int,
     ): Any?
 
-    actual operator fun invoke(
+    public actual operator fun invoke(
         p1: Any?,
         p2: Any?,
         p3: Any?,
@@ -252,7 +259,7 @@ actual interface ComposableLambda {
         p20: Int,
     ): Any?
 
-    actual operator fun invoke(
+    public actual operator fun invoke(
         p1: Any?,
         p2: Any?,
         p3: Any?,

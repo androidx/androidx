@@ -1078,18 +1078,18 @@ internal fun RecomposeScope?.replacableWith(other: RecomposeScope) =
 
 @ComposeCompilerApi
 @Stable
-expect interface ComposableLambda {
-    operator fun invoke(p1: Composer, p2: Int): Any?
+public expect interface ComposableLambda {
+    public operator fun invoke(p1: Composer, p2: Int): Any?
 
-    operator fun invoke(p1: Any?, p2: Composer, p3: Int): Any?
+    public operator fun invoke(p1: Any?, p2: Composer, p3: Int): Any?
 
-    operator fun invoke(p1: Any?, p2: Any?, p3: Composer, p4: Int): Any?
+    public operator fun invoke(p1: Any?, p2: Any?, p3: Composer, p4: Int): Any?
 
-    operator fun invoke(p1: Any?, p2: Any?, p3: Any?, p4: Composer, p5: Int): Any?
+    public operator fun invoke(p1: Any?, p2: Any?, p3: Any?, p4: Composer, p5: Int): Any?
 
-    operator fun invoke(p1: Any?, p2: Any?, p3: Any?, p4: Any?, p5: Composer, p6: Int): Any?
+    public operator fun invoke(p1: Any?, p2: Any?, p3: Any?, p4: Any?, p5: Composer, p6: Int): Any?
 
-    operator fun invoke(
+    public operator fun invoke(
         p1: Any?,
         p2: Any?,
         p3: Any?,
@@ -1099,7 +1099,7 @@ expect interface ComposableLambda {
         p7: Int,
     ): Any?
 
-    operator fun invoke(
+    public operator fun invoke(
         p1: Any?,
         p2: Any?,
         p3: Any?,
@@ -1110,7 +1110,7 @@ expect interface ComposableLambda {
         p8: Int,
     ): Any?
 
-    operator fun invoke(
+    public operator fun invoke(
         p1: Any?,
         p2: Any?,
         p3: Any?,
@@ -1122,7 +1122,7 @@ expect interface ComposableLambda {
         p9: Int,
     ): Any?
 
-    operator fun invoke(
+    public operator fun invoke(
         p1: Any?,
         p2: Any?,
         p3: Any?,
@@ -1135,7 +1135,7 @@ expect interface ComposableLambda {
         p10: Int,
     ): Any?
 
-    operator fun invoke(
+    public operator fun invoke(
         p1: Any?,
         p2: Any?,
         p3: Any?,
@@ -1149,7 +1149,7 @@ expect interface ComposableLambda {
         p11: Int,
     ): Any?
 
-    operator fun invoke(
+    public operator fun invoke(
         p1: Any?,
         p2: Any?,
         p3: Any?,
@@ -1165,7 +1165,7 @@ expect interface ComposableLambda {
         p13: Int,
     ): Any?
 
-    operator fun invoke(
+    public operator fun invoke(
         p1: Any?,
         p2: Any?,
         p3: Any?,
@@ -1182,7 +1182,7 @@ expect interface ComposableLambda {
         p14: Int,
     ): Any?
 
-    operator fun invoke(
+    public operator fun invoke(
         p1: Any?,
         p2: Any?,
         p3: Any?,
@@ -1200,7 +1200,7 @@ expect interface ComposableLambda {
         p15: Int,
     ): Any?
 
-    operator fun invoke(
+    public operator fun invoke(
         p1: Any?,
         p2: Any?,
         p3: Any?,
@@ -1219,7 +1219,7 @@ expect interface ComposableLambda {
         p16: Int,
     ): Any?
 
-    operator fun invoke(
+    public operator fun invoke(
         p1: Any?,
         p2: Any?,
         p3: Any?,
@@ -1239,7 +1239,7 @@ expect interface ComposableLambda {
         p17: Int,
     ): Any?
 
-    operator fun invoke(
+    public operator fun invoke(
         p1: Any?,
         p2: Any?,
         p3: Any?,
@@ -1260,7 +1260,7 @@ expect interface ComposableLambda {
         p18: Int,
     ): Any?
 
-    operator fun invoke(
+    public operator fun invoke(
         p1: Any?,
         p2: Any?,
         p3: Any?,
@@ -1282,7 +1282,7 @@ expect interface ComposableLambda {
         p19: Int,
     ): Any?
 
-    operator fun invoke(
+    public operator fun invoke(
         p1: Any?,
         p2: Any?,
         p3: Any?,
@@ -1305,7 +1305,7 @@ expect interface ComposableLambda {
         p20: Int,
     ): Any?
 
-    operator fun invoke(
+    public operator fun invoke(
         p1: Any?,
         p2: Any?,
         p3: Any?,
@@ -1332,7 +1332,12 @@ expect interface ComposableLambda {
 
 @Suppress("unused")
 @ComposeCompilerApi
-fun composableLambda(composer: Composer, key: Int, tracked: Boolean, block: Any): ComposableLambda {
+public fun composableLambda(
+    composer: Composer,
+    key: Int,
+    tracked: Boolean,
+    block: Any,
+): ComposableLambda {
     // Use a rolled version of the key to avoid the key being a duplicate of the function's
     // key. This is particularly important for live edit scenarios where the groups will be
     // invalidated by the key number. This ensures that invalidating the function will not
@@ -1357,11 +1362,11 @@ private val lambdaKey = Any()
 
 @Suppress("unused")
 @ComposeCompilerApi
-fun composableLambdaInstance(key: Int, tracked: Boolean, block: Any): ComposableLambda =
+public fun composableLambdaInstance(key: Int, tracked: Boolean, block: Any): ComposableLambda =
     ComposableLambdaImpl(key, tracked, block)
 
 @Suppress("unused")
 @Composable
 @ComposeCompilerApi
-fun rememberComposableLambda(key: Int, tracked: Boolean, block: Any): ComposableLambda =
+public fun rememberComposableLambda(key: Int, tracked: Boolean, block: Any): ComposableLambda =
     remember { ComposableLambdaImpl(key, tracked, block) }.also { it.update(block) }

@@ -84,7 +84,13 @@ internal actual fun ContextMenuArea(
         val modifier =
             if (enabled) {
                 Modifier.textContextMenuGestures(
-                    onPreShowContextMenu = { selectionState.updateClipboardEntry() }
+                    onPreShowContextMenu = {
+                        selectionState.updateClipboardEntry()
+                        selectionState.platformSelectionBehaviors?.onShowContextMenu(
+                            text = selectionState.textFieldState.visualText.text,
+                            selection = selectionState.textFieldState.visualText.selection,
+                        )
+                    }
                 )
             } else {
                 Modifier

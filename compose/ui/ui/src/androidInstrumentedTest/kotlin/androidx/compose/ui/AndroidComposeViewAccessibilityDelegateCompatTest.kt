@@ -2089,6 +2089,71 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
         }
     }
 
+    @Test
+    fun nodeAddition_sendsSubtreeChangedEvent() {
+        // Arrange.
+        var hasContentDescription by mutableStateOf(false)
+        rule.mainClock.autoAdvance = false
+        rule.setContentWithAccessibilityEnabled {
+            Box(
+                Modifier.size(10.dp).semantics {
+                    if (hasContentDescription) {
+                        contentDescription = "Test"
+                    }
+                }
+            )
+        }
+
+        // Act.
+        rule.runOnIdle { hasContentDescription = !hasContentDescription }
+        rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
+
+        // Assert.
+        rule.runOnIdle {
+            assertThat(dispatchedAccessibilityEvents)
+                .comparingElementsUsing(AccessibilityEventComparator)
+                .containsExactly(
+                    AccessibilityEvent().apply {
+                        eventType = TYPE_WINDOW_CONTENT_CHANGED
+                        contentChangeTypes = CONTENT_CHANGE_TYPE_CONTENT_DESCRIPTION
+                        contentDescription = "Test"
+                    }
+                )
+        }
+    }
+
+    @Test
+    fun nodeRemoval_sendsSubtreeChangedEvent() {
+        // Arrange.
+        var hasContentDescription by mutableStateOf(true)
+        rule.mainClock.autoAdvance = false
+        rule.setContentWithAccessibilityEnabled {
+            Box(
+                Modifier.size(10.dp).semantics {
+                    if (hasContentDescription) {
+                        contentDescription = "Test"
+                    }
+                }
+            )
+        }
+
+        // Act.
+        rule.runOnIdle { hasContentDescription = !hasContentDescription }
+        rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
+
+        // Assert.
+        rule.runOnIdle {
+            assertThat(dispatchedAccessibilityEvents)
+                .comparingElementsUsing(AccessibilityEventComparator)
+                .containsExactly(
+                    AccessibilityEvent().apply {
+                        eventType = TYPE_WINDOW_CONTENT_CHANGED
+                        contentDescription = null
+                    }
+                )
+        }
+    }
+
     private fun Int.toDp(): Dp = with(rule.density) { this@toDp.toDp() }
 
     private fun ComposeContentTestRule.setContentWithAccessibilityEnabled(

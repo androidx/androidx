@@ -86,8 +86,8 @@ class TextFieldPlatformSelectionBehaviorsTest(override val testLongPress: Boolea
 
         // Cursor at the end.
         assertThat(selection).isEqualTo(TextRange(7))
-        assertThat(testPlatformSelectionBehaviors?.text).isNull()
-        assertThat(testPlatformSelectionBehaviors?.selection).isNull()
+        expectOnShowContextMenu("abc def", TextRange(7))
+        platformSelectionBehaviorsRule.assertNoMoreCalls()
     }
 
     @Test
@@ -114,9 +114,12 @@ class TextFieldPlatformSelectionBehaviorsTest(override val testLongPress: Boolea
         performLongPressOrDoubleClick { Offset(x = fontSize.toPx() * 5, y = fontSize.toPx() / 2) }
 
         assertThat(state.selection).isEqualTo(TextRange(0, 3))
-        assertThat(testPlatformSelectionBehaviors?.text).isEqualTo("abc xxx def")
         // The prefix "abc " is also considered selected by OutputTransformation.
-        assertThat(testPlatformSelectionBehaviors?.selection).isEqualTo(TextRange(0, 7))
+        platformSelectionBehaviorsRule.expectSuggestSelectionForLongPressOrDoubleClick(
+            "abc xxx def",
+            TextRange(0, 7),
+        )
+        expectOnShowContextMenu("abc xxx def", TextRange(0, 7))
     }
 
     @Test
@@ -141,7 +144,11 @@ class TextFieldPlatformSelectionBehaviorsTest(override val testLongPress: Boolea
         performLongPressOrDoubleClick { Offset(x = fontSize.toPx() * 5, y = fontSize.toPx() / 2) }
 
         assertThat(state.selection).isEqualTo(TextRange(4, 7))
-        assertThat(testPlatformSelectionBehaviors?.text).isEqualTo("abc *** def")
-        assertThat(testPlatformSelectionBehaviors?.selection).isEqualTo(TextRange(4, 7))
+
+        platformSelectionBehaviorsRule.expectSuggestSelectionForLongPressOrDoubleClick(
+            "abc *** def",
+            TextRange(4, 7),
+        )
+        expectOnShowContextMenu("abc *** def", TextRange(4, 7))
     }
 }

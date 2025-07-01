@@ -200,7 +200,7 @@ class RecompositionTest {
             val group = parameters.parameterGroupsList.single { it.composableId == node.id }
             if (
                 group.parameterList.any {
-                    strings[it.name] == "$0" &&
+                    strings[it.name] == "text" &&
                         it.type == Parameter.Type.STRING &&
                         predicate(strings[it.int32Value]!!)
                 }

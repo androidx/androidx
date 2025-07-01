@@ -21,4 +21,4 @@ package androidx.compose.runtime
     message = "This is internal API that may change frequently and without warning.",
 )
 @Retention(AnnotationRetention.BINARY)
-annotation class InternalComposeTracingApi
+public annotation class InternalComposeTracingApi

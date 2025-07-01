@@ -47,7 +47,7 @@ import kotlinx.serialization.serializer
  * @see rememberSerializable
  */
 @Composable
-inline fun <reified T : Any> rememberSerializable(
+public inline fun <reified T : Any> rememberSerializable(
     vararg inputs: Any?,
     configuration: SavedStateConfiguration = DEFAULT,
     noinline init: () -> T,
@@ -86,7 +86,7 @@ inline fun <reified T : Any> rememberSerializable(
  * @sample androidx.compose.runtime.saveable.samples.RememberSaveableWithSerializer
  */
 @Composable
-fun <T : Any> rememberSerializable(
+public fun <T : Any> rememberSerializable(
     vararg inputs: Any?,
     serializer: KSerializer<T>,
     configuration: SavedStateConfiguration = DEFAULT,
@@ -120,7 +120,7 @@ fun <T : Any> rememberSerializable(
  * @see rememberSerializable
  */
 @Composable
-inline fun <reified T : Any> rememberSerializable(
+public inline fun <reified T : Any> rememberSerializable(
     vararg inputs: Any?,
     configuration: SavedStateConfiguration = DEFAULT,
     noinline init: () -> MutableState<T>,
@@ -156,7 +156,7 @@ inline fun <reified T : Any> rememberSerializable(
  * @sample androidx.compose.runtime.saveable.samples.RememberSaveableWithSerializerAndMutableState
  */
 @Composable
-fun <T : Any> rememberSerializable(
+public fun <T : Any> rememberSerializable(
     vararg inputs: Any?,
     stateSerializer: KSerializer<T>,
     configuration: SavedStateConfiguration = DEFAULT,

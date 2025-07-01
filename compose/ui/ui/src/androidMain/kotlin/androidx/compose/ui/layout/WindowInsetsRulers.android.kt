@@ -175,26 +175,30 @@ private class RulerProviderModifierNode(insetsListener: InsetsListener) :
 
     val rulerLambda: RulerScope.() -> Unit = {
         previousGeneration = generation.intValue // just read the value so it is observed
-        val size = coordinates.size
-        val insetsValues = insetsListener.insetsValues
-        val (width, height) = size
-        AnimatableInsetsRulers.forEach { rulers ->
-            val values = insetsValues[rulers]!!
-            provideInsetsValues(rulers.current, values.current, width, height)
-            if (values.isAnimating) {
-                provideInsetsValues(values.source, values.sourceValueInsets, width, height)
-                provideInsetsValues(values.target, values.targetValueInsets, width, height)
+        // When generation is 0, no updateInsets() has been called yet, so we don't need to
+        // provide any insets.
+        if (previousGeneration > 0) {
+            val size = coordinates.size
+            val insetsValues = insetsListener.insetsValues
+            val (width, height) = size
+            AnimatableInsetsRulers.forEach { rulers ->
+                val values = insetsValues[rulers]!!
+                provideInsetsValues(rulers.current, values.current, width, height)
+                if (values.isAnimating) {
+                    provideInsetsValues(values.source, values.sourceValueInsets, width, height)
+                    provideInsetsValues(values.target, values.targetValueInsets, width, height)
+                }
+                provideInsetsValues(rulers.maximum, values.maximum, width, height)
             }
-            provideInsetsValues(rulers.maximum, values.maximum, width, height)
-        }
-        if (cutoutRects.isNotEmpty()) {
-            cutoutRects.forEachIndexed { index, rectState ->
-                val rulers = cutoutRulers[index]
-                val rect = rectState.value
-                rulers.left provides rect.left.toFloat()
-                rulers.top provides rect.top.toFloat()
-                rulers.right provides rect.right.toFloat()
-                rulers.bottom provides rect.bottom.toFloat()
+            if (cutoutRects.isNotEmpty()) {
+                cutoutRects.forEachIndexed { index, rectState ->
+                    val rulers = cutoutRulers[index]
+                    val rect = rectState.value
+                    rulers.left provides rect.left.toFloat()
+                    rulers.top provides rect.top.toFloat()
+                    rulers.right provides rect.right.toFloat()
+                    rulers.bottom provides rect.bottom.toFloat()
+                }
             }
         }
     }
@@ -340,7 +344,6 @@ internal class InsetsListener(val composeView: AndroidComposeView) :
                     // It is really animating. It could be animating to the same value, so there
                     // is no need to pretend that it is animating.
                     updateInsetAnimationInfo(insetsValue, animation)
-                    insetsValue.current = ValueInsets(insets.getInsets(typeMask))
                 }
             }
         }
@@ -396,17 +399,30 @@ internal class InsetsListener(val composeView: AndroidComposeView) :
     }
 
     private fun updateInsets(insets: WindowInsetsCompat) {
-        generation.intValue++
+        var changed = false
+        var hasInsets = false
         WindowInsetsTypeMap.forEach { type, rulers ->
             val insetsValue = ValueInsets(insets.getInsets(type))
             val values = insetsValues[rulers]!!
-            values.current = insetsValue
+            if (insetsValue != values.current) {
+                values.current = insetsValue
+                changed = true
+                if (insetsValue != ZeroValueInsets) {
+                    hasInsets = true
+                }
+            }
         }
         AnimatableRulers.forEach { type, rulers ->
             val values = insetsValues[rulers]!!
             if (type != WindowInsetsCompat.Type.ime()) {
                 val insetsValue = ValueInsets(insets.getInsetsIgnoringVisibility(type))
-                values.maximum = insetsValue
+                if (values.maximum != insetsValue) {
+                    values.maximum = insetsValue
+                    changed = true
+                    if (insetsValue != ZeroValueInsets) {
+                        hasInsets = true
+                    }
+                }
             }
             values.isVisible = insets.isVisible(type)
         }
@@ -418,8 +434,14 @@ internal class InsetsListener(val composeView: AndroidComposeView) :
                 ValueInsets(cutout.waterfallInsets)
             }
         val waterfallInsets = insetsValues[Waterfall]!!
-        waterfallInsets.current = waterfall
-        waterfallInsets.maximum = waterfall
+        if (waterfallInsets.current != waterfall) {
+            waterfallInsets.current = waterfall
+            waterfallInsets.maximum = waterfall
+            changed = true
+            if (waterfall != ZeroValueInsets) {
+                hasInsets = true
+            }
+        }
         val cutoutInsets =
             if (cutout == null) {
                 ZeroValueInsets
@@ -429,28 +451,50 @@ internal class InsetsListener(val composeView: AndroidComposeView) :
                 }
             }
         val displayCutoutInsets = insetsValues[DisplayCutout]!!
-        displayCutoutInsets.current = cutoutInsets
-        displayCutoutInsets.maximum = cutoutInsets
+        if (cutoutInsets != displayCutoutInsets.current) {
+            displayCutoutInsets.current = cutoutInsets
+            displayCutoutInsets.maximum = cutoutInsets
+            changed = true
+            if (cutoutInsets != ZeroValueInsets) {
+                hasInsets = true
+            }
+        }
         if (cutout == null) {
             if (displayCutouts.size > 0) {
                 displayCutouts.clear()
                 displayCutoutRulers.clear()
+                changed = true
             }
         } else {
             val boundingRects = cutout.boundingRects
             if (boundingRects.size < displayCutouts.size) {
                 displayCutouts.removeRange(boundingRects.size, displayCutouts.size)
                 displayCutoutRulers.removeRange(boundingRects.size, displayCutoutRulers.size)
+                changed = true
             } else {
                 repeat(boundingRects.size - displayCutouts.size) {
                     displayCutouts += mutableStateOf(boundingRects[displayCutouts.size])
                     displayCutoutRulers += RectRulers("display cutout rect ${displayCutouts.size}")
+                    changed = true
                 }
             }
 
-            boundingRects.fastForEachIndexed { index, rect -> displayCutouts[index].value = rect }
+            boundingRects.fastForEachIndexed { index, rect ->
+                val cutout = displayCutouts[index]
+                if (cutout.value != rect) {
+                    cutout.value = rect
+                    changed = true
+                }
+            }
+            if (boundingRects.isNotEmpty()) {
+                hasInsets = true
+            }
         }
-        Snapshot.sendApplyNotifications()
+        // Don't invalidate the rulers if there have never been insets or if there isn't a change
+        if ((hasInsets || generation.intValue != 0) && changed) {
+            generation.intValue++
+            Snapshot.sendApplyNotifications()
+        }
     }
 
     /**

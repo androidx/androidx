@@ -16,7 +16,14 @@
 
 package androidx.compose.foundation.demos.text
 
+import android.content.Context
+import android.text.InputType
+import android.util.TypedValue
+import android.view.Gravity
 import android.view.KeyEvent as NativeKeyEvent
+import android.view.ViewGroup
+import android.widget.EditText
+import android.widget.LinearLayout
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -31,6 +38,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Switch
 import androidx.compose.material.Text
@@ -58,6 +67,7 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import kotlin.collections.removeLast as removeLastKt
 
 private val modifierKeys =
@@ -95,6 +105,16 @@ private val keyIndicatorInstructionText =
 
 @Composable
 fun TextFieldFocusDemo() {
+    TextFieldFocusDemo(useBtf2 = false)
+}
+
+@Composable
+fun BasicTextFieldFocusDemo() {
+    TextFieldFocusDemo(useBtf2 = true)
+}
+
+@Composable
+private fun TextFieldFocusDemo(useBtf2: Boolean) {
     val keys = remember { mutableStateListOf<KeyState>() }
 
     val onKeyDown: (KeyEvent) -> Unit = { event ->
@@ -130,16 +150,26 @@ fun TextFieldFocusDemo() {
                 },
     ) {
         val (multiLine, setMultiLine) = rememberSaveable { mutableStateOf(false) }
+        var isEditText by rememberSaveable { mutableStateOf(false) }
         Text(demoInstructionText)
         SingleLineToggle(checked = multiLine, onCheckedChange = setMultiLine)
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            DemoTextField("Up", multiLine)
-            Row {
-                DemoTextField("Left", multiLine)
-                DemoTextField("Center", multiLine, startWithFocus = true)
-                DemoTextField("Right", multiLine)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text("TextField")
+            Switch(isEditText, { isEditText = it })
+            Text("EditText")
+        }
+        if (isEditText) {
+            key(multiLine) { AndroidView({ createPlusLayout(it, multiLine) }) }
+        } else {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                DemoTextField("Up", multiLine, useBtf2 = useBtf2)
+                Row {
+                    DemoTextField("Left", multiLine, useBtf2 = useBtf2)
+                    DemoTextField("Center", multiLine, useBtf2 = useBtf2, startWithFocus = true)
+                    DemoTextField("Right", multiLine, useBtf2 = useBtf2)
+                }
+                DemoTextField("Down", multiLine, useBtf2 = useBtf2)
             }
-            DemoTextField("Down", multiLine)
         }
         Text(keyIndicatorInstructionText)
         KeyPressList(keys)
@@ -156,7 +186,12 @@ private fun SingleLineToggle(checked: Boolean, onCheckedChange: ((Boolean) -> Un
 }
 
 @Composable
-private fun DemoTextField(initText: String, multiLine: Boolean, startWithFocus: Boolean = false) {
+private fun DemoTextField(
+    initText: String,
+    multiLine: Boolean,
+    useBtf2: Boolean,
+    startWithFocus: Boolean = false,
+) {
     var modifier =
         Modifier.padding(6.dp).border(1.dp, Color.LightGray, RoundedCornerShape(6.dp)).padding(6.dp)
 
@@ -166,18 +201,35 @@ private fun DemoTextField(initText: String, multiLine: Boolean, startWithFocus: 
         LaunchedEffect(focusRequester) { focusRequester.requestFocus() }
     }
 
-    var text by
-        remember(multiLine) {
-            mutableStateOf(if (multiLine) "$initText line 1\n$initText line 2" else initText)
-        }
+    if (useBtf2) {
+        val state =
+            key(multiLine) {
+                rememberTextFieldState(
+                    if (multiLine) "$initText line 1\n$initText line 2" else initText
+                )
+            }
 
-    BasicTextField(
-        value = text,
-        onValueChange = { text = it },
-        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-        singleLine = !multiLine,
-        modifier = modifier,
-    )
+        BasicTextField(
+            state = state,
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+            lineLimits =
+                if (multiLine) TextFieldLineLimits.Default else TextFieldLineLimits.SingleLine,
+            modifier = modifier,
+        )
+    } else {
+        var text by
+            remember(multiLine) {
+                mutableStateOf(if (multiLine) "$initText line 1\n$initText line 2" else initText)
+            }
+
+        BasicTextField(
+            value = text,
+            onValueChange = { text = it },
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+            singleLine = !multiLine,
+            modifier = modifier,
+        )
+    }
 }
 
 private data class KeyState(
@@ -219,4 +271,111 @@ private fun KeyPressList(keys: List<KeyState>) {
             }
         }
     }
+}
+
+fun createPlusLayout(context: Context, isMultiLine: Boolean = false): ViewGroup {
+    // Main vertical LinearLayout
+    val mainLayout =
+        LinearLayout(context).apply {
+            layoutParams =
+                ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                )
+            orientation = LinearLayout.VERTICAL
+            gravity = Gravity.CENTER
+            setPadding(32, 32, 32, 32)
+        }
+
+    // Common EditText configuration
+    fun createEditText(text: String): EditText {
+        return EditText(context).apply {
+            setText(text)
+
+            // Configure single vs multi-line
+            if (isMultiLine) {
+                inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE
+                setSingleLine(false)
+                maxLines = 4
+                minLines = 2
+            } else {
+                inputType = InputType.TYPE_CLASS_TEXT
+                setSingleLine(true)
+                maxLines = 1
+            }
+
+            // Styling
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
+            setPadding(24, 16, 24, 16)
+            background = context.getDrawable(android.R.drawable.edit_text)
+        }
+    }
+
+    // Top EditText
+    val topEditText =
+        createEditText(if (isMultiLine) "Top line 1\nTop line 2" else "Top").apply {
+            layoutParams =
+                LinearLayout.LayoutParams(300, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                    gravity = Gravity.CENTER_HORIZONTAL
+                    bottomMargin = 24
+                }
+        }
+
+    // Middle horizontal LinearLayout (Left, Center, Right)
+    val middleLayout =
+        LinearLayout(context).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER
+            layoutParams =
+                LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.WRAP_CONTENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT,
+                    )
+                    .apply { bottomMargin = 24 }
+        }
+
+    // Left EditText
+    val leftEditText =
+        createEditText(if (isMultiLine) "Left line 1\nLeft line 2" else "Left").apply {
+            layoutParams =
+                LinearLayout.LayoutParams(300, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                    rightMargin = 24
+                }
+        }
+
+    // Center EditText
+    val centerEditText =
+        createEditText(if (isMultiLine) "Center line 1\nCenter line 2" else "Center").apply {
+            layoutParams = LinearLayout.LayoutParams(300, LinearLayout.LayoutParams.WRAP_CONTENT)
+        }
+
+    // Right EditText
+    val rightEditText =
+        createEditText(if (isMultiLine) "Right line 1\nRight line 2" else "Right").apply {
+            layoutParams =
+                LinearLayout.LayoutParams(300, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                    leftMargin = 24
+                }
+        }
+
+    // Bottom EditText
+    val bottomEditText =
+        createEditText(if (isMultiLine) "Bottom line 1\nBottom line 2" else "Bottom").apply {
+            layoutParams =
+                LinearLayout.LayoutParams(300, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                    gravity = Gravity.CENTER_HORIZONTAL
+                }
+        }
+
+    // Add EditTexts to middle layout
+    middleLayout.addView(leftEditText)
+    middleLayout.addView(centerEditText)
+    middleLayout.addView(rightEditText)
+
+    // Add all components to main layout
+    mainLayout.addView(topEditText)
+    mainLayout.addView(middleLayout)
+    mainLayout.addView(bottomEditText)
+
+    return mainLayout
 }

@@ -29,4 +29,4 @@ package androidx.compose.runtime
  */
 @Retention(AnnotationRetention.SOURCE)
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER)
-annotation class ExplicitGroupsComposable
+public annotation class ExplicitGroupsComposable

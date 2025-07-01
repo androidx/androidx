@@ -30,7 +30,6 @@ import androidx.compose.foundation.text.TextContextMenuItems.Cut
 import androidx.compose.foundation.text.TextContextMenuItems.Paste
 import androidx.compose.foundation.text.TextContextMenuItems.SelectAll
 import androidx.compose.foundation.text.TextItem
-import androidx.compose.foundation.text.contextmenu.addProcessedTextContextMenuItems
 import androidx.compose.foundation.text.contextmenu.builder.TextContextMenuBuilderScope
 import androidx.compose.foundation.text.contextmenu.modifier.addTextContextMenuComponentsWithContext
 import androidx.compose.foundation.text.textItem
@@ -43,6 +42,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.unit.IntSize
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
@@ -108,26 +108,40 @@ internal actual fun Modifier.addBasicTextFieldTextContextMenuComponents(
         }
     }
 
-    with(manager) {
-        separator()
-        textFieldSuspendItem(Cut, enabled = canCut()) { cut() }
-        textFieldSuspendItem(Copy, enabled = canCopy()) { copy(cancelSelection = textToolbarShown) }
-        textFieldSuspendItem(Paste, enabled = canPaste()) { paste() }
-        textFieldItem(SelectAll, enabled = canSelectAll(), closePredicate = { !textToolbarShown }) {
-            selectAll()
+    addPlatformTextContextMenuItems(
+        context = context,
+        editable = manager.editable,
+        text = manager.transformedText?.text,
+        selection =
+            manager.latestSelection?.let {
+                val offsetMapping = manager.offsetMapping
+                TextRange(
+                    offsetMapping.originalToTransformed(it.start),
+                    offsetMapping.originalToTransformed(it.end),
+                )
+            },
+        platformSelectionBehaviors = manager.platformSelectionBehaviors,
+    ) {
+        with(manager) {
+            separator()
+            textFieldSuspendItem(Cut, enabled = canCut()) { cut() }
+            textFieldSuspendItem(Copy, enabled = canCopy()) {
+                copy(cancelSelection = textToolbarShown)
+            }
+            textFieldSuspendItem(Paste, enabled = canPaste()) { paste() }
+            textFieldItem(
+                SelectAll,
+                enabled = canSelectAll(),
+                closePredicate = { !textToolbarShown },
+            ) {
+                selectAll()
+            }
+            if (Build.VERSION.SDK_INT >= 26) {
+                textFieldItem(Autofill, enabled = canAutofill()) { autofill() }
+            }
+            separator()
         }
-        if (Build.VERSION.SDK_INT >= 26) {
-            textFieldItem(Autofill, enabled = canAutofill()) { autofill() }
-        }
-        separator()
     }
-
-    addProcessedTextContextMenuItems(
-        context,
-        manager.editable,
-        manager.value.text,
-        manager.value.selection,
-    )
 }
 
 internal fun TextFieldSelectionManager.contextMenuBuilder(

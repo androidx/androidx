@@ -40,7 +40,8 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  * [onNewAwaiters] **fails** by throwing an exception it will permanently fail this
  * [BroadcastFrameClock]; all current and future awaiters will resume with the thrown exception.
  */
-class BroadcastFrameClock(private val onNewAwaiters: (() -> Unit)? = null) : MonotonicFrameClock {
+public class BroadcastFrameClock(private val onNewAwaiters: (() -> Unit)? = null) :
+    MonotonicFrameClock {
 
     private class FrameAwaiter<R>(onFrame: (Long) -> R, continuation: CancellableContinuation<R>) {
         private var onFrame: ((Long) -> R)? = onFrame
@@ -68,14 +69,14 @@ class BroadcastFrameClock(private val onNewAwaiters: (() -> Unit)? = null) : Mon
     private var spareList = mutableObjectListOf<FrameAwaiter<*>>()
 
     /** `true` if there are any callers of [withFrameNanos] awaiting to run for a pending frame. */
-    val hasAwaiters: Boolean
+    public val hasAwaiters: Boolean
         get() = pendingAwaitersCountUnlocked.hasAwaiters()
 
     /**
      * Send a frame for time [timeNanos] to all current callers of [withFrameNanos]. The `onFrame`
      * callback for each caller is invoked synchronously during the call to [sendFrame].
      */
-    fun sendFrame(timeNanos: Long) {
+    public fun sendFrame(timeNanos: Long) {
         synchronized(lock) {
             // Rotate the lists so that if a resumed continuation on an immediate dispatcher
             // bound to the thread calling sendFrame immediately awaits again we don't disrupt
@@ -142,7 +143,7 @@ class BroadcastFrameClock(private val onNewAwaiters: (() -> Unit)? = null) : Mon
      * Permanently cancel this [BroadcastFrameClock] and cancel all current and future awaiters with
      * [cancellationException].
      */
-    fun cancel(
+    public fun cancel(
         cancellationException: CancellationException = CancellationException("clock cancelled")
     ) {
         fail(cancellationException)

@@ -826,7 +826,7 @@ internal class SlotReader(
     private val groupsSize: Int = table.groupsSize
 
     /** A copy of [SlotTable.slots] to avoid having to indirect through [table]. */
-    private val slots: Array<Any?> = table.slots
+    private var slots: Array<Any?> = table.slots
 
     /** A Copy of [SlotTable.slotsSize] to avoid having to indirect through [table]. */
     private val slotsSize: Int = table.slotsSize
@@ -1066,6 +1066,7 @@ internal class SlotReader(
     fun close() {
         closed = true
         table.close(this, sourceInformationMap)
+        slots = emptyArray()
     }
 
     /** Start a group. */

@@ -32,7 +32,7 @@ import kotlinx.browser.window
     "MonotonicFrameClocks are not globally applicable across platforms. " +
         "Use an appropriate local clock."
 )
-actual val DefaultMonotonicFrameClock: MonotonicFrameClock =
+public actual val DefaultMonotonicFrameClock: MonotonicFrameClock =
     object : MonotonicFrameClock {
         override suspend fun <R> withFrameNanos(onFrame: (Long) -> R): R =
             suspendCoroutine { continuation ->

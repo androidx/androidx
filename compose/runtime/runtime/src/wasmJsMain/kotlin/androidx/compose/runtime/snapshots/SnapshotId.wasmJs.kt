@@ -20,7 +20,7 @@ package androidx.compose.runtime.snapshots
 
 import androidx.collection.mutableLongListOf
 
-actual typealias SnapshotId = Long
+public actual typealias SnapshotId = Long
 
 internal actual const val SnapshotIdZero: SnapshotId = 0L
 internal actual const val SnapshotIdMax: SnapshotId = Long.MAX_VALUE
@@ -43,11 +43,11 @@ internal actual inline operator fun SnapshotId.div(other: Int): SnapshotId = thi
 
 internal actual inline operator fun SnapshotId.times(other: Int): SnapshotId = this * other.toLong()
 
-actual inline fun SnapshotId.toInt(): Int = this.toInt()
+public actual inline fun SnapshotId.toInt(): Int = this.toInt()
 
-actual inline fun SnapshotId.toLong(): Long = this
+public actual inline fun SnapshotId.toLong(): Long = this
 
-actual typealias SnapshotIdArray = LongArray
+public actual typealias SnapshotIdArray = LongArray
 
 internal actual fun snapshotIdArrayWithCapacity(capacity: Int): SnapshotIdArray =
     LongArray(capacity)

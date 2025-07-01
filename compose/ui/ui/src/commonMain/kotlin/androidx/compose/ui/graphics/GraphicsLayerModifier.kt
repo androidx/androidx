@@ -25,9 +25,11 @@ import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.Nodes
+import androidx.compose.ui.node.SemanticsModifierNode
 import androidx.compose.ui.node.requireCoordinator
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
+import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.unit.Constraints
 
 /**
@@ -692,7 +694,7 @@ private class BlockGraphicsLayerElement(val block: GraphicsLayerScope.() -> Unit
 }
 
 internal class BlockGraphicsLayerModifier(var layerBlock: GraphicsLayerScope.() -> Unit) :
-    LayoutModifierNode, Modifier.Node() {
+    LayoutModifierNode, SemanticsModifierNode, Modifier.Node() {
 
     /**
      * We can skip remeasuring as we only need to rerun the placement block. we request it manually
@@ -700,6 +702,8 @@ internal class BlockGraphicsLayerModifier(var layerBlock: GraphicsLayerScope.() 
      */
     override val shouldAutoInvalidate: Boolean
         get() = false
+
+    override val isImportantForBounds = false
 
     fun invalidateLayerBlock() {
         requireCoordinator(Nodes.Layout)
@@ -718,6 +722,10 @@ internal class BlockGraphicsLayerModifier(var layerBlock: GraphicsLayerScope.() 
     }
 
     override fun toString(): String = "BlockGraphicsLayerModifier(" + "block=$layerBlock)"
+
+    override fun SemanticsPropertyReceiver.applySemantics() {
+        // TODO(b/407772600): add logic for setting the shape property in a follow up
+    }
 }
 
 private class SimpleGraphicsLayerModifier(
@@ -740,7 +748,7 @@ private class SimpleGraphicsLayerModifier(
     var compositingStrategy: CompositingStrategy = CompositingStrategy.Auto,
     var blendMode: BlendMode = BlendMode.SrcOver,
     var colorFilter: ColorFilter? = null,
-) : LayoutModifierNode, Modifier.Node() {
+) : LayoutModifierNode, SemanticsModifierNode, Modifier.Node() {
 
     /**
      * We can skip remeasuring as we only need to rerun the placement block. we request it manually
@@ -748,6 +756,8 @@ private class SimpleGraphicsLayerModifier(
      */
     override val shouldAutoInvalidate: Boolean
         get() = false
+
+    override val isImportantForBounds = false
 
     private var layerBlock: GraphicsLayerScope.() -> Unit = {
         scaleX = this@SimpleGraphicsLayerModifier.scaleX
@@ -811,5 +821,9 @@ private class SimpleGraphicsLayerModifier(
         append("blendMode=$blendMode, ")
         append("colorFilter=$colorFilter")
         append(")")
+    }
+
+    override fun SemanticsPropertyReceiver.applySemantics() {
+        // TODO(b/407772600): add logic for setting the shape property in a follow up
     }
 }

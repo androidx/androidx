@@ -42,7 +42,7 @@ import androidx.compose.runtime.structuralEqualityPolicy
  * different threads to avoid race conditions.
  */
 @Suppress("NotCloseable") // we can't implement AutoCloseable from commonMain
-class SnapshotStateObserver(private val onChangedExecutor: (callback: () -> Unit) -> Unit) {
+public class SnapshotStateObserver(private val onChangedExecutor: (callback: () -> Unit) -> Unit) {
     private val pendingChanges = AtomicReference<Any?>(null)
     private var sendingNotifications = false
 
@@ -218,7 +218,11 @@ class SnapshotStateObserver(private val onChangedExecutor: (callback: () -> Unit
      *   the callback, as [observedScopeMaps] grows with each new callback instance.
      * @param block to observe reads within.
      */
-    fun <T : Any> observeReads(scope: T, onValueChangedForScope: (T) -> Unit, block: () -> Unit) {
+    public fun <T : Any> observeReads(
+        scope: T,
+        onValueChangedForScope: (T) -> Unit,
+        block: () -> Unit,
+    ) {
         val scopeMap = synchronized(observedScopeMapsLock) { ensureMap(onValueChangedForScope) }
 
         val oldPaused = isPaused
@@ -260,7 +264,7 @@ class SnapshotStateObserver(private val onChangedExecutor: (callback: () -> Unit
             "androidx.compose.runtime.snapshots.Snapshot",
         ),
     )
-    fun withNoObservations(block: () -> Unit) {
+    public fun withNoObservations(block: () -> Unit) {
         val oldPaused = isPaused
         isPaused = true
         try {
@@ -274,7 +278,7 @@ class SnapshotStateObserver(private val onChangedExecutor: (callback: () -> Unit
      * Clears all state read observations for a given [scope]. This clears values for all
      * `onValueChangedForScope` callbacks passed in [observeReads].
      */
-    fun clear(scope: Any) {
+    public fun clear(scope: Any) {
         removeScopeMapIf {
             it.clearScopeObservations(scope)
             !it.hasScopeObservations()
@@ -285,7 +289,7 @@ class SnapshotStateObserver(private val onChangedExecutor: (callback: () -> Unit
      * Remove observations using [predicate] to identify scopes to be removed. This is used when a
      * scope is no longer in the hierarchy and should not receive any callbacks.
      */
-    fun clearIf(predicate: (scope: Any) -> Boolean) {
+    public fun clearIf(predicate: (scope: Any) -> Boolean) {
         removeScopeMapIf { scopeMap ->
             scopeMap.removeScopeIf(predicate)
             !scopeMap.hasScopeObservations()
@@ -293,12 +297,12 @@ class SnapshotStateObserver(private val onChangedExecutor: (callback: () -> Unit
     }
 
     /** Starts watching for state commits. */
-    fun start() {
+    public fun start() {
         applyUnsubscribe = Snapshot.registerApplyObserver(applyObserver)
     }
 
     /** Stops watching for state commits. */
-    fun stop() {
+    public fun stop() {
         applyUnsubscribe?.dispose()
     }
 
@@ -307,12 +311,12 @@ class SnapshotStateObserver(private val onChangedExecutor: (callback: () -> Unit
      * [snapshot].
      */
     @TestOnly
-    fun notifyChanges(changes: Set<Any>, snapshot: Snapshot) {
+    public fun notifyChanges(changes: Set<Any>, snapshot: Snapshot) {
         applyObserver(changes, snapshot)
     }
 
     /** Remove all observations. */
-    fun clear() {
+    public fun clear() {
         forEachScopeMap { scopeMap -> scopeMap.clear() }
     }
 

@@ -18,14 +18,16 @@ package androidx.compose.foundation.text.input
 
 import android.os.SystemClock
 import android.view.InputDevice
+import android.view.InputDevice.SOURCE_DPAD
 import android.view.InputDevice.SOURCE_KEYBOARD
 import android.view.KeyEvent
+import androidx.compose.foundation.ComposeFoundationFlags
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -44,6 +46,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusManager
@@ -77,10 +80,12 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import org.junit.Assume
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
+@OptIn(ExperimentalFoundationApi::class)
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 internal class TextFieldFocusTest {
@@ -401,7 +406,8 @@ internal class TextFieldFocusTest {
 
     @SdkSuppress(minSdkVersion = 22) // b/266742195
     @Test
-    fun basicTextField_checkFocusNavigation_onDPadLeft_DPadDevice() {
+    fun basicTextField_checkFocusNavigation_onDPadLeft_DPadDevice_beforeFix() {
+        Assume.assumeFalse(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
         setupAndEnableBasicTextField()
         inputSingleLineTextInBasicTextField()
 
@@ -417,7 +423,8 @@ internal class TextFieldFocusTest {
 
     @SdkSuppress(minSdkVersion = 22) // b/266742195
     @Test
-    fun basicTextField_checkFocusNavigation_onDPadRight_DPadDevice() {
+    fun basicTextField_checkFocusNavigation_onDPadRight_DPadDevice_beforeFix() {
+        Assume.assumeFalse(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
         setupAndEnableBasicTextField()
         inputSingleLineTextInBasicTextField()
 
@@ -433,7 +440,8 @@ internal class TextFieldFocusTest {
 
     @SdkSuppress(minSdkVersion = 22) // b/266742195
     @Test
-    fun basicTextField_checkFocusNavigation_onDPadUp_DPadDevice() {
+    fun basicTextField_checkFocusNavigation_onDPadUp_DPadDevice_beforeFix() {
+        Assume.assumeFalse(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
         setupAndEnableBasicTextField()
         inputMultilineTextInBasicTextField()
 
@@ -449,7 +457,8 @@ internal class TextFieldFocusTest {
 
     @SdkSuppress(minSdkVersion = 22) // b/266742195
     @Test
-    fun basicTextField_checkFocusNavigation_onDPadDown_DPadDevice() {
+    fun basicTextField_checkFocusNavigation_onDPadDown_DPadDevice_beforeFix() {
+        Assume.assumeFalse(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
         setupAndEnableBasicTextField()
         inputMultilineTextInBasicTextField()
 
@@ -464,7 +473,8 @@ internal class TextFieldFocusTest {
     }
 
     @Test
-    fun basicTextField_checkKeyboardShown_onDPadCenter_DPadDevice() {
+    fun basicTextField_checkKeyboardShown_onDPadCenter_DPadDevice_beforeFix() {
+        Assume.assumeFalse(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
         setupAndEnableBasicTextField()
         inputSingleLineTextInBasicTextField()
 
@@ -479,7 +489,8 @@ internal class TextFieldFocusTest {
 
     @SdkSuppress(minSdkVersion = 22) // b/266742195
     @Test
-    fun basicTextField_checkFocusNavigation_onDPadLeft_hardwareKeyboard() {
+    fun basicTextField_checkFocusNavigation_onDPadLeft_hardwareKeyboard_beforeFix() {
+        Assume.assumeFalse(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
         setupAndEnableBasicTextField()
         inputSingleLineTextInBasicTextField()
 
@@ -500,7 +511,8 @@ internal class TextFieldFocusTest {
     @FlakyTest(bugId = 348380475)
     @SdkSuppress(minSdkVersion = 22) // b/266742195
     @Test
-    fun basicTextField_checkFocusNavigation_onDPadRight_hardwareKeyboard() {
+    fun basicTextField_checkFocusNavigation_onDPadRight_hardwareKeyboard_beforeFix() {
+        Assume.assumeFalse(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
         setupAndEnableBasicTextField()
         inputSingleLineTextInBasicTextField()
         // Carry the cursor to the start after typing -> "|abc"
@@ -522,7 +534,8 @@ internal class TextFieldFocusTest {
 
     @SdkSuppress(minSdkVersion = 22) // b/266742195
     @Test
-    fun basicTextField_checkFocusNavigation_onDPadUp_hardwareKeyboard() {
+    fun basicTextField_checkFocusNavigation_onDPadUp_hardwareKeyboard_beforeFix() {
+        Assume.assumeFalse(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
         setupAndEnableBasicTextField()
         inputMultilineTextInBasicTextField()
 
@@ -543,7 +556,8 @@ internal class TextFieldFocusTest {
     @FlakyTest(bugId = 348380475)
     @SdkSuppress(minSdkVersion = 22) // b/266742195
     @Test
-    fun basicTextField_checkFocusNavigation_onDPadDown_hardwareKeyboard() {
+    fun basicTextField_checkFocusNavigation_onDPadDown_hardwareKeyboard_beforeFix() {
+        Assume.assumeFalse(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
         setupAndEnableBasicTextField()
         inputMultilineTextInBasicTextField()
         // Carry the cursor to the start after typing -> "|a\nb\nc"
@@ -561,6 +575,202 @@ internal class TextFieldFocusTest {
 
         // Check if the cursor has actually moved down -> "a\n|b\nc"
         rule.onNodeWithTag("test-text-field-1").assertSelection(TextRange(2))
+    }
+
+    @Test
+    fun basicTextField_checkKeyboardShown_onDPadCenter_DPadDevice_afterFix() {
+        Assume.assumeTrue(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
+        setupAndEnableBasicTextField()
+        inputSingleLineTextInBasicTextField()
+
+        // Dismiss keyboard on back press
+        keyPressOnVirtualKeyboard(NativeKeyEvent.KEYCODE_BACK)
+        testKeyboardController.assertHidden()
+
+        // Check if keyboard is enabled on Dpad center key press
+        if (!keyPressOnDpadInputDevice(rule, NativeKeyEvent.KEYCODE_DPAD_CENTER)) return
+        testKeyboardController.assertShown()
+    }
+
+    @Test
+    fun basicTextField_checkFocusNavigation_onDPadLeft_DPadDevice_afterFix() {
+        Assume.assumeTrue(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
+        checkFocusNavigationLeft(SOURCE_DPAD)
+    }
+
+    @Test
+    fun basicTextField_checkFocusNavigation_onDPadRight_DPadDevice_afterFix() {
+        Assume.assumeTrue(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
+        checkFocusNavigationRight(SOURCE_DPAD)
+    }
+
+    @Test
+    fun basicTextField_checkFocusNavigation_onDPadUp_DPadDevice_afterFix() {
+        Assume.assumeTrue(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
+        checkFocusNavigationUp(SOURCE_DPAD)
+    }
+
+    @Test
+    fun basicTextField_checkFocusNavigation_onDPadDown_DPadDevice_afterFix() {
+        Assume.assumeTrue(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
+        checkFocusNavigationDown(SOURCE_DPAD)
+    }
+
+    @SdkSuppress(minSdkVersion = 22) // b/266742195
+    @Test
+    fun basicTextField_checkFocusNavigation_onDPadLeft_hardwareKeyboard_afterFix() {
+        Assume.assumeTrue(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
+        checkFocusNavigationLeft(SOURCE_KEYBOARD)
+    }
+
+    @SdkSuppress(minSdkVersion = 22) // b/266742195
+    @Test
+    fun basicTextField_checkFocusNavigation_onDPadRight_hardwareKeyboard_afterFix() {
+        Assume.assumeTrue(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
+        checkFocusNavigationRight(SOURCE_KEYBOARD)
+    }
+
+    @SdkSuppress(minSdkVersion = 22) // b/266742195
+    @Test
+    fun basicTextField_checkFocusNavigation_onDPadUp_hardwareKeyboard_afterFix() {
+        Assume.assumeTrue(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
+        checkFocusNavigationUp(SOURCE_KEYBOARD)
+    }
+
+    @SdkSuppress(minSdkVersion = 22) // b/266742195
+    @Test
+    fun basicTextField_checkFocusNavigation_onDPadDown_hardwareKeyboard_afterFix() {
+        Assume.assumeTrue(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
+        checkFocusNavigationDown(SOURCE_KEYBOARD)
+    }
+
+    @Test
+    fun basicTextField_checkFocusNavigation_onDPadLeft_DpadHardwareKeyboard_afterFix() {
+        Assume.assumeTrue(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
+        checkFocusNavigationLeft(SOURCE_DPAD or SOURCE_KEYBOARD)
+    }
+
+    @Test
+    fun basicTextField_checkFocusNavigation_onDPadRight_DpadHardwareKeyboard_afterFix() {
+        Assume.assumeTrue(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
+        checkFocusNavigationRight(SOURCE_DPAD or SOURCE_KEYBOARD)
+    }
+
+    @Test
+    fun basicTextField_checkFocusNavigation_onDPadUp_DpadHardwareKeyboard_afterFix() {
+        Assume.assumeTrue(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
+        checkFocusNavigationUp(SOURCE_DPAD or SOURCE_KEYBOARD)
+    }
+
+    @Test
+    fun basicTextField_checkFocusNavigation_onDPadDown_DpadHardwareKeyboard_afterFix() {
+        Assume.assumeTrue(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
+        checkFocusNavigationDown(SOURCE_DPAD or SOURCE_KEYBOARD)
+    }
+
+    fun checkFocusNavigationLeft(source: Int) {
+        fun pressLeft() =
+            keyPressOnPhysicalDevice(rule, NativeKeyEvent.KEYCODE_DPAD_LEFT, source, 1)
+        setupAndEnableBasicTextField()
+        inputSingleLineTextInBasicTextField()
+
+        // Dismiss keyboard on back press
+        keyPressOnVirtualKeyboard(NativeKeyEvent.KEYCODE_BACK)
+
+        if (!pressLeft()) return
+
+        rule.onNodeWithTag("test-text-field-1").assertIsFocused()
+        // first move to the left
+        rule.onNodeWithTag("test-text-field-1").assertSelection(TextRange(2))
+
+        // Move the cursor to the left twice first. Then left arrow should move focus.
+        repeat(3) {
+            rule.onNodeWithTag("test-button-left").assertIsNotFocused()
+            if (!pressLeft()) return
+        }
+
+        // Check if the element to the left of text field gains focus
+        rule.onNodeWithTag("test-button-left").assertIsFocused()
+    }
+
+    fun checkFocusNavigationRight(source: Int) {
+        fun pressRight() =
+            keyPressOnPhysicalDevice(rule, NativeKeyEvent.KEYCODE_DPAD_RIGHT, source, 1)
+        setupAndEnableBasicTextField()
+        inputSingleLineTextInBasicTextField()
+        // move the selection to the beginning
+        rule.onNodeWithTag("test-text-field-1").performTextInputSelection(TextRange(0))
+
+        // Dismiss keyboard on back press
+        keyPressOnVirtualKeyboard(NativeKeyEvent.KEYCODE_BACK)
+
+        if (!pressRight()) return
+
+        rule.onNodeWithTag("test-text-field-1").assertIsFocused()
+        // first move to the right
+        rule.onNodeWithTag("test-text-field-1").assertSelection(TextRange(1))
+
+        // Move the cursor to the right twice first. Then right arrow should move focus.
+        repeat(3) {
+            rule.onNodeWithTag("test-button-right").assertIsNotFocused()
+            if (!pressRight()) return
+        }
+
+        // Check if the element to the right of text field gains focus
+        rule.onNodeWithTag("test-button-right").assertIsFocused()
+    }
+
+    fun checkFocusNavigationUp(source: Int) {
+        fun pressUp() = keyPressOnPhysicalDevice(rule, NativeKeyEvent.KEYCODE_DPAD_UP, source, 1)
+        setupAndEnableBasicTextField()
+        inputMultilineTextInBasicTextField()
+
+        // Dismiss keyboard on back press
+        keyPressOnVirtualKeyboard(NativeKeyEvent.KEYCODE_BACK)
+
+        // Move focus to the focusable element on top
+        if (!pressUp()) return
+
+        // Check if the element on the top of text field does not gain focus
+        rule.onNodeWithTag("test-text-field-1").assertIsFocused()
+
+        // Check if the cursor has actually moved up -> "a\nb|\nc"
+        rule.onNodeWithTag("test-text-field-1").assertSelection(TextRange(3))
+
+        // Move the cursor up twice first. Then up arrow should move focus.
+        repeat(3) {
+            rule.onNodeWithTag("test-button-top").assertIsNotFocused()
+            if (!pressUp()) return
+        }
+
+        rule.onNodeWithTag("test-button-top").assertIsFocused()
+    }
+
+    fun checkFocusNavigationDown(source: Int) {
+        fun pressDown() =
+            keyPressOnPhysicalDevice(rule, NativeKeyEvent.KEYCODE_DPAD_DOWN, source, 1)
+        setupAndEnableBasicTextField()
+        inputMultilineTextInBasicTextField()
+        // move the selection to the beginning
+        rule.onNodeWithTag("test-text-field-1").performTextInputSelection(TextRange(0))
+
+        // Dismiss keyboard on back press
+        keyPressOnVirtualKeyboard(NativeKeyEvent.KEYCODE_BACK)
+
+        if (!pressDown()) return
+
+        rule.onNodeWithTag("test-text-field-1").assertIsFocused()
+        // first move down
+        rule.onNodeWithTag("test-text-field-1").assertSelection(TextRange(2))
+
+        // Move the cursor down twice first. Then down arrow should move focus.
+        repeat(3) {
+            rule.onNodeWithTag("test-button-bottom").assertIsNotFocused()
+            if (!pressDown()) return
+        }
+
+        // Check if the element to the bottom of text field gains focus
+        rule.onNodeWithTag("test-button-bottom").assertIsFocused()
     }
 
     @SdkSuppress(minSdkVersion = 22) // b/266742195
@@ -674,18 +884,14 @@ internal class TextFieldFocusTest {
             CompositionLocalProvider(
                 LocalSoftwareKeyboardController provides testKeyboardController
             ) {
-                Column {
-                    Row(horizontalArrangement = Arrangement.Center) {
-                        TestFocusableElement(id = "top")
-                    }
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    TestFocusableElement(id = "top")
                     Row {
                         TestFocusableElement(id = "left")
                         TestBasicTextField(id = "1", singleLine = singleLine, requestFocus = true)
                         TestFocusableElement(id = "right")
                     }
-                    Row(horizontalArrangement = Arrangement.Center) {
-                        TestFocusableElement(id = "bottom")
-                    }
+                    TestFocusableElement(id = "bottom")
                 }
             }
         }

@@ -24,4 +24,4 @@ package androidx.compose.runtime
     AnnotationTarget.PROPERTY_GETTER,
     AnnotationTarget.PROPERTY_SETTER,
 )
-expect annotation class TestOnly()
+public expect annotation class TestOnly()

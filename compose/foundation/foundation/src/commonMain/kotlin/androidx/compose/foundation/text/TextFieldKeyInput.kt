@@ -217,6 +217,7 @@ internal class TextFieldKeyInput(
                 KeyCommand.CHARACTER_PALETTE -> {
                     showCharacterPalette()
                 }
+                KeyCommand.CENTER -> {} // No-op, this is handled by TextFieldFocusModifier.
             }
         }
         undoManager?.forceNextSnapshot()

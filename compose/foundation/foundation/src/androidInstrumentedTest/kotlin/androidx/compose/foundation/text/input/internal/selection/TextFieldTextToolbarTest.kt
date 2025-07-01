@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.text.input.internal.selection
 
+import android.content.ClipboardManager
 import android.view.InputDevice
 import android.view.KeyCharacterMap
 import android.view.KeyEvent
@@ -99,6 +100,10 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.doAnswer
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.never
+import org.mockito.kotlin.verify
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalTestApi::class)
 @LargeTest
@@ -514,6 +519,21 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
         rule.runOnIdle { assertThat(selectAllOption).isNull() }
     }
 
+    // Regression test for b/422754681
+    @Test
+    fun toolbarDoesNotAccessClipData_whenEvaluatingPaste() {
+        val clipboard = FakeClipboard()
+        setupContent(state = TextFieldState("Hello"), clipboard = clipboard)
+
+        rule.onNodeWithTag(TAG).performTouchInput { click() }
+        rule.onNode(isSelectionHandle(Handle.Cursor)).performClick()
+
+        rule.runOnIdle {
+            assertThat(clipboard.getClipEntryCalled).isEqualTo(0)
+            verify(clipboard.clipboardManager, never()).primaryClip
+        }
+    }
+
     @Test
     fun toolbarDoesNotShowPaste_whenClipboardHasNoContent() {
         var pasteOptionAvailable = false
@@ -563,10 +583,7 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
                 },
                 onHideMenu = {},
             )
-        val clipboard =
-            FakeClipboard(supportsClipEntry = true).apply {
-                setClipEntry(createClipData(block = { addUri() }).toClipEntry())
-            }
+        val clipboard = FakeClipboard(createClipData { addUri() }.toClipEntry())
         val state = TextFieldState("Hello")
         setupContent(state = state, toolbar = textToolbar, singleLine = true, clipboard = clipboard)
 
@@ -586,10 +603,7 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
                 },
                 onHideMenu = {},
             )
-        val clipboard =
-            FakeClipboard(supportsClipEntry = true).apply {
-                setClipEntry(createClipData().toClipEntry())
-            }
+        val clipboard = FakeClipboard().apply { setClipEntry(createClipData().toClipEntry()) }
         val state = TextFieldState("Hello")
         setupContent(
             state = state,
@@ -992,31 +1006,36 @@ private constructor(failureMetadata: FailureMetadata?, private val subject: Rect
     }
 }
 
-internal fun FakeClipboard(initialText: String? = null, supportsClipEntry: Boolean = true) =
-    object : Clipboard {
+internal class FakeClipboard(private var clipEntry: ClipEntry?) : Clipboard {
 
-        private var currentClipEntry: ClipEntry? =
-            initialText?.let { AnnotatedString(it).toClipEntry() }
+    constructor(text: String? = null) : this(text?.let { AnnotatedString(it).toClipEntry() })
 
-        override suspend fun getClipEntry(): ClipEntry? {
-            if (supportsClipEntry) {
-                return currentClipEntry
-            } else {
-                throw NotImplementedError("This clipboard does not support clip entries")
-            }
-        }
+    var getClipEntryCalled: Int = 0
+        private set
 
-        override suspend fun setClipEntry(clipEntry: ClipEntry?) {
-            if (supportsClipEntry) {
-                currentClipEntry = clipEntry
-            } else {
-                throw NotImplementedError("This clipboard does not support clip entries")
-            }
-        }
+    var setClipEntryCalled: Int = 0
+        private set
 
-        override val nativeClipboard: NativeClipboard
-            get() = error("FakeClipboard doesn't have a backing NativeClipboard")
+    override suspend fun getClipEntry(): ClipEntry? {
+        getClipEntryCalled++
+        return clipEntry
     }
+
+    override suspend fun setClipEntry(clipEntry: ClipEntry?) {
+        setClipEntryCalled++
+        this@FakeClipboard.clipEntry = clipEntry
+    }
+
+    val clipboardManager: ClipboardManager =
+        mock<ClipboardManager> {
+            on { primaryClip } doAnswer { clipEntry?.clipData }
+            on { hasPrimaryClip() } doAnswer { clipEntry != null }
+            on { primaryClipDescription } doAnswer { clipEntry?.clipMetadata?.clipDescription }
+        }
+
+    override val nativeClipboard: NativeClipboard
+        get() = clipboardManager
+}
 
 /**
  * Toolbar does not show up when text is selected with traversal mode off (relative to original

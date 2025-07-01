@@ -33,6 +33,7 @@ internal enum class KeyCommand(
     LINE_RIGHT(false),
     UP(false),
     DOWN(false),
+    CENTER(false),
     PAGE_UP(false),
     PAGE_DOWN(false),
     HOME(false),

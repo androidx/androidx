@@ -72,7 +72,7 @@ import androidx.compose.runtime.toString
             "See https://r.android.com/3610053 for details."
 )
 @Composable
-fun <T : Any> rememberSaveable(
+public fun <T : Any> rememberSaveable(
     vararg inputs: Any?,
     saver: Saver<T, out Any> = autoSaver(),
     key: String? = null,
@@ -133,7 +133,7 @@ fun <T : Any> rememberSaveable(
  * @param init A factory function to create the initial value of this state
  */
 @Composable
-fun <T : Any> rememberSaveable(vararg inputs: Any?, init: () -> T): T {
+public fun <T : Any> rememberSaveable(vararg inputs: Any?, init: () -> T): T {
     // TODO(mgalhardo): We're planning to support both `autoSaver` and `serializer` in this base
     //  variant, where neither is explicitly passed. To avoid potential method signature conflicts,
     //  we're not using default parameters for `saver`.
@@ -174,7 +174,11 @@ fun <T : Any> rememberSaveable(vararg inputs: Any?, init: () -> T): T {
  * @param init A factory function to create the initial value of this state
  */
 @Composable
-fun <T : Any> rememberSaveable(vararg inputs: Any?, saver: Saver<T, out Any>, init: () -> T): T {
+public fun <T : Any> rememberSaveable(
+    vararg inputs: Any?,
+    saver: Saver<T, out Any>,
+    init: () -> T,
+): T {
     @Suppress("DEPRECATION")
     return rememberSaveable(*inputs, saver = saver, key = null, init = init)
 }
@@ -198,7 +202,7 @@ fun <T : Any> rememberSaveable(vararg inputs: Any?, saver: Saver<T, out Any>, in
  * @param init A factory function to create the initial value of this state
  */
 @Composable
-fun <T> rememberSaveable(
+public fun <T> rememberSaveable(
     vararg inputs: Any?,
     stateSaver: Saver<T, out Any>,
     init: () -> MutableState<T>,
@@ -237,7 +241,7 @@ fun <T> rememberSaveable(
             "See https://r.android.com/3610053 for details."
 )
 @Composable
-fun <T> rememberSaveable(
+public fun <T> rememberSaveable(
     vararg inputs: Any?,
     stateSaver: Saver<T, out Any>,
     key: String? = null,

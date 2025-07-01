@@ -36,7 +36,7 @@ import androidx.savedstate.compose.LocalSavedStateRegistryOwner
  * this content. Next time [SaveableStateProvider] will be used with the same key its state will be
  * restored.
  */
-interface SaveableStateHolder {
+public interface SaveableStateHolder {
     /**
      * Put your content associated with a [key] inside the [content]. This will automatically save
      * all the states defined with [rememberSaveable] before disposing the content and will restore
@@ -46,15 +46,15 @@ interface SaveableStateHolder {
      *   Android you can only use types which can be stored inside the Bundle.
      * @param content the content for which [key] is associated.
      */
-    @Composable fun SaveableStateProvider(key: Any, content: @Composable () -> Unit)
+    @Composable public fun SaveableStateProvider(key: Any, content: @Composable () -> Unit)
 
     /** Removes the saved state associated with the passed [key]. */
-    fun removeState(key: Any)
+    public fun removeState(key: Any)
 }
 
 /** Creates and remembers the instance of [SaveableStateHolder]. */
 @Composable
-fun rememberSaveableStateHolder(): SaveableStateHolder =
+public fun rememberSaveableStateHolder(): SaveableStateHolder =
     rememberSaveable(saver = SaveableStateHolderImpl.Saver) { SaveableStateHolderImpl() }
         .apply { parentSaveableStateRegistry = LocalSaveableStateRegistry.current }
 

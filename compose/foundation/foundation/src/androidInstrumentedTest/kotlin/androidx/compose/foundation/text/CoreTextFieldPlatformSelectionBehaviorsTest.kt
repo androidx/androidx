@@ -94,8 +94,8 @@ class CoreTextFieldPlatformSelectionBehaviorsTest(override val testLongPress: Bo
 
         // Cursor at the end.
         assertThat(selection).isEqualTo(TextRange(7))
-        assertThat(testPlatformSelectionBehaviors?.text).isNull()
-        assertThat(testPlatformSelectionBehaviors?.selection).isNull()
+        expectOnShowContextMenu("abc def", TextRange(7))
+        platformSelectionBehaviorsRule.assertNoMoreCalls()
     }
 
     @Test
@@ -134,8 +134,11 @@ class CoreTextFieldPlatformSelectionBehaviorsTest(override val testLongPress: Bo
         performLongPressOrDoubleClick { Offset(x = fontSize.toPx() * 5, y = fontSize.toPx() / 2) }
 
         assertThat(value.selection).isEqualTo(TextRange(0, 3))
-        assertThat(testPlatformSelectionBehaviors?.text).isEqualTo("abc xxx def")
-        assertThat(testPlatformSelectionBehaviors?.selection).isEqualTo(TextRange(4, 7))
+        platformSelectionBehaviorsRule.expectSuggestSelectionForLongPressOrDoubleClick(
+            "abc xxx def",
+            TextRange(4, 7),
+        )
+        expectOnShowContextMenu("abc xxx def", TextRange(4, 7))
     }
 
     @Test
@@ -172,7 +175,9 @@ class CoreTextFieldPlatformSelectionBehaviorsTest(override val testLongPress: Bo
         performLongPressOrDoubleClick { Offset(x = fontSize.toPx() * 5, y = fontSize.toPx() / 2) }
 
         assertThat(value.selection).isEqualTo(TextRange(4, 7))
-        assertThat(testPlatformSelectionBehaviors?.text).isEqualTo("abc def ghi")
-        assertThat(testPlatformSelectionBehaviors?.selection).isEqualTo(TextRange(4, 7))
+        platformSelectionBehaviorsRule.expectSuggestSelectionForLongPressOrDoubleClick(
+            "abc def ghi",
+            TextRange(4, 7),
+        )
     }
 }

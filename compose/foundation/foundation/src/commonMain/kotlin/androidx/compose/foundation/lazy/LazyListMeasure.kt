@@ -400,6 +400,8 @@ internal fun measureLazyList(
         // apply sticky items logic.
         val stickingItems =
             stickyItemsPlacement.applyStickyItems(
+                visibleItems.firstOrNull()?.index ?: 0,
+                visibleItems.lastOrNull()?.index ?: 0,
                 positionedItems,
                 measuredItemProvider.headerIndexes,
                 beforeContentPadding,

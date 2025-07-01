@@ -18,6 +18,8 @@ package androidx.compose.foundation.text.selection
 
 import android.content.Context
 import android.os.Build
+import android.text.TextUtils
+import android.view.textclassifier.TextClassification
 import android.view.textclassifier.TextClassificationContext
 import android.view.textclassifier.TextClassificationManager
 import android.view.textclassifier.TextClassifier
@@ -25,17 +27,27 @@ import android.view.textclassifier.TextSelection
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.text.selection.TextClassifierHelperMethods.createTextClassifier
+import androidx.compose.foundation.text.contextmenu.addProcessedTextContextMenuItems
+import androidx.compose.foundation.text.contextmenu.builder.TextContextMenuBuilderScope
+import androidx.compose.foundation.text.contextmenu.builder.textClassificationItem
+import androidx.compose.foundation.text.selection.TextClassifierHelperMethods.createTextClassificationSession
+import androidx.compose.foundation.text.selection.TextClassifierHelperMethods.hasLegacyAssistItem
+import androidx.compose.foundation.text.selection.TextClassifierHelperMethods.toAndroidLocaleList
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.intl.LocaleList
+import androidx.compose.ui.util.fastForEachIndexed
 import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.coroutineContext
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 
@@ -52,23 +64,25 @@ val LocalTextClassifierCoroutineContext =
     staticCompositionLocalOf<CoroutineContext> { Dispatchers.IO }
 
 /**
- * Copied from ViewConfiguration.getSmartSelectionInitializingTimeout. This is the timeout for all
- * TextClassifier calls when the TextClassifier object is not created. If TextClassifier is not
- * created or doesn't return the call in this time, we will cancel the call and treat it as if
- * TextClassifier returns null.
+ * Derived from ViewConfiguration.getSmartSelectionInitializingTimeout. This is the timeout for
+ * creating a TextClassifier. This is computed from
+ * `ViewConfiguration.getSmartSelectionInitializingTimeout` minus
+ * `ViewConfiguration.getSmartSelectionInitializedTimeout`. We separate the TextClassifier creation
+ * timeout and classification timeout for simplicity.
  */
-private const val TEXT_CLASSIFIER_UNINITIALIZED_SMART_SELECTION_TIMEOUT_MILLIS = 500L
+private const val TEXT_CLASSIFIER_INITIALIZATION_TIMEOUT_MILLIS = 300L
 
 /**
  * Copied from ViewConfiguration.getSmartSelectionInitializedTimeout. This is the timeout for all
  * TextClassifier calls when the TextClassifier object is already created. If TextClassifier doesn't
  * return in this time, we will cancel the call and treat it as if TextClassifier returns null.
  */
-private const val TEXT_CLASSIFIER_INITIALIZED_SMART_SELECTION_TIMEOUT_MILLIS = 200L
+private const val TEXT_CLASSIFICATION_TIMEOUT_MILLIS = 200L
 
+@RequiresApi(28)
 @VisibleForTesting
 internal var PlatformSelectionBehaviorsFactory:
-    (CoroutineContext, Context, SelectedTextType, LocaleList?) -> PlatformSelectionBehaviors =
+    (CoroutineContext, Context, SelectedTextType, LocaleList?) -> PlatformSelectionBehaviors? =
     { coroutineContext, context, selectionType, localeList ->
         PlatformSelectionBehaviorsImpl(coroutineContext, context, selectionType, localeList)
     }
@@ -90,13 +104,25 @@ internal actual fun rememberPlatformSelectionBehaviors(
     }
 }
 
+@RequiresApi(28)
 internal class PlatformSelectionBehaviorsImpl(
     private val coroutineContext: CoroutineContext,
     private val context: Context,
     private val selectedTextType: SelectedTextType,
     private val localeList: LocaleList?,
 ) : PlatformSelectionBehaviors {
-    var textClassifier: TextClassifier? = null
+    private val mutex = Mutex()
+    private var textClassificationSession: TextClassifier? = null
+
+    // The textClassificationResult stores the result of the latest text classification operation.
+    // It is a MutableState because changes to this value should trigger a rebuild of the
+    // ContextMenuData which depend on this classification data.
+    private var textClassificationResult: TextClassificationResult? by mutableStateOf(null)
+
+    private val androidLocalList
+        get() =
+            localeList?.let { toAndroidLocaleList(it) }
+                ?: android.os.LocaleList(Locale.current.platformLocale)
 
     override suspend fun suggestSelectionForLongPressOrDoubleClick(
         text: CharSequence,
@@ -105,58 +131,215 @@ internal class PlatformSelectionBehaviorsImpl(
         if (text.isEmpty() || selection.collapsed) {
             return null
         }
-        if (Build.VERSION.SDK_INT >= 28) {
-            val timeout =
-                if (this.textClassifier == null) {
-                    TEXT_CLASSIFIER_UNINITIALIZED_SMART_SELECTION_TIMEOUT_MILLIS
-                } else {
-                    TEXT_CLASSIFIER_INITIALIZED_SMART_SELECTION_TIMEOUT_MILLIS
+        return requireTextClassificationSession {
+            val builder =
+                TextSelection.Request.Builder(text, selection.min, selection.max)
+                    .setDefaultLocales(androidLocalList)
+            if (Build.VERSION.SDK_INT >= 31) {
+                builder.setIncludeTextClassification(true)
+            }
+            val request = builder.build()
+            val suggestedSelection = suggestSelection(request)
+            val newSelection =
+                TextRange(
+                    suggestedSelection.selectionStartIndex,
+                    suggestedSelection.selectionEndIndex,
+                )
+            if (Build.VERSION.SDK_INT >= 31 && suggestedSelection.textClassification != null) {
+                mutex.withLock {
+                    textClassificationResult =
+                        TextClassificationResult(
+                            text,
+                            newSelection,
+                            suggestedSelection.textClassification!!,
+                        )
                 }
-            return withContext(coroutineContext) {
-                withTimeoutOrNull(timeout) {
-                    val textClassifier = requireTextClassifier()
+            } else {
+                classifyText(text, newSelection, this)
+            }
+            newSelection
+        }
+    }
 
-                    val localeList =
-                        this@PlatformSelectionBehaviorsImpl.localeList?.let { localeList ->
-                            android.os.LocaleList(
-                                *localeList.map { it.platformLocale }.toTypedArray()
-                            )
-                        } ?: android.os.LocaleList(Locale.current.platformLocale)
+    override suspend fun onShowContextMenu(text: CharSequence, selection: TextRange) {
+        if (text.isEmpty() || selection.collapsed) {
+            return
+        }
+        requireTextClassificationSession { classifyText(text, selection, this) }
+    }
 
-                    val request =
-                        TextSelection.Request.Builder(text.toString(), selection.min, selection.max)
-                            .setDefaultLocales(localeList)
-                            .build()
-                    val newSelection = textClassifier.suggestSelection(request)
-
-                    TextRange(newSelection.selectionStartIndex, newSelection.selectionEndIndex)
-                }
+    private suspend fun classifyText(
+        text: CharSequence,
+        selection: TextRange,
+        textClassifier: TextClassifier,
+    ) {
+        mutex.withLock {
+            if (textClassificationResult?.canReuse(text, selection) == true) {
+                // Do nothing, the text classification result is up to date.
+                return
             }
         }
-        return null
+        val request =
+            TextClassification.Request.Builder(text, selection.min, selection.max)
+                .setDefaultLocales(androidLocalList)
+                .build()
+        val textClassification = textClassifier.classifyText(request)
+
+        mutex.withLock {
+            textClassificationResult = TextClassificationResult(text, selection, textClassification)
+        }
     }
 
-    @RequiresApi(28)
-    private fun requireTextClassifier(): TextClassifier {
-        return this.textClassifier
-            ?: createTextClassifier(context, selectedTextType).also { textClassifier = it }
+    private val AssistantItemKey = Any()
+
+    internal fun TextContextMenuBuilderScope.addSmartSelectionTextContextMenuItems(
+        text: CharSequence,
+        selection: TextRange,
+        child: TextContextMenuBuilderScope.() -> Unit,
+    ) {
+        val textClassification = tryGetTextClassification(text, selection)
+        if (textClassification == null) {
+            child()
+            return
+        }
+
+        if (textClassification.actions.isNotEmpty()) {
+            textClassificationItem(AssistantItemKey, textClassification, index = 0)
+        } else if (textClassification.hasLegacyAssistItem()) {
+            textClassificationItem(AssistantItemKey, textClassification, index = -1)
+        }
+
+        child()
+
+        textClassification.actions.fastForEachIndexed { index, remoteAction ->
+            if (index > 0) {
+                textClassificationItem(AssistantItemKey, textClassification, index = index)
+            }
+        }
     }
+
+    /**
+     * Get the text classification result we created in [onShowContextMenu] callback. We moved the
+     * text classification computation to [onShowContextMenu] so that
+     * 1) building context menu data won't block the UI thread.
+     * 2) avoid unnecessary text classification computation. The context menu data is updated
+     *    whenever the states that creates it update. This means context menu data might update even
+     *    if the context menu is not shown.
+     */
+    fun tryGetTextClassification(text: CharSequence, selection: TextRange): TextClassification? {
+        val acquired = mutex.tryLock()
+        if (!acquired) {
+            // There is an ongoing text classification operation. This is possible only
+            // if the selection has updated since the context menu is shown. Thus, building the
+            // TextClassification items is not necessary as the result is already stale.
+            // We can avoid blocking the thread and directly return null here.
+            return null
+        }
+        val textClassificationResult = textClassificationResult
+        return if (textClassificationResult?.canReuse(text, selection) == true) {
+                textClassificationResult.textClassification
+            } else {
+                null
+            }
+            .also { mutex.unlock() }
+    }
+
+    private suspend fun <T> requireTextClassificationSession(
+        block: suspend TextClassifier.() -> T
+    ): T? {
+        return withContext(coroutineContext) {
+            val textClassificationSession =
+                mutex.withLock {
+                    val session = this@PlatformSelectionBehaviorsImpl.textClassificationSession
+
+                    if (session == null || session.isDestroyed) {
+                        withTimeoutOrNull(TEXT_CLASSIFIER_INITIALIZATION_TIMEOUT_MILLIS) {
+                            createTextClassificationSession(context, selectedTextType).also {
+                                this@PlatformSelectionBehaviorsImpl.textClassificationSession = it
+                            }
+                        }
+                    } else {
+                        session
+                    }
+                }
+            withTimeoutOrNull(TEXT_CLASSIFICATION_TIMEOUT_MILLIS) {
+                textClassificationSession?.block()
+            }
+        }
+    }
+}
+
+private data class TextClassificationResult(
+    val text: CharSequence,
+    val selection: TextRange,
+    val textClassification: TextClassification,
+)
+
+private fun TextClassificationResult.canReuse(text: CharSequence, selection: TextRange): Boolean {
+    return selection == this.selection && text == this.text
+}
+
+/**
+ * Add platform specific items to the context menu, including both smart suggested items by
+ * [TextClassifier] and `PROCESS_TEXT` item.
+ */
+internal fun TextContextMenuBuilderScope.addPlatformTextContextMenuItems(
+    context: Context,
+    editable: Boolean,
+    text: CharSequence?,
+    selection: TextRange?,
+    platformSelectionBehaviors: PlatformSelectionBehaviors?,
+    child: TextContextMenuBuilderScope.() -> Unit,
+) {
+    if (
+        Build.VERSION.SDK_INT < 28 ||
+            text == null ||
+            selection == null ||
+            platformSelectionBehaviors == null ||
+            platformSelectionBehaviors !is PlatformSelectionBehaviorsImpl
+    ) {
+        child()
+        if (text != null && selection != null) {
+            addProcessedTextContextMenuItems(context, editable, text, selection)
+        }
+        return
+    }
+
+    with(platformSelectionBehaviors) {
+        addSmartSelectionTextContextMenuItems(text, selection, child)
+    }
+    addProcessedTextContextMenuItems(context, editable, text, selection)
 }
 
 @RequiresApi(28)
 internal object TextClassifierHelperMethods {
-    @RequiresApi(28)
-    fun createTextClassifier(context: Context, selectionContext: SelectedTextType): TextClassifier {
+    fun createTextClassificationSession(
+        context: Context,
+        selectedTextType: SelectedTextType,
+    ): TextClassifier {
         val textClassificationManager =
             context.getSystemService(TextClassificationManager::class.java)
 
         val widgetType =
-            when (selectionContext) {
+            when (selectedTextType) {
                 SelectedTextType.EditableText -> TextClassifier.WIDGET_TYPE_EDITTEXT
                 SelectedTextType.StaticText -> TextClassifier.WIDGET_TYPE_TEXTVIEW
             }
         val textClassificationContext =
             TextClassificationContext.Builder(context.packageName, widgetType).build()
         return textClassificationManager.createTextClassificationSession(textClassificationContext)
+    }
+
+    fun toAndroidLocaleList(localeList: LocaleList): android.os.LocaleList {
+        return localeList.let { it ->
+            android.os.LocaleList(*it.map { it.platformLocale }.toTypedArray())
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    internal fun TextClassification.hasLegacyAssistItem(): Boolean {
+        // Check whether we have the UI data and action.
+        return (icon != null || !TextUtils.isEmpty(label)) &&
+            (intent != null || onClickListener != null)
     }
 }

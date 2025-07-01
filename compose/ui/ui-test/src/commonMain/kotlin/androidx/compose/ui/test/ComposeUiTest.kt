@@ -42,6 +42,7 @@ import kotlinx.coroutines.test.TestResult
  *
  * Keeping a reference to the [ComposeUiTest] outside of this function is an error.
  *
+ * @sample androidx.compose.ui.test.samples.RunComposeUiTestSample
  * @param effectContext The [CoroutineContext] used to run the composition. The context for
  *   `LaunchedEffect`s and `rememberCoroutineScope` will be derived from this context. If this
  *   context contains a [TestDispatcher] or [TestCoroutineScheduler] (in that order), it will be

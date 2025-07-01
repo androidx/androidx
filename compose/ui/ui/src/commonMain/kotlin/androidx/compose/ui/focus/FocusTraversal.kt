@@ -16,8 +16,6 @@
 
 package androidx.compose.ui.focus
 
-import androidx.compose.ui.ComposeUiFlags
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.focus.FocusDirection.Companion.Down
 import androidx.compose.ui.focus.FocusDirection.Companion.Enter
 import androidx.compose.ui.focus.FocusDirection.Companion.Exit
@@ -81,8 +79,6 @@ internal fun FocusTargetNode.customFocusSearch(
         Exit -> {
             val scope = CancelIndicatingFocusBoundaryScope(focusDirection)
             with(focusProperties) {
-                val focusTransactionManager = focusTransactionManager
-                val generationBefore = focusTransactionManager?.generation ?: 0
                 val focusOwner = requireOwner().focusOwner
                 val activeNodeBefore = focusOwner.activeFocusTargetNode
                 if (focusDirection == Enter) {
@@ -90,15 +86,9 @@ internal fun FocusTargetNode.customFocusSearch(
                 } else {
                     scope.onExit()
                 }
-                val generationAfter = focusTransactionManager?.generation ?: 0
                 if (scope.isCanceled) {
                     Cancel
-                } else if (
-                    generationBefore != generationAfter ||
-                        (@OptIn(ExperimentalComposeUiApi::class)
-                        ComposeUiFlags.isTrackFocusEnabled &&
-                            activeNodeBefore !== focusOwner.activeFocusTargetNode)
-                ) {
+                } else if (activeNodeBefore !== focusOwner.activeFocusTargetNode) {
                     Redirect
                 } else {
                     Default
@@ -178,24 +168,8 @@ internal val FocusTargetNode.activeChild: FocusTargetNode?
     }
 
 internal fun FocusTargetNode.findActiveFocusNode(): FocusTargetNode? {
-    if (@OptIn(ExperimentalComposeUiApi::class) ComposeUiFlags.isTrackFocusEnabled) {
-        val activeNode = requireOwner().focusOwner.activeFocusTargetNode
-        return if (activeNode != null && activeNode.isAttached) activeNode else null
-    } else {
-        when (focusState) {
-            Active,
-            Captured -> return this
-            ActiveParent -> {
-                visitChildren(Nodes.FocusTarget) { node ->
-                    node.findActiveFocusNode()?.let {
-                        return it
-                    }
-                }
-                return null
-            }
-            Inactive -> return null
-        }
-    }
+    val activeNode = requireOwner().focusOwner.activeFocusTargetNode
+    return if (activeNode != null && activeNode.isAttached) activeNode else null
 }
 
 @Suppress("ModifierFactoryExtensionFunction", "ModifierFactoryReturnType")

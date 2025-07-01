@@ -19,6 +19,7 @@ package androidx.compose.runtime
 import androidx.compose.material.Text
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Assert.assertTrue
@@ -364,6 +365,17 @@ class LiveEditApiTests : BaseComposeTest() {
             errors = compositionErrors()
             assertThat(errors).hasSize(0)
         }
+    }
+
+    @Test
+    @SmallTest
+    fun checkReflectionNames() {
+        val hotReloader = Class.forName("androidx.compose.runtime.HotReloader\$Companion")
+        val names = hotReloader.methods.map { it.name }
+        assertThat(names)
+            .containsAtLeastElementsIn(
+                listOf("invalidateGroupsWithKey", "getCurrentErrors", "clearErrors")
+            )
     }
 }
 

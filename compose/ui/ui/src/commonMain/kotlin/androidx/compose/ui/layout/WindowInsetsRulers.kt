@@ -40,7 +40,8 @@ import androidx.compose.ui.layout.WindowInsetsRulers.Companion.Waterfall
 sealed interface WindowInsetsRulers {
     /**
      * The current values for the window insets RectRulers. Values for some insets may not be
-     * provided on platforms that don't support specific Window Insets types.
+     * provided on platforms that don't support specific Window Insets types. These also may not be
+     * provided if no [WindowInsetsRulers] encroach on the content.
      *
      * @sample androidx.compose.ui.samples.WindowInsetsRulersSample
      */
@@ -49,7 +50,8 @@ sealed interface WindowInsetsRulers {
     /**
      * The values for the insets when the insets are fully visible. The value does not change when
      * the insets are hidden. Values for some insets may not be provided on some platforms. For
-     * example, values are never provided for [Ime] on Android.
+     * example, values are never provided for [Ime] on Android. These may not be provided if no
+     * [WindowInsetsRulers] encroach on the content.
      *
      * When no animations are active, [maximum] and [current] will have the same value if
      * [WindowInsetsAnimation.isVisible] is `true`. If `false`, then [maximum] will not be changed,

@@ -17,11 +17,13 @@
 package androidx.compose.foundation.text.input.internal
 
 import androidx.collection.MutableLongSet
+import androidx.compose.foundation.ComposeFoundationFlags
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.DeadKeyCombiner
 import androidx.compose.foundation.text.KeyCommand
 import androidx.compose.foundation.text.appendCodePointX
 import androidx.compose.foundation.text.cancelsTextSelection
-import androidx.compose.foundation.text.input.internal.selection.TextFieldPreparedSelection
+import androidx.compose.foundation.text.input.internal.selection.SelectionMovementDeletionContext
 import androidx.compose.foundation.text.input.internal.selection.TextFieldPreparedSelectionState
 import androidx.compose.foundation.text.input.internal.selection.TextFieldSelectionState
 import androidx.compose.foundation.text.isTypedEvent
@@ -84,6 +86,7 @@ internal abstract class TextFieldKeyEventHandler {
         textLayoutState: TextLayoutState,
         textFieldSelectionState: TextFieldSelectionState,
         clipboardKeyCommandsHandler: ClipboardKeyCommandsHandler,
+        keyboardController: SoftwareKeyboardController,
         editable: Boolean,
         singleLine: Boolean,
         onSubmit: () -> Boolean,
@@ -109,6 +112,7 @@ internal abstract class TextFieldKeyEventHandler {
                 textFieldState = textFieldState,
                 textLayoutState = textLayoutState,
                 clipboardKeyCommandsHandler = clipboardKeyCommandsHandler,
+                keyboardController = keyboardController,
                 editable = editable,
                 singleLine = singleLine,
                 onSubmit = onSubmit,
@@ -125,11 +129,13 @@ internal abstract class TextFieldKeyEventHandler {
         return consumed
     }
 
+    @OptIn(ExperimentalFoundationApi::class)
     private fun processKeyDownEvent(
         event: KeyEvent,
         textFieldState: TransformedTextFieldState,
         textLayoutState: TextLayoutState,
         clipboardKeyCommandsHandler: ClipboardKeyCommandsHandler,
+        keyboardController: SoftwareKeyboardController,
         editable: Boolean,
         singleLine: Boolean,
         onSubmit: () -> Boolean,
@@ -156,120 +162,138 @@ internal abstract class TextFieldKeyEventHandler {
         if (command == null || (command.editsText && !editable)) {
             return false
         }
-        var consumed = true
-        preparedSelectionContext(textFieldState, textLayoutState, event.isFromSoftKeyboard) {
-            when (command) {
-                KeyCommand.COPY,
-                KeyCommand.PASTE,
-                KeyCommand.CUT -> clipboardKeyCommandsHandler.handler(command)
-                KeyCommand.LEFT_CHAR -> collapseLeftOr { moveCursorLeftByChar() }
-                KeyCommand.RIGHT_CHAR -> collapseRightOr { moveCursorRightByChar() }
-                KeyCommand.LEFT_WORD -> moveCursorLeftByWord()
-                KeyCommand.RIGHT_WORD -> moveCursorRightByWord()
-                KeyCommand.PREV_PARAGRAPH -> moveCursorPrevByParagraph()
-                KeyCommand.NEXT_PARAGRAPH -> moveCursorNextByParagraph()
-                KeyCommand.UP -> moveCursorUpByLine()
-                KeyCommand.DOWN -> moveCursorDownByLine()
-                KeyCommand.PAGE_UP -> moveCursorUpByPage()
-                KeyCommand.PAGE_DOWN -> moveCursorDownByPage()
-                KeyCommand.LINE_START -> moveCursorToLineStart()
-                KeyCommand.LINE_END -> moveCursorToLineEnd()
-                KeyCommand.LINE_LEFT -> moveCursorToLineLeftSide()
-                KeyCommand.LINE_RIGHT -> moveCursorToLineRightSide()
-                KeyCommand.HOME -> moveCursorToHome()
-                KeyCommand.END -> moveCursorToEnd()
-                KeyCommand.DELETE_PREV_CHAR -> moveCursorPrevByCodePointOrEmoji().deleteMovement()
-                KeyCommand.DELETE_NEXT_CHAR -> moveCursorNextByChar().deleteMovement()
-                KeyCommand.DELETE_PREV_WORD -> moveCursorPrevByWord().deleteMovement()
-                KeyCommand.DELETE_NEXT_WORD -> moveCursorNextByWord().deleteMovement()
-                KeyCommand.DELETE_FROM_LINE_START -> moveCursorToLineStart().deleteMovement()
-                KeyCommand.DELETE_TO_LINE_END -> moveCursorToLineEnd().deleteMovement()
-                KeyCommand.NEW_LINE -> {
-                    if (!singleLine) {
-                        textFieldState.replaceSelectedText(
-                            newText = "\n",
-                            clearComposition = true,
-                            restartImeIfContentChanges = !event.isFromSoftKeyboard,
-                        )
-                    } else {
-                        consumed = onSubmit()
-                    }
-                }
-                KeyCommand.TAB -> {
-                    if (!singleLine) {
-                        textFieldState.replaceSelectedText(
-                            newText = "\t",
-                            clearComposition = true,
-                            restartImeIfContentChanges = !event.isFromSoftKeyboard,
-                        )
-                    } else {
-                        consumed = false // let propagate to focus system
-                    }
-                }
-                KeyCommand.SELECT_ALL -> selectAll()
-                KeyCommand.SELECT_LEFT_CHAR -> moveCursorLeftByChar().selectMovement()
-                KeyCommand.SELECT_RIGHT_CHAR -> moveCursorRightByChar().selectMovement()
-                KeyCommand.SELECT_LEFT_WORD -> moveCursorLeftByWord().selectMovement()
-                KeyCommand.SELECT_RIGHT_WORD -> moveCursorRightByWord().selectMovement()
-                KeyCommand.SELECT_PREV_PARAGRAPH -> moveCursorPrevByParagraph().selectMovement()
-                KeyCommand.SELECT_NEXT_PARAGRAPH -> moveCursorNextByParagraph().selectMovement()
-                KeyCommand.SELECT_LINE_START -> moveCursorToLineStart().selectMovement()
-                KeyCommand.SELECT_LINE_END -> moveCursorToLineEnd().selectMovement()
-                KeyCommand.SELECT_LINE_LEFT -> moveCursorToLineLeftSide().selectMovement()
-                KeyCommand.SELECT_LINE_RIGHT -> moveCursorToLineRightSide().selectMovement()
-                KeyCommand.SELECT_UP -> moveCursorUpByLine().selectMovement()
-                KeyCommand.SELECT_DOWN -> moveCursorDownByLine().selectMovement()
-                KeyCommand.SELECT_PAGE_UP -> moveCursorUpByPage().selectMovement()
-                KeyCommand.SELECT_PAGE_DOWN -> moveCursorDownByPage().selectMovement()
-                KeyCommand.SELECT_HOME -> moveCursorToHome().selectMovement()
-                KeyCommand.SELECT_END -> moveCursorToEnd().selectMovement()
-                KeyCommand.DESELECT -> deselect()
-                KeyCommand.UNDO -> {
-                    textFieldState.undo()
-                }
-                KeyCommand.REDO -> {
-                    textFieldState.redo()
-                }
-                KeyCommand.CHARACTER_PALETTE -> {
-                    showCharacterPalette()
-                }
-            }
-        }
-        return consumed
-    }
 
-    private inline fun preparedSelectionContext(
-        state: TransformedTextFieldState,
-        textLayoutState: TextLayoutState,
-        isFromSoftKeyboard: Boolean,
-        block: TextFieldPreparedSelection.() -> Unit,
-    ) {
         val layoutResult = textLayoutState.layoutResult
         val visibleTextLayoutHeight = textLayoutState.getVisibleTextLayoutHeight()
-        val preparedSelection =
-            TextFieldPreparedSelection(
-                state = state,
+        SelectionMovementDeletionContext(
+                state = textFieldState,
                 textLayoutResult = layoutResult,
-                isFromSoftKeyboard = isFromSoftKeyboard,
+                isFromSoftKeyboard = event.isFromSoftKeyboard,
                 visibleTextLayoutHeight = visibleTextLayoutHeight,
                 textPreparedSelectionState = preparedSelectionState,
             )
-        preparedSelection.block()
-        if (preparedSelection.selection != preparedSelection.initialValue.selection) {
-            // selection changes are applied atomically at the end of context evaluation
-            state.selectCharsIn(preparedSelection.selection)
-        }
-
-        if (preparedSelection.wedgeAffinity != null) {
-            preparedSelection.wedgeAffinity?.let { wedgeAffinity ->
-                if (state.untransformedText.selection.collapsed) {
-                    state.selectionWedgeAffinity = SelectionWedgeAffinity(wedgeAffinity)
-                } else {
-                    state.selectionWedgeAffinity =
-                        preparedSelection.initialWedgeAffinity.copy(endAffinity = wedgeAffinity)
+            .run {
+                // By default we assume that the event will be consumed if it made its way here. Any
+                // branch that decides that the command should not be consumed, should explicitly
+                // set
+                // `consumed` to false.
+                var consumed = true
+                when (command) {
+                    KeyCommand.COPY,
+                    KeyCommand.PASTE,
+                    KeyCommand.CUT -> clipboardKeyCommandsHandler.handler(command)
+                    KeyCommand.LEFT_CHAR -> collapseLeftOr { moveCursorLeftByChar() }
+                    KeyCommand.RIGHT_CHAR -> collapseRightOr { moveCursorRightByChar() }
+                    KeyCommand.LEFT_WORD -> moveCursorLeftByWord()
+                    KeyCommand.RIGHT_WORD -> moveCursorRightByWord()
+                    KeyCommand.PREV_PARAGRAPH -> moveCursorPrevByParagraph()
+                    KeyCommand.NEXT_PARAGRAPH -> moveCursorNextByParagraph()
+                    KeyCommand.UP -> moveCursorUpByLine()
+                    KeyCommand.DOWN -> moveCursorDownByLine()
+                    KeyCommand.PAGE_UP -> moveCursorUpByPage()
+                    KeyCommand.PAGE_DOWN -> moveCursorDownByPage()
+                    KeyCommand.LINE_START -> moveCursorToLineStart()
+                    KeyCommand.LINE_END -> moveCursorToLineEnd()
+                    KeyCommand.LINE_LEFT -> moveCursorToLineLeftSide()
+                    KeyCommand.LINE_RIGHT -> moveCursorToLineRightSide()
+                    KeyCommand.HOME -> moveCursorToHome()
+                    KeyCommand.END -> moveCursorToEnd()
+                    KeyCommand.DELETE_PREV_CHAR ->
+                        moveCursorPrevByCodePointOrEmoji().deleteMovement()
+                    KeyCommand.DELETE_NEXT_CHAR -> moveCursorNextByChar().deleteMovement()
+                    KeyCommand.DELETE_PREV_WORD -> moveCursorPrevByWord().deleteMovement()
+                    KeyCommand.DELETE_NEXT_WORD -> moveCursorNextByWord().deleteMovement()
+                    KeyCommand.DELETE_FROM_LINE_START -> moveCursorToLineStart().deleteMovement()
+                    KeyCommand.DELETE_TO_LINE_END -> moveCursorToLineEnd().deleteMovement()
+                    KeyCommand.NEW_LINE -> {
+                        if (!singleLine) {
+                            textFieldState.replaceSelectedText(
+                                newText = "\n",
+                                clearComposition = true,
+                                restartImeIfContentChanges = !event.isFromSoftKeyboard,
+                            )
+                        } else {
+                            consumed = onSubmit()
+                        }
+                    }
+                    KeyCommand.TAB -> {
+                        if (!singleLine) {
+                            textFieldState.replaceSelectedText(
+                                newText = "\t",
+                                clearComposition = true,
+                                restartImeIfContentChanges = !event.isFromSoftKeyboard,
+                            )
+                        } else {
+                            consumed = false // let propagate to focus system
+                        }
+                    }
+                    KeyCommand.SELECT_ALL -> selectAll()
+                    KeyCommand.SELECT_LEFT_CHAR -> moveCursorLeftByChar().selectMovement()
+                    KeyCommand.SELECT_RIGHT_CHAR -> moveCursorRightByChar().selectMovement()
+                    KeyCommand.SELECT_LEFT_WORD -> moveCursorLeftByWord().selectMovement()
+                    KeyCommand.SELECT_RIGHT_WORD -> moveCursorRightByWord().selectMovement()
+                    KeyCommand.SELECT_PREV_PARAGRAPH -> moveCursorPrevByParagraph().selectMovement()
+                    KeyCommand.SELECT_NEXT_PARAGRAPH -> moveCursorNextByParagraph().selectMovement()
+                    KeyCommand.SELECT_LINE_START -> moveCursorToLineStart().selectMovement()
+                    KeyCommand.SELECT_LINE_END -> moveCursorToLineEnd().selectMovement()
+                    KeyCommand.SELECT_LINE_LEFT -> moveCursorToLineLeftSide().selectMovement()
+                    KeyCommand.SELECT_LINE_RIGHT -> moveCursorToLineRightSide().selectMovement()
+                    KeyCommand.SELECT_UP -> moveCursorUpByLine().selectMovement()
+                    KeyCommand.SELECT_DOWN -> moveCursorDownByLine().selectMovement()
+                    KeyCommand.SELECT_PAGE_UP -> moveCursorUpByPage().selectMovement()
+                    KeyCommand.SELECT_PAGE_DOWN -> moveCursorDownByPage().selectMovement()
+                    KeyCommand.SELECT_HOME -> moveCursorToHome().selectMovement()
+                    KeyCommand.SELECT_END -> moveCursorToEnd().selectMovement()
+                    KeyCommand.DESELECT -> deselect()
+                    KeyCommand.UNDO -> {
+                        textFieldState.undo()
+                    }
+                    KeyCommand.REDO -> {
+                        textFieldState.redo()
+                    }
+                    KeyCommand.CHARACTER_PALETTE -> {
+                        showCharacterPalette()
+                    }
+                    KeyCommand.CENTER -> {
+                        // Only consume this event if the fix flag is enabled.
+                        if (ComposeFoundationFlags.isTextFieldDpadNavigationEnabled) {
+                            keyboardController.show()
+                        } else {
+                            consumed = false
+                        }
+                    }
                 }
+                if (ComposeFoundationFlags.isTextFieldDpadNavigationEnabled) {
+                    // evaluate movement events to check whether they were actually consumed.
+                    if (
+                        command == KeyCommand.UP ||
+                            command == KeyCommand.DOWN ||
+                            command == KeyCommand.LEFT_CHAR ||
+                            command == KeyCommand.RIGHT_CHAR
+                    ) {
+                        // If selection did not change, the movement event was not consumed.
+                        consumed = initialValue.selection != selection
+                    }
+                }
+
+                // selection changes are applied atomically at the end of context evaluation
+                if (selection != initialValue.selection) {
+                    textFieldState.selectCharsIn(selection)
+                }
+
+                if (wedgeAffinity != null) {
+                    wedgeAffinity?.let { wedgeAffinity ->
+                        if (textFieldState.untransformedText.selection.collapsed) {
+                            textFieldState.selectionWedgeAffinity =
+                                SelectionWedgeAffinity(wedgeAffinity)
+                        } else {
+                            textFieldState.selectionWedgeAffinity =
+                                initialWedgeAffinity.copy(endAffinity = wedgeAffinity)
+                        }
+                    }
+                }
+                return consumed
             }
-        }
     }
 
     /**

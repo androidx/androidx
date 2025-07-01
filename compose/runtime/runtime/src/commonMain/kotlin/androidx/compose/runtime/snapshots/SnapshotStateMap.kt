@@ -32,7 +32,7 @@ import kotlin.jvm.JvmName
  * @see androidx.compose.runtime.mutableStateMapOf
  */
 @Stable
-class SnapshotStateMap<K, V> : StateObject, MutableMap<K, V> {
+public class SnapshotStateMap<K, V> : StateObject, MutableMap<K, V> {
     override var firstStateRecord: StateRecord =
         persistentHashMapOf<K, V>().let { map ->
             val snapshot = currentSnapshot()
@@ -64,18 +64,18 @@ class SnapshotStateMap<K, V> : StateObject, MutableMap<K, V> {
      * It is recommended to use [toMap] when using returning the value of this map from
      * [androidx.compose.runtime.snapshotFlow].
      */
-    fun toMap(): Map<K, V> = readable.map
+    public fun toMap(): Map<K, V> = readable.map
 
-    override val size
+    override val size: Int
         get() = readable.map.size
 
-    override fun containsKey(key: K) = readable.map.containsKey(key)
+    override fun containsKey(key: K): Boolean = readable.map.containsKey(key)
 
-    override fun containsValue(value: V) = readable.map.containsValue(value)
+    override fun containsValue(value: V): Boolean = readable.map.containsValue(value)
 
-    override fun get(key: K) = readable.map[key]
+    override fun get(key: K): V? = readable.map[key]
 
-    override fun isEmpty() = readable.map.isEmpty()
+    override fun isEmpty(): Boolean = readable.map.isEmpty()
 
     override val entries: MutableSet<MutableMap.MutableEntry<K, V>> = SnapshotMapEntrySet(this)
     override val keys: MutableSet<K> = SnapshotMapKeySet(this)
@@ -87,11 +87,11 @@ class SnapshotStateMap<K, V> : StateObject, MutableMap<K, V> {
             "SnapshotStateMap(value=${it.map})@${hashCode()}"
         }
 
-    override fun clear() = update { persistentHashMapOf() }
+    override fun clear(): Unit = update { persistentHashMapOf() }
 
     override fun put(key: K, value: V): V? = mutate { it.put(key, value) }
 
-    override fun putAll(from: Map<out K, V>) = mutate { it.putAll(from) }
+    override fun putAll(from: Map<out K, V>): Unit = mutate { it.putAll(from) }
 
     override fun remove(key: K): V? = mutate { it.remove(key) }
 

@@ -33,6 +33,7 @@ import androidx.compose.ui.inspection.util.resolve
 import androidx.compose.ui.inspection.util.toMap
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
+import kotlin.collections.listOf
 import kotlinx.coroutines.runBlocking
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.Parameter
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.StringEntry
@@ -42,6 +43,43 @@ import org.junit.Test
 @LargeTest
 class ParametersTest {
     @get:Rule val rule = ComposeInspectionRule(ParametersTestActivity::class)
+
+    @Test
+    fun paramList(): Unit = runBlocking {
+        val composables =
+            rule.inspectorTester
+                .sendCommand(GetComposablesCommand(rule.rootId))
+                .getComposablesResponse
+
+        val text = composables.filter("Text").first()
+        val params =
+            rule.inspectorTester
+                .sendCommand(GetParametersByIdCommand(rule.rootId, text.id))
+                .getParametersResponse
+
+        assertThat(params.parameterGroup.parameterList.map { it.name.resolve(params) })
+            .isEqualTo(
+                listOf(
+                    "text",
+                    "modifier",
+                    "color",
+                    "fontSize",
+                    "fontStyle",
+                    "fontWeight",
+                    "fontFamily",
+                    "letterSpacing",
+                    "textDecoration",
+                    "textAlign",
+                    "lineHeight",
+                    "overflow",
+                    "softWrap",
+                    "maxLines",
+                    "minLines",
+                    "onTextLayout",
+                    "style",
+                )
+            )
+    }
 
     @Test
     fun resource(): Unit = runBlocking {
@@ -56,7 +94,7 @@ class ParametersTest {
                 .sendCommand(GetParametersByIdCommand(rule.rootId, text.id))
                 .getParametersResponse
 
-        val resourceValue = params.find("$6").resourceValue
+        val resourceValue = params.find("fontFamily").resourceValue
         assertThat(resourceValue.type.resolve(params)).isEqualTo("font")
         assertThat(resourceValue.namespace.resolve(params))
             .isEqualTo("androidx.compose.ui.inspection.test")
@@ -77,7 +115,7 @@ class ParametersTest {
                 .sendCommand(GetParametersByIdCommand(rule.rootId, buttonId))
                 .getParametersResponse
 
-        val lambdaValue = params.find("$0").lambdaValue
+        val lambdaValue = params.find("onClick").lambdaValue
         assertThat(lambdaValue.fileName.resolve(params)).isEqualTo("ParametersTestActivity.kt")
         assertThat(lambdaValue.startLineNumber).isEqualTo(46)
         assertThat(lambdaValue.endLineNumber).isEqualTo(46)
@@ -121,7 +159,7 @@ class ParametersTest {
                 .sendCommand(GetParametersByIdCommand(rule.rootId, buttonId))
                 .getParametersResponse
 
-        val lambdaValue = params.find("$0").lambdaValue
+        val lambdaValue = params.find("onClick").lambdaValue
         assertThat(lambdaValue.fileName.resolve(params)).isEqualTo("ParametersTestActivity.kt")
         assertThat(lambdaValue.startLineNumber).isEqualTo(47)
         assertThat(lambdaValue.endLineNumber).isEqualTo(47)
@@ -317,7 +355,7 @@ class ParametersTest {
                 .getParametersResponse
         strings = paramsByAnchor.stringsList.toMap()
         assertThat(paramsByAnchor.parameterGroup.parameterList).isNotEmpty()
-        var textValue = paramsByAnchor.find("$0")
+        var textValue = paramsByAnchor.find("text")
         assertThat(strings[textValue.int32Value]).isEqualTo("four")
 
         // Lookup parameters without anchor should fallback to the older approach and return
@@ -329,7 +367,7 @@ class ParametersTest {
         // We are using delayed parameter extractions so the cache does not have parameters
         // (The code should look for an anchor but the anchor is not specified.)
         assertThat(paramsById.parameterGroup.parameterList).isNotEmpty()
-        textValue = paramsById.find("$0")
+        textValue = paramsById.find("text")
         assertThat(strings[textValue.int32Value]).isEqualTo("four")
 
         val snapshot =
@@ -347,7 +385,7 @@ class ParametersTest {
         // Even when using delayed parameter extractions, use the cache if it contains all params:
         strings = paramsById.stringsList.toMap()
         assertThat(paramsById.parameterGroup.parameterList).isNotEmpty()
-        textValue = paramsById.find("$0")
+        textValue = paramsById.find("text")
         assertThat(strings[textValue.int32Value]).isEqualTo("four")
 
         // Looking up by anchor should find the parameters

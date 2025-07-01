@@ -16,6 +16,8 @@
 
 package androidx.compose.foundation.text.contextmenu.internal
 
+import android.app.RemoteAction
+import android.content.Context
 import android.graphics.Rect as AndroidRect
 import android.os.Build
 import android.os.Looper
@@ -23,6 +25,7 @@ import android.view.ActionMode
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.textclassifier.TextClassification
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.MutatorMutex
@@ -32,6 +35,8 @@ import androidx.compose.foundation.text.contextmenu.data.TextContextMenuData
 import androidx.compose.foundation.text.contextmenu.data.TextContextMenuItem
 import androidx.compose.foundation.text.contextmenu.data.TextContextMenuSeparator
 import androidx.compose.foundation.text.contextmenu.data.TextContextMenuSession
+import androidx.compose.foundation.text.contextmenu.data.TextContextMenuTextClassificationItem
+import androidx.compose.foundation.text.contextmenu.internal.TextToolbarHelperApi28.addMenuItem
 import androidx.compose.foundation.text.contextmenu.provider.LocalTextContextMenuToolbarProvider
 import androidx.compose.foundation.text.contextmenu.provider.TextContextMenuDataProvider
 import androidx.compose.foundation.text.contextmenu.provider.TextContextMenuProvider
@@ -145,17 +150,38 @@ internal class AndroidTextContextMenuToolbarProvider(
 
     private var actionMode: ActionMode? = null
 
+    private var startActionModeRunnable: Runnable? = null
+
     override suspend fun showTextContextMenu(dataProvider: TextContextMenuDataProvider) {
         mutatorMutex.mutate {
             val session = TextContextMenuSessionImpl()
             val callback = createActionModeCallback(session, dataProvider)
-            actionMode = TextToolbarHelper.startActionMode(view, callback) ?: return@mutate
+
+            if (Looper.myLooper() !== view.handler?.looper) {
+                val startActionModeRunnable =
+                    this.startActionModeRunnable
+                        ?: Runnable {
+                                val actionMode =
+                                    TextToolbarHelper.startActionMode(view, callback).also {
+                                        this.actionMode == it
+                                    }
+                                // Failed to start action mode, close session by us.
+                                if (actionMode == null) {
+                                    session.close()
+                                }
+                            }
+                            .also { this.startActionModeRunnable = it }
+                view.post(startActionModeRunnable)
+            } else {
+                actionMode = TextToolbarHelper.startActionMode(view, callback) ?: return@mutate
+            }
 
             try {
                 session.awaitClose()
             } finally {
                 snapshotStateObserver.clear()
                 actionMode?.finish()
+                startActionModeRunnable?.let { view.removeCallbacks(it) }
                 actionMode = null
             }
         }
@@ -181,6 +207,7 @@ internal class AndroidTextContextMenuToolbarProvider(
                 session = session,
                 dataBuilder = { observeAndGetData(dataProvider) },
                 positioner = { observeAndGetBounds(dataProvider) },
+                view = view,
             )
         return callbackInjector?.invoke(textCallback) ?: textCallback
     }
@@ -215,6 +242,7 @@ internal class AndroidTextContextMenuToolbarProvider(
         private val session: TextContextMenuSession,
         private val dataBuilder: () -> TextContextMenuData,
         private var positioner: () -> Rect,
+        private val view: View,
     ) : TextActionModeCallback {
         private var previousData: TextContextMenuData? = null
 
@@ -260,6 +288,18 @@ internal class AndroidTextContextMenuToolbarProvider(
                         menuItem.setOnMenuItemClickListener {
                             with(component) { session.onClick() }
                             true
+                        }
+                    }
+                    is TextContextMenuTextClassificationItem -> {
+                        if (Build.VERSION.SDK_INT >= 28) {
+                            val orderId = currentOrderId++
+                            addMenuItem(
+                                menu,
+                                orderId,
+                                view.context,
+                                component.textClassification,
+                                component.index,
+                            )
                         }
                     }
                     is TextContextMenuSeparator -> currentGroupId++
@@ -362,6 +402,77 @@ private class FloatingTextActionModeCallback(
             contentRect.right.fastRoundToInt(),
             contentRect.bottom.fastRoundToInt(),
         )
+    }
+}
+
+@RequiresApi(28)
+private object TextToolbarHelperApi28 {
+    fun addMenuItem(
+        menu: Menu,
+        orderId: Int,
+        context: Context,
+        textClassification: TextClassification,
+        index: Int,
+    ) {
+        if (index < 0) {
+            addLegacyMenuItem(menu, orderId, context, textClassification)
+        } else {
+            val isPrimary = (index == 0)
+            addMenuItem(menu, orderId, context, isPrimary, textClassification.actions[index])
+        }
+    }
+
+    fun addMenuItem(
+        menu: Menu,
+        orderId: Int,
+        context: Context,
+        isPrimary: Boolean,
+        remoteAction: RemoteAction,
+    ) {
+        val item =
+            menu.add(
+                android.R.id.textAssist,
+                if (isPrimary) android.R.id.textAssist else Menu.NONE,
+                orderId,
+                remoteAction.title,
+            )
+
+        item.setShowAsAction(
+            if (isPrimary) MenuItem.SHOW_AS_ACTION_ALWAYS else MenuItem.SHOW_AS_ACTION_NEVER
+        )
+
+        if (isPrimary || remoteAction.shouldShowIcon()) {
+            item.icon = remoteAction.icon.loadDrawable(context)
+        }
+
+        item.setOnMenuItemClickListener {
+            TextClassificationHelperApi28.sendPendingIntent(remoteAction.actionIntent)
+            true
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    fun addLegacyMenuItem(
+        menu: Menu,
+        orderId: Int,
+        context: Context,
+        textClassification: TextClassification,
+    ) {
+        val item =
+            menu.add(
+                android.R.id.textAssist,
+                android.R.id.textAssist,
+                orderId,
+                textClassification.label,
+            )
+
+        item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+        item.icon = textClassification.icon
+
+        item.setOnMenuItemClickListener {
+            TextClassificationHelperApi28.sendLegacyIntent(context, textClassification)
+            true
+        }
     }
 }
 

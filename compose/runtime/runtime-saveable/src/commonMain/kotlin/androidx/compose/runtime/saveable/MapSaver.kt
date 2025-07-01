@@ -27,10 +27,10 @@ package androidx.compose.runtime.saveable
  *
  * @sample androidx.compose.runtime.saveable.samples.MapSaverSample
  */
-fun <T> mapSaver(
+public fun <T> mapSaver(
     save: SaverScope.(value: T) -> Map<String, Any?>,
     restore: (Map<String, Any?>) -> T?,
-) =
+): Saver<T, Any> =
     listSaver<T, Any?>(
         save = {
             mutableListOf<Any?>().apply {

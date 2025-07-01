@@ -36,7 +36,7 @@ import androidx.compose.runtime.annotation.RememberInComposition
  */
 @OptIn(InternalComposeApi::class)
 @RememberInComposition
-fun movableContentOf(content: @Composable () -> Unit): @Composable () -> Unit {
+public fun movableContentOf(content: @Composable () -> Unit): @Composable () -> Unit {
     val movableContent = MovableContent<Nothing?>({ content() })
     return { currentComposer.insertMovableContent(movableContent, null) }
 }
@@ -59,7 +59,7 @@ fun movableContentOf(content: @Composable () -> Unit): @Composable () -> Unit {
  */
 @OptIn(InternalComposeApi::class)
 @RememberInComposition
-fun <P> movableContentOf(content: @Composable (P) -> Unit): @Composable (P) -> Unit {
+public fun <P> movableContentOf(content: @Composable (P) -> Unit): @Composable (P) -> Unit {
     val movableContent = MovableContent(content)
     return { currentComposer.insertMovableContent(movableContent, it) }
 }
@@ -82,7 +82,9 @@ fun <P> movableContentOf(content: @Composable (P) -> Unit): @Composable (P) -> U
  */
 @OptIn(InternalComposeApi::class)
 @RememberInComposition
-fun <P1, P2> movableContentOf(content: @Composable (P1, P2) -> Unit): @Composable (P1, P2) -> Unit {
+public fun <P1, P2> movableContentOf(
+    content: @Composable (P1, P2) -> Unit
+): @Composable (P1, P2) -> Unit {
     val movableContent = MovableContent<Pair<P1, P2>> { content(it.first, it.second) }
     return { p1, p2 -> currentComposer.insertMovableContent(movableContent, p1 to p2) }
 }
@@ -105,7 +107,7 @@ fun <P1, P2> movableContentOf(content: @Composable (P1, P2) -> Unit): @Composabl
  */
 @OptIn(InternalComposeApi::class)
 @RememberInComposition
-fun <P1, P2, P3> movableContentOf(
+public fun <P1, P2, P3> movableContentOf(
     content: @Composable (P1, P2, P3) -> Unit
 ): @Composable (P1, P2, P3) -> Unit {
     val movableContent =
@@ -133,7 +135,7 @@ fun <P1, P2, P3> movableContentOf(
  */
 @OptIn(InternalComposeApi::class)
 @RememberInComposition
-fun <P1, P2, P3, P4> movableContentOf(
+public fun <P1, P2, P3, P4> movableContentOf(
     content: @Composable (P1, P2, P3, P4) -> Unit
 ): @Composable (P1, P2, P3, P4) -> Unit {
     val movableContent =
@@ -164,7 +166,9 @@ fun <P1, P2, P3, P4> movableContentOf(
  */
 @OptIn(InternalComposeApi::class)
 @RememberInComposition
-fun <R> movableContentWithReceiverOf(content: @Composable R.() -> Unit): @Composable R.() -> Unit {
+public fun <R> movableContentWithReceiverOf(
+    content: @Composable R.() -> Unit
+): @Composable R.() -> Unit {
     val movableContent = MovableContent<R>({ it.content() })
     return { currentComposer.insertMovableContent(movableContent, this) }
 }
@@ -187,7 +191,7 @@ fun <R> movableContentWithReceiverOf(content: @Composable R.() -> Unit): @Compos
  */
 @OptIn(InternalComposeApi::class)
 @RememberInComposition
-fun <R, P> movableContentWithReceiverOf(
+public fun <R, P> movableContentWithReceiverOf(
     content: @Composable R.(P) -> Unit
 ): @Composable R.(P) -> Unit {
     val movableContent = MovableContent<Pair<R, P>>({ it.first.content(it.second) })
@@ -212,7 +216,7 @@ fun <R, P> movableContentWithReceiverOf(
  */
 @OptIn(InternalComposeApi::class)
 @RememberInComposition
-fun <R, P1, P2> movableContentWithReceiverOf(
+public fun <R, P1, P2> movableContentWithReceiverOf(
     content: @Composable R.(P1, P2) -> Unit
 ): @Composable R.(P1, P2) -> Unit {
     val movableContent = MovableContent<Triple<R, P1, P2>> { it.first.content(it.second, it.third) }
@@ -237,7 +241,7 @@ fun <R, P1, P2> movableContentWithReceiverOf(
  */
 @OptIn(InternalComposeApi::class)
 @RememberInComposition
-fun <R, P1, P2, P3> movableContentWithReceiverOf(
+public fun <R, P1, P2, P3> movableContentWithReceiverOf(
     content: @Composable R.(P1, P2, P3) -> Unit
 ): @Composable R.(P1, P2, P3) -> Unit {
     val movableContent =

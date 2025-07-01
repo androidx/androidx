@@ -89,21 +89,21 @@ private fun Class<*>.getDefaultValue(): Any? =
     }
 
 /** Represents the @Composable method. */
-class ComposableMethod
+public class ComposableMethod
 internal constructor(private val method: Method, private val composableInfo: ComposableInfo) {
     /** Returns the backing [Method]. */
-    fun asMethod() = method
+    public fun asMethod(): Method = method
 
     /** Returns the count of method parameters excluding the utility Compose-specific parameters. */
-    val parameterCount
+    public val parameterCount: Int
         get() = composableInfo.realParamsCount
 
     /** Returns method parameters excluding the utility Compose-specific parameters. */
-    val parameters: Array<Parameter>
+    public val parameters: Array<Parameter>
         @Suppress("NewApi") get() = method.parameters.copyOfRange(0, composableInfo.realParamsCount)
 
     /** Returns method parameters types excluding the utility Compose-specific parameters. */
-    val parameterTypes: Array<Class<*>>
+    public val parameterTypes: Array<Class<*>>
         get() = method.parameterTypes.copyOfRange(0, composableInfo.realParamsCount)
 
     /**
@@ -111,7 +111,7 @@ internal constructor(private val method: Method, private val composableInfo: Com
      * this function will call it with the correct options set.
      */
     @Suppress("BanUncheckedReflection", "ListIterator")
-    operator fun invoke(composer: Composer, instance: Any?, vararg args: Any?): Any? {
+    public operator fun invoke(composer: Composer, instance: Any?, vararg args: Any?): Any? {
         val (_, realParamsCount, changedParams, defaultParams) = composableInfo
 
         val totalParams = method.parameterTypes.size
@@ -149,16 +149,16 @@ internal constructor(private val method: Method, private val composableInfo: Com
         return method.invoke(instance, *arguments)
     }
 
-    override fun equals(other: Any?) =
+    override fun equals(other: Any?): Boolean =
         when (other) {
             is ComposableMethod -> method == other.method
             else -> false
         }
 
-    override fun hashCode() = method.hashCode()
+    override fun hashCode(): Int = method.hashCode()
 }
 
-fun Method.asComposableMethod(): ComposableMethod? {
+public fun Method.asComposableMethod(): ComposableMethod? {
     val composableInfo = getComposableInfo()
     if (composableInfo.isComposable) {
         return ComposableMethod(this, composableInfo)
@@ -172,7 +172,7 @@ private inline fun <reified T> T.dup(count: Int): Array<T> {
 
 /** Find the given @Composable method by name. */
 @Throws(NoSuchMethodException::class)
-fun Class<*>.getDeclaredComposableMethod(
+public fun Class<*>.getDeclaredComposableMethod(
     methodName: String,
     vararg args: Class<*>,
 ): ComposableMethod {

@@ -20,11 +20,12 @@ package androidx.compose.runtime
 
 import kotlin.text.toString as stdlibToString
 
-actual typealias CompositeKeyHashCode = Long
+public actual typealias CompositeKeyHashCode = Long
 
-actual inline fun CompositeKeyHashCode.toLong() = this
+public actual inline fun CompositeKeyHashCode.toLong() = this
 
-actual inline fun CompositeKeyHashCode.toString(radix: Int): String = this.stdlibToString(radix)
+public actual inline fun CompositeKeyHashCode.toString(radix: Int): String =
+    this.stdlibToString(radix)
 
 internal actual inline fun CompositeKeyHashCode(initial: Int) = initial.toLong()
 
@@ -44,4 +45,4 @@ internal actual inline fun CompositeKeyHashCode.bottomUpCompoundWith(
 
 internal actual const val CompositeKeyHashSizeBits: Int = 64
 
-actual const val EmptyCompositeKeyHashCode = 0L
+public actual const val EmptyCompositeKeyHashCode: Long = 0L

@@ -32,9 +32,9 @@ import androidx.compose.runtime.requirePrecondition
  * @see androidx.compose.runtime.mutableStateListOf
  */
 @Stable
-expect class SnapshotStateList<T> internal constructor(persistentList: PersistentList<T>) :
+public expect class SnapshotStateList<T> internal constructor(persistentList: PersistentList<T>) :
     StateObject, MutableList<T>, RandomAccess {
-    constructor()
+    public constructor()
 
     override var firstStateRecord: StateRecord
         private set
@@ -56,7 +56,7 @@ expect class SnapshotStateList<T> internal constructor(persistentList: Persisten
      * It is recommended to use [toList] when using returning the value of this list from
      * [androidx.compose.runtime.snapshotFlow].
      */
-    fun toList(): List<T>
+    public fun toList(): List<T>
 
     override val size: Int
 
@@ -100,7 +100,7 @@ expect class SnapshotStateList<T> internal constructor(persistentList: Persisten
 
     override fun set(index: Int, element: T): T
 
-    fun removeRange(fromIndex: Int, toIndex: Int)
+    public fun removeRange(fromIndex: Int, toIndex: Int)
 
     internal fun retainAllInRange(elements: Collection<T>, start: Int, end: Int): Int
 }
@@ -221,7 +221,7 @@ internal val <T> SnapshotStateList<T>.readable: StateListStateRecord<T>
  * The function [init] is called for each list element sequentially starting from the first one. It
  * should return the value for a list element given its index.
  */
-fun <T> SnapshotStateList(size: Int, init: (index: Int) -> T): SnapshotStateList<T> {
+public fun <T> SnapshotStateList(size: Int, init: (index: Int) -> T): SnapshotStateList<T> {
     if (size == 0) {
         return SnapshotStateList()
     }

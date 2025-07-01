@@ -30,8 +30,8 @@ import kotlin.js.JsName
  * @see androidx.compose.runtime.mutableStateSetOf
  */
 @Stable
-expect class SnapshotStateSet<T> : StateObject, MutableSet<T>, RandomAccess {
-    constructor()
+public expect class SnapshotStateSet<T> : StateObject, MutableSet<T>, RandomAccess {
+    public constructor()
 
     override var firstStateRecord: StateRecord
         private set
@@ -53,7 +53,7 @@ expect class SnapshotStateSet<T> : StateObject, MutableSet<T>, RandomAccess {
      * It is recommended to use [toSet] when returning the value of this set from
      * [androidx.compose.runtime.snapshotFlow].
      */
-    fun toSet(): Set<T>
+    public fun toSet(): Set<T>
 
     override val size: Int
 

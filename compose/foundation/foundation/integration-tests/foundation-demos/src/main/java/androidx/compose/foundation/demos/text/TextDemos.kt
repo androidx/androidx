@@ -171,6 +171,10 @@ val TextDemos =
                     ComposableDemo("Value/callback overload") { BasicTextFieldValueCallbackDemo() },
                     ComposableDemo("Keyboard Options") { KeyboardOptionsDemos() },
                     ComposableDemo("Keyboard Actions") { KeyboardActionsDemos() },
+                    DemoCategory(
+                        "Focus",
+                        listOf(ComposableDemo("Keyboard Navigation") { BasicTextFieldFocusDemo() }),
+                    ),
                     ComposableDemo("Decoration Box") { DecorationBoxDemos() },
                     ComposableDemo("Line limits") { TextFieldLineLimitsDemos() },
                     DemoCategory(
