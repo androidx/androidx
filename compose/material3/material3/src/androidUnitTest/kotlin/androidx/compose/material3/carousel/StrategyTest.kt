@@ -117,6 +117,52 @@ class StrategyTest {
     }
 
     @Test
+    fun testStrategy_overlappingShiftOffsetsSkipsDefaultKeylineList() {
+        val itemCount = 2
+        val carouselMainAxisSize = large + small // 120
+        val maxScrollOffset = large * itemCount - carouselMainAxisSize // 80
+        val defaultKeylines =
+            keylineListOf(
+                carouselMainAxisSize = carouselMainAxisSize,
+                itemSpacing = 0f,
+                carouselAlignment = CarouselAlignment.Start,
+            ) {
+                add(xSmall, isAnchor = true)
+                add(large)
+                add(small)
+                add(xSmall, isAnchor = true)
+            }
+
+        val strategy =
+            Strategy(
+                defaultKeylines = defaultKeylines,
+                availableSpace = carouselMainAxisSize,
+                itemSpacing = 0f,
+                beforeContentPadding = 24f,
+                afterContentPadding = 48f,
+            )
+
+        // Ensure the first step accounts for the before content padding
+        val startKeylineList = strategy.getKeylineListForScrollOffset(0f, maxScrollOffset, false)
+        assertThat(startKeylineList.firstFocal.offset)
+            .isEqualTo(24f + (startKeylineList.firstFocal.size / 2f))
+
+        // Ensure the last step accounts for the after content padding
+        val endKeylineList =
+            strategy.getKeylineListForScrollOffset(maxScrollOffset, maxScrollOffset, false)
+        assertThat(endKeylineList.lastFocal.offset)
+            .isEqualTo(carouselMainAxisSize - 48f - (endKeylineList.lastFocal.size / 2f))
+
+        // Find the keylines used in the middle of the scroll offset. They should not be the
+        // default keylines (as in most cases) since we are skipping the defaults and moving
+        // directly between the last start and end steps
+        val midpointKeylineList =
+            strategy.getKeylineListForScrollOffset(maxScrollOffset / 2, maxScrollOffset, true)
+        assertThat(midpointKeylineList.map { it.offset })
+            .isNotEqualTo(defaultKeylines.map { it.offset })
+    }
+
+    @Test
     fun testStrategy_centerAlignedShiftsStart() {
         val itemCount = 12
         val carouselMainAxisSize = (small * 2) + medium + (large * 2) + medium + (small * 2)

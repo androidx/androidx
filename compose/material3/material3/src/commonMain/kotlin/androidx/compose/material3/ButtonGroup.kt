@@ -71,6 +71,8 @@ import kotlin.math.roundToInt
 import kotlin.math.sign
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 // TODO link to mio page when available.
@@ -962,23 +964,28 @@ internal class EnlargeOnPressNode(
         collectionJob?.cancel()
         collectionJob =
             coroutineScope.launch {
+                val pressInteractions = mutableListOf<PressInteraction.Press>()
                 launch {
-                    // Use collect here to ensure we don't lose any events.
-                    interactionSource.interactions.collectLatest { interaction ->
-                        when (interaction) {
-                            is PressInteraction.Press -> {
-                                coroutineScope.launch {
-                                    pressedAnimatable.animateTo(1f, animationSpec)
-                                }
+                    interactionSource.interactions
+                        .map { interaction ->
+                            when (interaction) {
+                                is PressInteraction.Press -> pressInteractions.add(interaction)
+                                is PressInteraction.Release ->
+                                    pressInteractions.remove(interaction.press)
+                                is PressInteraction.Cancel ->
+                                    pressInteractions.remove(interaction.press)
                             }
-                            is PressInteraction.Release,
-                            is PressInteraction.Cancel -> {
-                                coroutineScope.launch {
-                                    pressedAnimatable.animateTo(0f, animationSpec)
-                                }
+                            pressInteractions.isNotEmpty()
+                        }
+                        .distinctUntilChanged()
+                        .collectLatest { pressed ->
+                            if (pressed) {
+                                launch { pressedAnimatable.animateTo(1f, animationSpec) }
+                            } else {
+                                waitUntil { pressedAnimatable.value > 0.75f }
+                                pressedAnimatable.animateTo(0f, animationSpec)
                             }
                         }
-                    }
                 }
             }
     }
@@ -1118,6 +1125,15 @@ private interface ButtonGroupOverflowState {
 @Composable
 private fun rememberOverflowState(): ButtonGroupOverflowState {
     return rememberSaveable(saver = OverflowStateImpl.Saver) { OverflowStateImpl() }
+}
+
+private suspend fun waitUntil(condition: () -> Boolean) {
+    val initialTimeMillis = withFrameMillis { it }
+    while (!condition()) {
+        val timeMillis = withFrameMillis { it }
+        if (timeMillis - initialTimeMillis > MAX_WAIT_TIME_MILLIS) return
+    }
+    return
 }
 
 /** Implementation of [ButtonGroupOverflowState]. */
@@ -1260,3 +1276,5 @@ private class ButtonGroupScopeImpl(val animationSpec: AnimationSpec<Float>) :
             )
         )
 }
+
+private const val MAX_WAIT_TIME_MILLIS = 1_000L

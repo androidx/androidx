@@ -106,6 +106,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -2129,6 +2130,17 @@ class TextFieldTest {
             ) {
                 TextField(state = rememberTextFieldState(), leadingIcon = { Text("Icon") })
             }
+        }
+    }
+
+    @Test // b/424167352
+    fun testTextField_noCrash_whenOutputTransformationCallsAddStyle() {
+        // this test completing without crash is enough, no need for additional assertions
+        rule.setMaterialContent(lightColorScheme()) {
+            TextField(
+                state = rememberTextFieldState("Hello, World"),
+                outputTransformation = { addStyle(SpanStyle(), 0, length) },
+            )
         }
     }
 }

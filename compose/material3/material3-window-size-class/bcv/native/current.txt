@@ -68,3 +68,7 @@ final value class androidx.compose.material3.windowsizeclass/WindowWidthSizeClas
             final fun <get-Medium>(): androidx.compose.material3.windowsizeclass/WindowWidthSizeClass // androidx.compose.material3.windowsizeclass/WindowWidthSizeClass.Companion.Medium.<get-Medium>|<get-Medium>(){}[0]
     }
 }
+
+final val androidx.compose.material3.windowsizeclass/androidx_compose_material3_windowsizeclass_WindowSizeClass$stableprop // androidx.compose.material3.windowsizeclass/androidx_compose_material3_windowsizeclass_WindowSizeClass$stableprop|#static{}androidx_compose_material3_windowsizeclass_WindowSizeClass$stableprop[0]
+
+final fun androidx.compose.material3.windowsizeclass/androidx_compose_material3_windowsizeclass_WindowSizeClass$stableprop_getter(): kotlin/Int // androidx.compose.material3.windowsizeclass/androidx_compose_material3_windowsizeclass_WindowSizeClass$stableprop_getter|androidx_compose_material3_windowsizeclass_WindowSizeClass$stableprop_getter(){}[0]

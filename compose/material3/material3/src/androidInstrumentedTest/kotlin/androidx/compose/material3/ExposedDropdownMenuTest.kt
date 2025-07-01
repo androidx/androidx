@@ -47,6 +47,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
@@ -55,6 +56,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
@@ -65,7 +67,10 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.pressKey
+import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.test.swipe
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
@@ -485,6 +490,118 @@ class ExposedDropdownMenuTest {
             )
         }
         rule.onNodeWithTag(MenuItemTag).assertDoesNotExist()
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun edm_expands_onEnterKey() {
+        var expanded by mutableStateOf(false)
+
+        rule.setMaterialContent(lightColorScheme()) {
+            ExposedDropdownMenuForTest(
+                expanded = expanded,
+                onExpandChange = { expanded = it },
+                textFieldModifier = Modifier.testTag("TextField"),
+            )
+        }
+
+        rule.onNodeWithTag("TextField").requestFocus().performKeyInput { pressKey(Key.Enter) }
+
+        rule.runOnIdle { assertThat(expanded).isTrue() }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun edm_collapses_onEnterKey() {
+        var expanded by mutableStateOf(true)
+
+        rule.setMaterialContent(lightColorScheme()) {
+            ExposedDropdownMenuForTest(
+                expanded = expanded,
+                onExpandChange = { expanded = it },
+                textFieldModifier = Modifier.testTag("TextField"),
+            )
+        }
+
+        rule.onNodeWithTag("TextField").requestFocus().performKeyInput { pressKey(Key.Enter) }
+
+        rule.runOnIdle { assertThat(expanded).isFalse() }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun edm_editable_expands_onEnterKey() {
+        var expanded by mutableStateOf(false)
+
+        rule.setMaterialContent(lightColorScheme()) {
+            ExposedDropdownMenuForTest(
+                editable = true,
+                expanded = expanded,
+                onExpandChange = { expanded = it },
+                textFieldModifier = Modifier.testTag("TextField"),
+            )
+        }
+
+        rule.onNodeWithTag("TextField").requestFocus().performKeyInput { pressKey(Key.Enter) }
+
+        rule.runOnIdle { assertThat(expanded).isTrue() }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun edm_editable_collapses_onEnterKey() {
+        var expanded by mutableStateOf(true)
+
+        rule.setMaterialContent(lightColorScheme()) {
+            ExposedDropdownMenuForTest(
+                editable = true,
+                expanded = expanded,
+                onExpandChange = { expanded = it },
+                textFieldModifier = Modifier.testTag("TextField"),
+            )
+        }
+
+        rule.onNodeWithTag("TextField").requestFocus().performKeyInput { pressKey(Key.Enter) }
+
+        rule.runOnIdle { assertThat(expanded).isFalse() }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun edm_editable_doesNotExpand_onSpacebarKey() {
+        var expanded by mutableStateOf(false)
+
+        rule.setMaterialContent(lightColorScheme()) {
+            ExposedDropdownMenuForTest(
+                editable = true,
+                expanded = expanded,
+                onExpandChange = { expanded = it },
+                textFieldModifier = Modifier.testTag("TextField"),
+            )
+        }
+
+        rule.onNodeWithTag("TextField").requestFocus().performKeyInput { pressKey(Key.Spacebar) }
+
+        rule.runOnIdle { assertThat(expanded).isFalse() }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun edm_editable_doesNotCollapse_onSpacebarKey() {
+        var expanded by mutableStateOf(true)
+
+        rule.setMaterialContent(lightColorScheme()) {
+            ExposedDropdownMenuForTest(
+                editable = true,
+                expanded = expanded,
+                onExpandChange = { expanded = it },
+                textFieldModifier = Modifier.testTag("TextField"),
+            )
+        }
+
+        rule.onNodeWithTag("TextField").requestFocus().performKeyInput { pressKey(Key.Spacebar) }
+
+        rule.runOnIdle { assertThat(expanded).isTrue() }
     }
 
     @Test

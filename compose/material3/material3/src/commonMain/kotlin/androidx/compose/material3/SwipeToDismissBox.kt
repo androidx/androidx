@@ -317,7 +317,7 @@ fun SwipeToDismissBox(
             modifier.anchoredDraggable(
                 state = state.anchoredDraggableState,
                 orientation = Orientation.Horizontal,
-                enabled = gesturesEnabled && state.currentValue == SwipeToDismissBoxValue.Settled,
+                enabled = gesturesEnabled && state.settledValue == SwipeToDismissBoxValue.Settled,
                 flingBehavior =
                     if (state.useFlingBehavior)
                         AnchoredDraggableDefaults.flingBehavior(
