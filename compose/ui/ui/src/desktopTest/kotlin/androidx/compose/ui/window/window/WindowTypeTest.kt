@@ -749,23 +749,34 @@ class WindowTypeTest : BaseWindowTextFieldTest() {
     }
 
     @Theory
-    internal fun macOsAccentedCharacterByLongPressInput(textFieldKind: TextFieldKind<*>) = runTextFieldTest(
-        name = "ç, macOS",
-        textFieldKind = textFieldKind,
-    ) {
-        if (!isMacOs) return@runTextFieldTest  // Assume.assumeTrue doesn't work with @Theory
+    internal fun macOsAccentedCharacterByLongPressInput(textFieldKind: TextFieldKind<*>) =
+        runTextFieldTest(
+            name = "ç, macOS",
+            textFieldKind = textFieldKind,
+        ) {
+            if (!isMacOs) return@runTextFieldTest  // Assume.assumeTrue doesn't work with @Theory
 
-        window.sendKeyEvent('c'.code, 'c', KEY_PRESSED)
-        window.sendKeyTypedEvent('c')
-        // This triggers the "needToDeletePreviousChar" hack in DesktopTextInputService(2).
-        // If the implementation of this ever changes, this test will need to change as well.
-        // Note that using java.awt.Robot to test this doesn't appear to work, as the accented
-        // characters toolbar isn't displayed.
-        window.focusOwner.inputMethodRequests.getSelectedText(null)
-        window.sendKeyEvent('c'.code, 'c', KEY_RELEASED)
-        assertStateEquals("c", selection = TextRange(1), composition = null)
+            window.sendKeyEvent('c'.code, 'c', KEY_PRESSED)
+            window.sendKeyTypedEvent('c')
+            // This triggers the "needToDeletePreviousChar" hack in DesktopTextInputService(2).
+            // If the implementation of this ever changes, this test will need to change as well.
+            // Note that using java.awt.Robot to test this doesn't appear to work, as the accented
+            // characters toolbar isn't displayed.
+            window.focusOwner.inputMethodRequests.getSelectedText(null)
+            window.sendKeyEvent('c'.code, 'c', KEY_RELEASED)
+            assertStateEquals("c", selection = TextRange(1), composition = null)
 
-        window.sendInputMethodEvent("ç", 1)
-        assertStateEquals("ç", selection = TextRange(1), composition = null)
-    }
+            window.sendInputMethodEvent("ç", 1)
+            assertStateEquals("ç", selection = TextRange(1), composition = null)
+        }
+
+    @Theory
+    internal fun committedTextEventSentImmediatelyCommitsText(textFieldKind: TextFieldKind<*>) =
+        runTextFieldTest(
+            name = "first InputMethodEvent commits text",
+            textFieldKind = textFieldKind,
+        ) {
+            window.sendInputMethodEvent("·", committedCharacterCount = 1)
+            assertStateEquals("·", selection = TextRange(1), composition = null)
+        }
 }
