@@ -30,7 +30,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.UIKitInteropInteractionMode
@@ -44,9 +43,8 @@ fun Int.interactionModeToString(): String = when (this) {
     else -> "Non-interactive"
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun ConfigutableMap(index: Int) {
+fun ConfigurableMap(index: Int) {
     var interactionMode by remember { mutableStateOf(0) }
 
     UIKitView(
@@ -94,10 +92,10 @@ fun ConfigurableMap(nestInsideBox: Boolean, index: Int) {
         Box(
             modifier = Modifier.fillMaxSize()
         ) {
-            ConfigutableMap(index)
+            ConfigurableMap(index)
         }
     } else {
-        ConfigutableMap(index)
+        ConfigurableMap(index)
     }
 
 }

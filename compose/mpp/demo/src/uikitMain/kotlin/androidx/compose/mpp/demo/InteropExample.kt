@@ -40,7 +40,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -97,7 +96,6 @@ val InteropExample = Screen.Example("Interop") {
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun UIKitViewInteractionModeSection() {
     Text("UIKitView - interactionMode")
@@ -283,7 +281,6 @@ private fun TextSection() {
 }
 
 @Composable
-@OptIn(ExperimentalComposeUiApi::class)
 private fun UIKitViewControllerSection() {
     var updatedValue by remember { mutableStateOf(null as Offset?) }
 

@@ -4654,6 +4654,30 @@ sealed interface androidx.compose.ui.uikit/OnFocusBehavior { // androidx.compose
 }
 
 // Targets: [ios]
+sealed interface androidx.compose.ui.viewinterop/UIKitInteropInteractionMode { // androidx.compose.ui.viewinterop/UIKitInteropInteractionMode|null[0]
+    final class Cooperative : androidx.compose.ui.viewinterop/UIKitInteropInteractionMode { // androidx.compose.ui.viewinterop/UIKitInteropInteractionMode.Cooperative|null[0]
+        constructor <init>(kotlin/Int = ...) // androidx.compose.ui.viewinterop/UIKitInteropInteractionMode.Cooperative.<init>|<init>(kotlin.Int){}[0]
+
+        final val delayMillis // androidx.compose.ui.viewinterop/UIKitInteropInteractionMode.Cooperative.delayMillis|{}delayMillis[0]
+            final fun <get-delayMillis>(): kotlin/Int // androidx.compose.ui.viewinterop/UIKitInteropInteractionMode.Cooperative.delayMillis.<get-delayMillis>|<get-delayMillis>(){}[0]
+
+        final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.ui.viewinterop/UIKitInteropInteractionMode.Cooperative.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // androidx.compose.ui.viewinterop/UIKitInteropInteractionMode.Cooperative.hashCode|hashCode(){}[0]
+
+        final object Companion { // androidx.compose.ui.viewinterop/UIKitInteropInteractionMode.Cooperative.Companion|null[0]
+            final const val DefaultDelayMillis // androidx.compose.ui.viewinterop/UIKitInteropInteractionMode.Cooperative.Companion.DefaultDelayMillis|{}DefaultDelayMillis[0]
+                final fun <get-DefaultDelayMillis>(): kotlin/Int // androidx.compose.ui.viewinterop/UIKitInteropInteractionMode.Cooperative.Companion.DefaultDelayMillis.<get-DefaultDelayMillis>|<get-DefaultDelayMillis>(){}[0]
+        }
+    }
+
+    final object NonCooperative : androidx.compose.ui.viewinterop/UIKitInteropInteractionMode { // androidx.compose.ui.viewinterop/UIKitInteropInteractionMode.NonCooperative|null[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.ui.viewinterop/UIKitInteropInteractionMode.NonCooperative.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // androidx.compose.ui.viewinterop/UIKitInteropInteractionMode.NonCooperative.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // androidx.compose.ui.viewinterop/UIKitInteropInteractionMode.NonCooperative.toString|toString(){}[0]
+    }
+}
+
+// Targets: [ios]
 final class androidx.compose.ui.draganddrop/DragAndDropTransferData // androidx.compose.ui.draganddrop/DragAndDropTransferData|null[0]
 
 // Targets: [ios]
@@ -4860,6 +4884,7 @@ final class androidx.compose.ui.uikit/ComposeUIViewControllerConfiguration { // 
 
 // Targets: [ios]
 final class androidx.compose.ui.viewinterop/UIKitInteropProperties { // androidx.compose.ui.viewinterop/UIKitInteropProperties|null[0]
+    constructor <init>(androidx.compose.ui.viewinterop/UIKitInteropInteractionMode? = ..., kotlin/Boolean = ...) // androidx.compose.ui.viewinterop/UIKitInteropProperties.<init>|<init>(androidx.compose.ui.viewinterop.UIKitInteropInteractionMode?;kotlin.Boolean){}[0]
     constructor <init>(kotlin/Boolean, kotlin/Boolean) // androidx.compose.ui.viewinterop/UIKitInteropProperties.<init>|<init>(kotlin.Boolean;kotlin.Boolean){}[0]
 
     final val interactionMode // androidx.compose.ui.viewinterop/UIKitInteropProperties.interactionMode|{}interactionMode[0]
