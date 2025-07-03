@@ -46,6 +46,7 @@ import androidx.compose.ui.test.rightClick
 import androidx.compose.ui.test.runComposeUiTest
 import androidx.compose.ui.text.TextRange
 import java.awt.datatransfer.StringSelection
+import kotlin.test.Ignore
 import kotlin.test.assertEquals
 import org.junit.Test
 
@@ -97,6 +98,7 @@ class ContextMenuTest {
     fun `different items for different selections in btf`() =
         `different items for different selections in textfield`(useBtf2 = false)
 
+    @Ignore // TODO: https://youtrack.jetbrains.com/issue/CMP-8485
     @Test
     fun `different items for different selections in btf2`() =
         `different items for different selections in textfield`(useBtf2 = true)
