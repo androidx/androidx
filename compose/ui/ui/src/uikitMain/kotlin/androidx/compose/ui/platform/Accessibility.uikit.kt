@@ -1067,7 +1067,9 @@ internal class AccessibilityMediator(
             val beforeElements = beforeChildren.map { traverseGroup(it, isBeyondBounds = true) }
             val afterElements = afterChildren.map { traverseGroup(it, isBeyondBounds = true) }
 
-            val containerElements = if (node.isImportantForAccessibility()) {
+            val containerElements = if (node.isImportantForAccessibility() ||
+                node.config.contains(SemanticsProperties.TestTag)
+            ) {
                 listOf(makeSemanticsNode())
             } else {
                 emptyList()

@@ -60,6 +60,7 @@ import platform.UIKit.UIScrollView
 import platform.UIKit.UITouch
 import platform.UIKit.UIView
 import platform.UIKit.endEditing
+import platform.UIKit.setAccessibilityElements
 import platform.UIKit.setState
 
 /**
@@ -549,6 +550,8 @@ internal class UserInputView(
             addGestureRecognizer(it)
         }
         hoverGestureHandler.attachToView(this)
+
+        setAccessibilityElements(emptyList<Any>())
     }
 
     override fun canBecomeFirstResponder() = true

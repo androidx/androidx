@@ -28,7 +28,7 @@ import platform.CoreGraphics.CGRectZero
 import platform.UIKit.UIResponder
 import platform.UIKit.UIView
 import platform.UIKit.UIViewController
-import platform.UIKit.setIsAccessibilityElement
+import platform.UIKit.setAccessibilityElements
 
 /**
  * On iOS [InteropView] is a [UIResponder], which is a base class for [UIView] and [UIViewController]
@@ -59,14 +59,22 @@ internal class InteropWrappingView(
     var interactionMode: UIKitInteropInteractionMode? = interactionMode
         set(value) {
             field = value
-            setIsAccessibilityElement(value != null)
+            updateAccessibilityElements()
         }
 
     init {
-        setIsAccessibilityElement(interactionMode != null)
+        updateAccessibilityElements()
         // required to properly clip the content of the wrapping view in case interop unclipped
         // bounds are larger than clipped bounds
         clipsToBounds = true
+    }
+
+    private fun updateAccessibilityElements() {
+        if (interactionMode == null) {
+            setAccessibilityElements(emptyList<Any>())
+        } else {
+            setAccessibilityElements(null)
+        }
     }
 
     override fun accessibilityContainer(): Any? {
