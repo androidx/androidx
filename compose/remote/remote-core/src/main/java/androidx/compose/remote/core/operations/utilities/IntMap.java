@@ -1,0 +1,202 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package androidx.compose.remote.core.operations.utilities;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+
+public class IntMap<T> {
+
+    private static final int DEFAULT_CAPACITY = 16;
+    private static final float LOAD_FACTOR = 0.75f;
+    private static final int NOT_PRESENT = Integer.MIN_VALUE;
+    private int[] mKeys;
+    private ArrayList<T> mValues;
+    int mSize;
+
+    public IntMap() {
+        mKeys = new int[DEFAULT_CAPACITY];
+        Arrays.fill(mKeys, NOT_PRESENT);
+        mValues = new ArrayList<T>(DEFAULT_CAPACITY);
+        for (int i = 0; i < DEFAULT_CAPACITY; i++) {
+            mValues.add(null);
+        }
+    }
+
+    /** Clear the map */
+    public void clear() {
+        Arrays.fill(mKeys, NOT_PRESENT);
+        mValues.clear();
+        mSize = 0;
+    }
+
+    /**
+     * Insert the value into the map with the given key
+     *
+     * @param key
+     * @param value
+     * @return
+     */
+    @Nullable
+    public T put(int key, @NonNull T value) {
+        if (key == NOT_PRESENT) throw new IllegalArgumentException("Key cannot be NOT_PRESENT");
+        if (mSize > mKeys.length * LOAD_FACTOR) {
+            resize();
+        }
+        return insert(key, value);
+    }
+
+    /**
+     * Insert all the key values from the given map
+     *
+     * @param map
+     */
+    public void putAll(IntMap<T> map) {
+        for (int i = 0; i < map.mValues.size(); i++) {
+            int key = map.mKeys[i];
+            if (key != NOT_PRESENT) {
+                T value = map.get(key);
+                put(key, value);
+            }
+        }
+    }
+
+    /**
+     * Return the value associated with the given key
+     *
+     * @param key
+     * @return
+     */
+    @Nullable
+    public T get(int key) {
+        int index = findKey(key);
+        if (index == -1) {
+            return null;
+        } else return mValues.get(index);
+    }
+
+    /**
+     * Return the size of the map
+     *
+     * @return
+     */
+    public int size() {
+        return mSize;
+    }
+
+    @Nullable
+    private T insert(int key, @NonNull T value) {
+        int index = hash(key) % mKeys.length;
+        while (mKeys[index] != NOT_PRESENT && mKeys[index] != key) {
+            index = (index + 1) % mKeys.length;
+        }
+        T oldValue = null;
+        if (mKeys[index] == NOT_PRESENT) {
+            mSize++;
+        } else {
+            oldValue = mValues.get(index);
+        }
+        mKeys[index] = key;
+        mValues.set(index, value);
+        return oldValue;
+    }
+
+    private int findKey(int key) {
+        int index = hash(key) % mKeys.length;
+        while (mKeys[index] != NOT_PRESENT) {
+            if (mKeys[index] == key) {
+                return index;
+            }
+            index = (index + 1) % mKeys.length;
+        }
+        return -1;
+    }
+
+    private int hash(int key) {
+        return key;
+    }
+
+    private void resize() {
+        int[] oldKeys = mKeys;
+        ArrayList<T> oldValues = mValues;
+        mKeys = new int[(oldKeys.length * 2)];
+        for (int i = 0; i < mKeys.length; i++) {
+            mKeys[i] = NOT_PRESENT;
+        }
+        mValues = new ArrayList<T>(oldKeys.length * 2);
+        for (int i = 0; i < oldKeys.length * 2; i++) {
+            mValues.add(null);
+        }
+        mSize = 0;
+        for (int i = 0; i < oldKeys.length; i++) {
+            if (oldKeys[i] != NOT_PRESENT) {
+                put(oldKeys[i], oldValues.get(i));
+            }
+        }
+    }
+
+    /**
+     * Remote the key from the map
+     *
+     * @param key
+     * @return
+     */
+    @Nullable
+    public T remove(int key) {
+        int index = hash(key) % mKeys.length;
+        int initialIndex = index;
+
+        while (mKeys[index] != NOT_PRESENT) {
+            if (mKeys[index] == key) {
+                T oldValue = mValues.get(index);
+                mKeys[index] = NOT_PRESENT;
+                mValues.set(index, null);
+                mSize--;
+
+                // Rehash the cluster of keys following the removed key
+                rehashFrom((index + 1) % mKeys.length);
+                return oldValue;
+            }
+            index = (index + 1) % mKeys.length;
+            if (index == initialIndex) {
+                break; // Avoid infinite loop
+            }
+        }
+        return null; // Key not found
+    }
+
+    private void rehashFrom(int startIndex) {
+        int index = startIndex;
+
+        while (mKeys[index] != NOT_PRESENT) {
+            int keyToRehash = mKeys[index];
+            T valueToRehash = mValues.get(index);
+
+            // Remove the key-value pair from the current position
+            mKeys[index] = NOT_PRESENT;
+            mValues.set(index, null);
+            mSize--;
+
+            // Re-insert the key-value pair
+            insert(keyToRehash, valueToRehash);
+
+            index = (index + 1) % mKeys.length;
+        }
+    }
+}

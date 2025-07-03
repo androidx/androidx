@@ -39,7 +39,7 @@ import androidx.compose.runtime.snapshots.sync
  */
 @ExperimentalComposeRuntimeApi
 @Suppress("CallbackName")
-interface SnapshotObserver {
+public interface SnapshotObserver {
     /**
      * Called before a snapshot is created allowing reads and writes to the snapshot to be observed.
      *
@@ -50,7 +50,7 @@ interface SnapshotObserver {
      * @param readonly whether the snapshot being created will be read-only.
      * @return optional read and write observers that will be added to the snapshot created.
      */
-    fun onPreCreate(parent: Snapshot?, readonly: Boolean): SnapshotInstanceObservers? = null
+    public fun onPreCreate(parent: Snapshot?, readonly: Boolean): SnapshotInstanceObservers? = null
 
     /**
      * Called after snapshot is created.
@@ -67,7 +67,11 @@ interface SnapshotObserver {
      *   [onCreated]. This allows correlating which snapshot observers returned by [onPreCreate] to
      *   the [snapshot] that was created.
      */
-    fun onCreated(snapshot: Snapshot, parent: Snapshot?, observers: SnapshotInstanceObservers?) {}
+    public fun onCreated(
+        snapshot: Snapshot,
+        parent: Snapshot?,
+        observers: SnapshotInstanceObservers?,
+    ) {}
 
     /**
      * Called while a snapshot is being disposed.
@@ -76,7 +80,7 @@ interface SnapshotObserver {
      *
      * @param snapshot information about the snapshot that was created.
      */
-    fun onPreDispose(snapshot: Snapshot) {}
+    public fun onPreDispose(snapshot: Snapshot) {}
 
     /**
      * Called after a snapshot is applied.
@@ -92,7 +96,7 @@ interface SnapshotObserver {
      * @param snapshot the snapshot that was applied.
      * @param changed the set of objects that were modified during the snapshot.
      */
-    fun onApplied(snapshot: Snapshot, changed: Set<Any>) {}
+    public fun onApplied(snapshot: Snapshot, changed: Set<Any>) {}
 }
 
 /**
@@ -100,14 +104,14 @@ interface SnapshotObserver {
  * the newly created snapshot to be observed
  */
 @ExperimentalComposeRuntimeApi
-class SnapshotInstanceObservers(
+public class SnapshotInstanceObservers(
     /**
      * Called whenever a state is read in the snapshot. This is called before the read observer
      * passed to [Snapshot.takeSnapshot] or [Snapshot.takeMutableSnapshot].
      *
      * This method is called in the same thread that reads snapshot state.
      */
-    val readObserver: ((Any) -> Unit)? = null,
+    public val readObserver: ((Any) -> Unit)? = null,
 
     /**
      * Called just before a state object is written to the first time in the snapshot or a nested
@@ -121,7 +125,7 @@ class SnapshotInstanceObservers(
      *
      * This method is called in the same thread that writes to the snapshot state.
      */
-    val writeObserver: ((Any) -> Unit)? = null,
+    public val writeObserver: ((Any) -> Unit)? = null,
 )
 
 /**
@@ -139,7 +143,7 @@ class SnapshotInstanceObservers(
  * @return [ObserverHandle] an instance to unregister the [snapshotObserver].
  */
 @ExperimentalComposeRuntimeApi
-fun Snapshot.Companion.observeSnapshots(snapshotObserver: SnapshotObserver): ObserverHandle {
+public fun Snapshot.Companion.observeSnapshots(snapshotObserver: SnapshotObserver): ObserverHandle {
     sync { observers = (observers ?: persistentListOf()).add(snapshotObserver) }
     return ObserverHandle {
         sync {

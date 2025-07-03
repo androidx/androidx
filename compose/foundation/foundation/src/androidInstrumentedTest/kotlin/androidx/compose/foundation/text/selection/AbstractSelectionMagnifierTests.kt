@@ -23,6 +23,7 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.FocusedWindowTest
 import androidx.compose.foundation.text.Handle
+import androidx.compose.foundation.text.PlatformSelectionBehaviorsRule
 import androidx.compose.foundation.text.selection.gestures.RtlChar
 import androidx.compose.foundation.text.selection.gestures.util.longPress
 import androidx.compose.runtime.Composable
@@ -66,6 +67,7 @@ import org.junit.Test
 internal abstract class AbstractSelectionMagnifierTests : FocusedWindowTest {
 
     @get:Rule val rule = createComposeRule()
+    @get:Rule val platformSelectionBehaviorsRule = PlatformSelectionBehaviorsRule()
 
     protected val defaultMagnifierSize = IntSize.Zero
     protected val tag = "tag"

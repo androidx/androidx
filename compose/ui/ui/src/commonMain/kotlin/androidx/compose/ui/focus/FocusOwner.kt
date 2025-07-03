@@ -36,14 +36,6 @@ internal interface FocusOwner : FocusManager {
     val modifier: Modifier
 
     /**
-     * This manager provides a way to ensure that only one focus transaction is running at a time.
-     * We use this to prevent re-entrant focus operations. Starting a new transaction automatically
-     * cancels the previous transaction and reverts any focus state changes made during that
-     * transaction.
-     */
-    val focusTransactionManager: FocusTransactionManager
-
-    /**
      * This function is called to ask the owner to request focus from the framework. eg. If a
      * composable calls requestFocus and the root view does not have focus, this function can be
      * used to request focus for the view.
@@ -162,9 +154,6 @@ internal interface FocusOwner : FocusManager {
 
     /** Schedule a FocusEvent node to be invalidated after onApplyChanges. */
     fun scheduleInvalidation(node: FocusEventModifierNode)
-
-    /** Schedule a FocusProperties node to be invalidated after onApplyChanges. */
-    fun scheduleInvalidation(node: FocusPropertiesModifierNode)
 
     /** Schedule the owner to be invalidated after onApplyChanges. */
     fun scheduleInvalidationForOwner()

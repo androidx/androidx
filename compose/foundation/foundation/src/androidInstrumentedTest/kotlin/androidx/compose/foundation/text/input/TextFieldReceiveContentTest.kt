@@ -285,7 +285,7 @@ class TextFieldReceiveContentTest {
 
     @Test
     fun semanticsPasteContent_delegatesToReceiveContent() = runTest {
-        val clipboard = FakeClipboard(supportsClipEntry = true)
+        val clipboard = FakeClipboard()
         val clipEntry = createClipData().toClipEntry()
         clipboard.setClipEntry(clipEntry)
         lateinit var transferableContent: TransferableContent
@@ -312,7 +312,7 @@ class TextFieldReceiveContentTest {
 
     @Test
     fun semanticsPasteContent_pastesLeftOverText() = runTest {
-        val clipboard = FakeClipboard(supportsClipEntry = true)
+        val clipboard = FakeClipboard()
         val clipEntry =
             createClipData {
                     addText("some text")
@@ -345,7 +345,7 @@ class TextFieldReceiveContentTest {
 
     @Test
     fun semanticsPasteContent_goesFromChildToParent() = runTest {
-        val clipboard = FakeClipboard(supportsClipEntry = true)
+        val clipboard = FakeClipboard()
         val clipEntry =
             createClipData {
                     addText("a")
@@ -395,7 +395,7 @@ class TextFieldReceiveContentTest {
 
     @Test
     fun toolbarPasteContent_delegatesToReceiveContent() = runTest {
-        val clipboard = FakeClipboard(supportsClipEntry = true)
+        val clipboard = FakeClipboard()
         val clipEntry = createClipData().toClipEntry()
         clipboard.setClipEntry(clipEntry)
         var pasteOption: (() -> Unit)? = null

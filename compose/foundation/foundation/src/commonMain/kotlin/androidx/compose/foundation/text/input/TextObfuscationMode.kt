@@ -24,10 +24,11 @@ import kotlin.jvm.JvmInline
  * Text obscuring refers to replacing the original text content with a mask via various methods. It
  * is most common in password fields.
  *
- * The default behavior for typing input on Desktop has always been to keep it completely hidden.
- * However, on mobile devices, the default behavior is to briefly reveal the last typed character
- * for a short period or until another character is typed. This helps the user to follow the text
- * input while also protecting their privacy by not revealing too much information to others.
+ * Users are generally accustomed to different default experiences for secure text input on various
+ * platforms. On desktop, the convention is to keep the input entirely hidden. Conversely, mobile
+ * platforms typically offer a brief reveal of the last typed character. This reveal lasts for a
+ * short duration or until another character is entered, aiding users in tracking their input while
+ * maintaining privacy by not exposing too much information.
  */
 @JvmInline
 value class TextObfuscationMode internal constructor(val value: Int) {
@@ -35,13 +36,12 @@ value class TextObfuscationMode internal constructor(val value: Int) {
         /**
          * Do not obscure any content, making all the content visible.
          *
-         * It can be useful when you want to briefly reveal the content by clicking a reveal button.
+         * It can be useful when you want to briefly reveal the content by toggling a reveal icon.
          */
         val Visible = TextObfuscationMode(0)
 
         /**
-         * Default behavior on mobile devices. Reveals the last typed character for a short amount
-         * of time.
+         * Reveals the last typed character for a short amount of time.
          *
          * Note; on Android this feature also depends on a system setting called
          * `Settings.System.TEXT_SHOW_PASSWORD`. If the system setting is disabled, this option
@@ -49,7 +49,15 @@ value class TextObfuscationMode internal constructor(val value: Int) {
          */
         val RevealLastTyped = TextObfuscationMode(1)
 
-        /** Default behavior on desktop platforms. All characters are hidden. */
+        /** All characters are hidden. */
         val Hidden = TextObfuscationMode(2)
     }
 }
+
+/**
+ * Platform dependent default obfuscation mode for secure text fields.
+ *
+ * This is set to [TextObfuscationMode.RevealLastTyped] on Android.
+ */
+// TODO(b/425658491); Make this public
+internal expect val TextObfuscationMode.Companion.Default: TextObfuscationMode

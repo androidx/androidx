@@ -24,4 +24,4 @@ package androidx.compose.runtime
     AnnotationTarget.PROPERTY_GETTER,
     AnnotationTarget.PROPERTY_SETTER,
 )
-actual annotation class TestOnly
+public actual annotation class TestOnly

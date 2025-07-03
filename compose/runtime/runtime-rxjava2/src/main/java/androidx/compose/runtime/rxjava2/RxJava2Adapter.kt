@@ -45,7 +45,7 @@ import io.reactivex.plugins.RxJavaPlugins
  *   with the real one once we receive it from the stream
  */
 @Composable
-fun <R, T : R> Observable<T>.subscribeAsState(initial: R): State<R> =
+public fun <R, T : R> Observable<T>.subscribeAsState(initial: R): State<R> =
     asState(initial) { subscribe(it) }
 
 /**
@@ -64,7 +64,7 @@ fun <R, T : R> Observable<T>.subscribeAsState(initial: R): State<R> =
  *   with the real one once we receive it from the stream
  */
 @Composable
-fun <R, T : R> Flowable<T>.subscribeAsState(initial: R): State<R> =
+public fun <R, T : R> Flowable<T>.subscribeAsState(initial: R): State<R> =
     asState(initial) { subscribe(it) }
 
 /**
@@ -83,7 +83,8 @@ fun <R, T : R> Flowable<T>.subscribeAsState(initial: R): State<R> =
  *   with the real one once we receive it from the stream
  */
 @Composable
-fun <R, T : R> Single<T>.subscribeAsState(initial: R): State<R> = asState(initial) { subscribe(it) }
+public fun <R, T : R> Single<T>.subscribeAsState(initial: R): State<R> =
+    asState(initial) { subscribe(it) }
 
 /**
  * Subscribes to this [Maybe] and represents its value via [State]. Once the value would be posted
@@ -101,7 +102,8 @@ fun <R, T : R> Single<T>.subscribeAsState(initial: R): State<R> = asState(initia
  *   with the real one once we receive it from the stream
  */
 @Composable
-fun <R, T : R> Maybe<T>.subscribeAsState(initial: R): State<R> = asState(initial) { subscribe(it) }
+public fun <R, T : R> Maybe<T>.subscribeAsState(initial: R): State<R> =
+    asState(initial) { subscribe(it) }
 
 /**
  * Subscribes to this [Completable] and represents its completed state via [State]. Once the
@@ -117,7 +119,7 @@ fun <R, T : R> Maybe<T>.subscribeAsState(initial: R): State<R> = asState(initial
  * @sample androidx.compose.runtime.rxjava2.samples.CompletableSample
  */
 @Composable
-fun Completable.subscribeAsState(): State<Boolean> =
+public fun Completable.subscribeAsState(): State<Boolean> =
     asState(false) { callback -> subscribe { callback(true) } }
 
 @Composable

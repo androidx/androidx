@@ -149,7 +149,6 @@ package androidx.compose.ui {
     property public boolean isRectTrackingEnabled;
     property @Deprecated public boolean isRemoveFocusedViewFixEnabled;
     property public boolean isSemanticAutofillEnabled;
-    property public boolean isTrackFocusEnabled;
     property public boolean isViewFocusFixEnabled;
     field public static final androidx.compose.ui.ComposeUiFlags INSTANCE;
     field public static boolean areWindowInsetsRulersEnabled;
@@ -164,7 +163,6 @@ package androidx.compose.ui {
     field public static boolean isRectTrackingEnabled;
     field @Deprecated public static boolean isRemoveFocusedViewFixEnabled;
     field public static boolean isSemanticAutofillEnabled;
-    field public static boolean isTrackFocusEnabled;
     field public static boolean isViewFocusFixEnabled;
   }
 
@@ -1488,7 +1486,7 @@ package androidx.compose.ui.input.indirect {
     field public static final androidx.compose.ui.input.indirect.IndirectTouchEventType.Companion Companion;
   }
 
-  public static final class IndirectTouchEventType.Companion {
+  @SuppressCompatibility @androidx.compose.ui.ExperimentalIndirectTouchTypeApi public static final class IndirectTouchEventType.Companion {
     method public int getMove();
     method @BytecodeOnly public int getMove-LxEHWp8();
     method public int getPress();

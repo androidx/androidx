@@ -26,32 +26,32 @@ import androidx.compose.runtime.snapshots.fastAny
  * This source information can represent a function call or a control flow group.
  */
 @ComposeToolingApi
-class SourceInformation(
-    val isCall: Boolean,
-    val isInline: Boolean,
-    val functionName: String?,
-    val sourceFile: String?,
-    val parameters: List<ParameterSourceInformation>,
-    val packageHash: String?,
-    val locations: List<LocationSourceInformation>,
-    val rawData: String,
+public class SourceInformation(
+    public val isCall: Boolean,
+    public val isInline: Boolean,
+    public val functionName: String?,
+    public val sourceFile: String?,
+    public val parameters: List<ParameterSourceInformation>,
+    public val packageHash: String?,
+    public val locations: List<LocationSourceInformation>,
+    public val rawData: String,
 )
 
 /** Source information about parameters of a function group. */
 @ComposeToolingApi
-class ParameterSourceInformation(
-    val sortedIndex: Int,
-    val name: String? = null,
-    val inlineClass: String? = null,
+public class ParameterSourceInformation(
+    public val sortedIndex: Int,
+    public val name: String? = null,
+    public val inlineClass: String? = null,
 )
 
 /** Source information about composable function call locations inside parent group. */
 @ComposeToolingApi
-class LocationSourceInformation(
-    val lineNumber: Int,
-    val offset: Int,
-    val length: Int,
-    val isRepeatable: Boolean,
+public class LocationSourceInformation(
+    public val lineNumber: Int,
+    public val offset: Int,
+    public val length: Int,
+    public val isRepeatable: Boolean,
 )
 
 private class ParseException(message: String) : Exception(message)
@@ -108,7 +108,7 @@ private class SourceInfoParserState(val data: String) {
  * @return parsed source information or `null` if the string is not a valid source information
  */
 @ComposeToolingApi
-fun parseSourceInformation(data: String): SourceInformation? {
+public fun parseSourceInformation(data: String): SourceInformation? {
     if (data.isEmpty()) {
         return null
     }

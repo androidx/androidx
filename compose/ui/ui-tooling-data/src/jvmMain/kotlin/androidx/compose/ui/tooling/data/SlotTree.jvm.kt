@@ -549,8 +549,25 @@ private fun extractFromIndyLambdaFields(
     val defaults = blockClass.accessibleField(defaultFieldName)?.get(block) as? Int ?: 0
     val changed = blockClass.accessibleField(changedFieldName)?.get(block) as? Int ?: 0
 
-    return sortedFields.mapIndexed { index, field ->
-        buildParameterInfo(field, block, index, defaults, changed, metadata.getOrNull(index))
+    val hasParameterNames = metadata.any { it.name != null }
+    val realFields =
+        if (hasParameterNames) {
+            // Lambda fields might contain additional synthetic parameters.
+            // If we know the definitive list with parameter names, only take those parameters.
+            sortedFields.take(metadata.size)
+        } else {
+            sortedFields
+        }
+
+    return realFields.mapIndexed { index, field ->
+        buildParameterInfo(
+            field,
+            block,
+            index,
+            defaults,
+            changed,
+            metadata.firstOrNull { it.sortedIndex == index },
+        )
     }
 }
 
@@ -596,7 +613,7 @@ private fun buildParameterInfo(
     val stable = parameterChanged and STABLE_BITS == 0
 
     return ParameterInformation(
-        name = field.name.substring(1),
+        name = metadata?.name ?: field.name.substring(1),
         value = value,
         fromDefault = fromDefault,
         static = static,

@@ -30,10 +30,12 @@ import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.ObserverModifierNode
+import androidx.compose.ui.node.SemanticsModifierNode
 import androidx.compose.ui.node.invalidateDraw
 import androidx.compose.ui.node.observeReads
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.debugInspectorInfo
+import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.unit.LayoutDirection
 
 /**
@@ -137,9 +139,10 @@ private class BackgroundNode(
     var brush: Brush?,
     var alpha: Float,
     var shape: Shape,
-) : DrawModifierNode, Modifier.Node(), ObserverModifierNode {
+) : DrawModifierNode, Modifier.Node(), ObserverModifierNode, SemanticsModifierNode {
 
     override val shouldAutoInvalidate = false
+    override val isImportantForBounds = false
 
     // Naively cache outline calculation if input parameters are the same, we manually observe
     // reads inside shape#createOutline separately
@@ -197,5 +200,9 @@ private class BackgroundNode(
         lastLayoutDirection = layoutDirection
         lastShape = shape
         return outline!!
+    }
+
+    override fun SemanticsPropertyReceiver.applySemantics() {
+        // TODO(b/407772600): add logic for setting the shape property in a follow up
     }
 }

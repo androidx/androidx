@@ -30,4 +30,4 @@ package androidx.compose.runtime
     AnnotationTarget.PROPERTY_SETTER,
 )
 @Retention(AnnotationRetention.BINARY)
-annotation class InternalComposeApi
+public annotation class InternalComposeApi

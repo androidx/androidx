@@ -26,7 +26,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.suspendCancellableCoroutine
 
 /** Receiver scope for use with [produceState]. */
-interface ProduceStateScope<T> : MutableState<T>, CoroutineScope {
+public interface ProduceStateScope<T> : MutableState<T>, CoroutineScope {
     /**
      * Await the disposal of this producer whether it left the composition, the source changed, or
      * an error occurred. Always runs [onDispose] before resuming.
@@ -36,7 +36,7 @@ interface ProduceStateScope<T> : MutableState<T>, CoroutineScope {
      *
      * @sample androidx.compose.runtime.samples.ProduceStateAwaitDispose
      */
-    suspend fun awaitDispose(onDispose: () -> Unit): Nothing
+    public suspend fun awaitDispose(onDispose: () -> Unit): Nothing
 }
 
 private class ProduceStateScopeImpl<T>(
@@ -72,7 +72,10 @@ private class ProduceStateScopeImpl<T>(
  * @sample androidx.compose.runtime.samples.ProduceStateAwaitDispose
  */
 @Composable
-fun <T> produceState(initialValue: T, producer: suspend ProduceStateScope<T>.() -> Unit): State<T> {
+public fun <T> produceState(
+    initialValue: T,
+    producer: suspend ProduceStateScope<T>.() -> Unit,
+): State<T> {
     val result = remember { mutableStateOf(initialValue) }
     LaunchedEffect(Unit) { ProduceStateScopeImpl(result, coroutineContext).producer() }
     return result
@@ -98,7 +101,7 @@ fun <T> produceState(initialValue: T, producer: suspend ProduceStateScope<T>.() 
  * @sample androidx.compose.runtime.samples.ProduceStateAwaitDispose
  */
 @Composable
-fun <T> produceState(
+public fun <T> produceState(
     initialValue: T,
     key1: Any?,
     producer: suspend ProduceStateScope<T>.() -> Unit,
@@ -128,7 +131,7 @@ fun <T> produceState(
  * @sample androidx.compose.runtime.samples.ProduceStateAwaitDispose
  */
 @Composable
-fun <T> produceState(
+public fun <T> produceState(
     initialValue: T,
     key1: Any?,
     key2: Any?,
@@ -159,7 +162,7 @@ fun <T> produceState(
  * @sample androidx.compose.runtime.samples.ProduceStateAwaitDispose
  */
 @Composable
-fun <T> produceState(
+public fun <T> produceState(
     initialValue: T,
     key1: Any?,
     key2: Any?,
@@ -191,7 +194,7 @@ fun <T> produceState(
  * @sample androidx.compose.runtime.samples.ProduceStateAwaitDispose
  */
 @Composable
-fun <T> produceState(
+public fun <T> produceState(
     initialValue: T,
     vararg keys: Any?,
     producer: suspend ProduceStateScope<T>.() -> Unit,

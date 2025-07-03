@@ -32,7 +32,7 @@ import androidx.compose.runtime.external.kotlinx.collections.immutable.persisten
 @SuppressLint("BanParcelableUsage")
 // Warning: The code of this class is duplicated in SnapshotStateSet.nonAndroid.kt. Any changes
 // made here should be considered to be applied there as well.
-actual class SnapshotStateSet<T> : Parcelable, StateObject, MutableSet<T>, RandomAccess {
+public actual class SnapshotStateSet<T> : Parcelable, StateObject, MutableSet<T>, RandomAccess {
     actual override var firstStateRecord: StateRecord = stateRecordWith(persistentSetOf())
         private set
 
@@ -57,16 +57,17 @@ actual class SnapshotStateSet<T> : Parcelable, StateObject, MutableSet<T>, Rando
      * It is recommended to use [toSet] when returning the value of this set from
      * [androidx.compose.runtime.snapshotFlow].
      */
-    actual fun toSet(): Set<T> = readable.set
+    public actual fun toSet(): Set<T> = readable.set
 
     actual override val size: Int
         get() = readable.set.size
 
-    actual override fun contains(element: T) = readable.set.contains(element)
+    actual override fun contains(element: T): Boolean = readable.set.contains(element)
 
-    actual override fun containsAll(elements: Collection<T>) = readable.set.containsAll(elements)
+    actual override fun containsAll(elements: Collection<T>): Boolean =
+        readable.set.containsAll(elements)
 
-    actual override fun isEmpty() = readable.set.isEmpty()
+    actual override fun isEmpty(): Boolean = readable.set.isEmpty()
 
     actual override fun iterator(): MutableIterator<T> =
         StateSetIterator(this, readable.set.iterator())
@@ -77,19 +78,21 @@ actual class SnapshotStateSet<T> : Parcelable, StateObject, MutableSet<T>, Rando
             "SnapshotStateSet(value=${it.set})@${hashCode()}"
         }
 
-    actual override fun add(element: T) = conditionalUpdate { it.add(element) }
+    actual override fun add(element: T): Boolean = conditionalUpdate { it.add(element) }
 
-    actual override fun addAll(elements: Collection<T>) = conditionalUpdate { it.addAll(elements) }
+    actual override fun addAll(elements: Collection<T>): Boolean = conditionalUpdate {
+        it.addAll(elements)
+    }
 
-    actual override fun clear() = clearImpl()
+    actual override fun clear(): Unit = clearImpl()
 
-    actual override fun remove(element: T) = conditionalUpdate { it.remove(element) }
+    actual override fun remove(element: T): Boolean = conditionalUpdate { it.remove(element) }
 
-    actual override fun removeAll(elements: Collection<T>) = conditionalUpdate {
+    actual override fun removeAll(elements: Collection<T>): Boolean = conditionalUpdate {
         it.removeAll(elements)
     }
 
-    actual override fun retainAll(elements: Collection<T>) = mutateBoolean {
+    actual override fun retainAll(elements: Collection<T>): Boolean = mutateBoolean {
         it.retainAll(elements.toSet())
     }
 

@@ -48,7 +48,9 @@ import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.SemanticsModifierNode
 import androidx.compose.ui.platform.InspectorInfo
+import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.toSize
@@ -121,9 +123,10 @@ internal class BorderModifierNode(
     widthParameter: Dp,
     brushParameter: Brush,
     shapeParameter: Shape,
-) : DelegatingNode() {
+) : DelegatingNode(), SemanticsModifierNode {
 
     override val shouldAutoInvalidate: Boolean = false
+    override val isImportantForBounds = false
 
     // BorderCache object that is lazily allocated depending on the type of shape
     // This object is only used for generic shapes and rounded rectangles with different corner
@@ -345,6 +348,10 @@ internal class BorderModifierNode(
                 drawPath(roundedRectPath, brush = brush)
             }
         }
+    }
+
+    override fun SemanticsPropertyReceiver.applySemantics() {
+        // TODO(b/407772600): add logic for setting the shape property in a follow up
     }
 }
 

@@ -69,8 +69,6 @@ package androidx.compose.material3.adaptive {
   }
 
   public final class WindowAdaptiveInfoKt {
-    method @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.material3.adaptive.WindowAdaptiveInfo currentWindowAdaptiveInfo();
-    method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.material3.adaptive.WindowAdaptiveInfo! currentWindowAdaptiveInfo(androidx.compose.runtime.Composer!, int);
     method @androidx.compose.runtime.Composable public static androidx.compose.material3.adaptive.WindowAdaptiveInfo currentWindowAdaptiveInfo(optional boolean supportLargeAndXLargeWidth);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.material3.adaptive.WindowAdaptiveInfo currentWindowAdaptiveInfo(boolean, androidx.compose.runtime.Composer?, int, int);
     method @androidx.compose.runtime.Composable public static long currentWindowDpSize();

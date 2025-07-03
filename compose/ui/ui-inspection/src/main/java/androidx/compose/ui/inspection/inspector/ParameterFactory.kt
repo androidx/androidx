@@ -38,7 +38,6 @@ import androidx.compose.ui.platform.InspectableValue
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontListFontFamily
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.ResourceFont
 import androidx.compose.ui.text.intl.Locale
@@ -52,7 +51,6 @@ import java.lang.reflect.Field
 import java.lang.reflect.Modifier as JavaModifier
 import java.util.IdentityHashMap
 import kotlin.jvm.internal.FunctionReference
-import kotlin.jvm.internal.Lambda
 import kotlin.math.abs
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
@@ -486,7 +484,7 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
                 is FontListFontFamily -> createFromFontListFamily(name, value)
                 is FontWeight -> NodeParameter(name, ParameterType.Int32, value.weight)
                 is Int -> NodeParameter(name, ParameterType.Int32, value)
-                is Lambda<*> -> createFromLambda(name, value)
+                is Function<*> -> createFromFunction(name, value)
                 is Locale -> NodeParameter(name, ParameterType.String, value.toString())
                 is Long -> NodeParameter(name, ParameterType.Int64, value)
                 is SolidColor -> NodeParameter(name, ParameterType.Color, value.value.toArgb())
@@ -883,7 +881,7 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
                 else -> "Sequence"
             }
 
-        private fun createFromLambda(name: String, value: Lambda<*>): NodeParameter =
+        private fun createFromFunction(name: String, value: Function<*>): NodeParameter =
             NodeParameter(name, ParameterType.Lambda, arrayOf<Any>(value))
 
         private fun createFromModifier(name: String, value: Modifier): NodeParameter? =

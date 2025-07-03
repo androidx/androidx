@@ -88,6 +88,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -297,11 +298,13 @@ internal fun BasicTextField(
     @OptIn(ExperimentalFoundationApi::class)
     val platformSelectionBehaviors =
         if (ComposeFoundationFlags.isSmartSelectionEnabled) {
-            rememberPlatformSelectionBehaviors(SelectedTextType.EditableText, textStyle.localeList)
+            val resolvedLocaleList = textStyle.localeList ?: LocaleList.current
+            rememberPlatformSelectionBehaviors(SelectedTextType.EditableText, resolvedLocaleList)
         } else {
             null
         }
     val toolbarRequester = remember { ToolbarRequesterImpl() }
+    val currentClipboard = LocalClipboard.current
     val textFieldSelectionState =
         remember(transformedState) {
             TextFieldSelectionState(
@@ -315,10 +318,10 @@ internal fun BasicTextField(
                 toolbarRequester = toolbarRequester,
                 coroutineScope = coroutineScope,
                 platformSelectionBehaviors = platformSelectionBehaviors,
+                clipboard = currentClipboard,
             )
         }
     val currentHapticFeedback = LocalHapticFeedback.current
-    val currentClipboard = LocalClipboard.current
     val currentTextToolbar = LocalTextToolbar.current
 
     val textToolbarHandler =
@@ -496,6 +499,7 @@ internal fun BasicTextField(
                                     scrollState = scrollState,
                                     orientation = orientation,
                                     toolbarRequester = toolbarRequester,
+                                    platformSelectionBehaviors = platformSelectionBehaviors,
                                 )
                             ),
                 ) {

@@ -37,7 +37,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
  *
  * @sample androidx.compose.runtime.livedata.samples.LiveDataSample
  */
-@Composable fun <T> LiveData<T>.observeAsState(): State<T?> = observeAsState(value)
+@Composable public fun <T> LiveData<T>.observeAsState(): State<T?> = observeAsState(value)
 
 /**
  * Starts observing this [LiveData] and represents its values via [State]. Every time there would be
@@ -54,7 +54,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
  * @sample androidx.compose.runtime.livedata.samples.LiveDataWithInitialSample
  */
 @Composable
-fun <R, T : R> LiveData<T>.observeAsState(initial: R): State<R> {
+public fun <R, T : R> LiveData<T>.observeAsState(initial: R): State<R> {
     val lifecycleOwner = LocalLifecycleOwner.current
     val state = remember {
         @Suppress("UNCHECKED_CAST") /* Initialized values of a LiveData<T> must be a T */

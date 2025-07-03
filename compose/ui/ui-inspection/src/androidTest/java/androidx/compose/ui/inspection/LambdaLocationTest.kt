@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.inspection
 
+import androidx.compose.ui.inspection.LambdaLocation.Companion.findLambdaSelector
 import androidx.compose.ui.inspection.rules.JvmtiRule
 import androidx.compose.ui.inspection.testdata.TestLambdas
 import androidx.test.ext.junit.runners.AndroidJUnit4

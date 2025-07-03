@@ -21,6 +21,7 @@ import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.input.Default
 import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.KeyboardActionHandler
 import androidx.compose.foundation.text.input.TextFieldBuffer
@@ -133,7 +134,7 @@ fun BasicSecureTextField(
     decorator: TextFieldDecorator? = null,
     // Last parameter must not be a function unless it's intended to be commonly used as a trailing
     // lambda.
-    textObfuscationMode: TextObfuscationMode = TextObfuscationMode.RevealLastTyped,
+    textObfuscationMode: TextObfuscationMode = TextObfuscationMode.Default,
     textObfuscationCharacter: Char = DefaultObfuscationCharacter,
     scrollState: ScrollState = rememberScrollState(),
 ) {
@@ -147,7 +148,9 @@ fun BasicSecureTextField(
     // revealing last typed character depends on two conditions;
     // 1 - Requested Obfuscation method
     // 2 - if the system allows it
-    val revealLastTypedEnabled = textObfuscationMode == TextObfuscationMode.RevealLastTyped
+    val revealLastTypedEnabled =
+        textObfuscationMode == TextObfuscationMode.RevealLastTyped &&
+            platformAllowsRevealLastTyped()
 
     // while toggling between obfuscation methods if the revealing gets disabled, reset the reveal.
     LaunchedEffect(revealLastTypedEnabled) {
@@ -332,6 +335,9 @@ private fun DisableCutCopy(content: @Composable () -> Unit) {
         }
     CompositionLocalProvider(LocalTextToolbar provides copyDisabledToolbar, content)
 }
+
+/** Whether the underlying platform allows the reveal last typed behavior. */
+@Composable internal expect fun platformAllowsRevealLastTyped(): Boolean
 
 @Deprecated(
     message = "Please use the overload that takes in readOnly parameter.",

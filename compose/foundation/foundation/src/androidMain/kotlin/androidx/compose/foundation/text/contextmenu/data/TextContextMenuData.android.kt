@@ -17,6 +17,7 @@
 package androidx.compose.foundation.text.contextmenu.data
 
 import android.content.res.Resources
+import android.view.textclassifier.TextClassification
 import androidx.compose.foundation.text.contextmenu.modifier.filterTextContextMenuComponents
 
 /**
@@ -40,6 +41,15 @@ class TextContextMenuItem(
 ) : TextContextMenuComponent(key) {
     override fun toString(): String =
         "TextContextMenuItem(key=$key, label=\"$label\", leadingIcon=$leadingIcon)"
+}
+
+internal class TextContextMenuTextClassificationItem(
+    key: Any,
+    val textClassification: TextClassification,
+    val index: Int,
+) : TextContextMenuComponent(key) {
+    override fun toString(): String =
+        "TextContextMenuRemoteActionItem(key=$key, textClassification=$textClassification, index=$index)"
 }
 
 /**

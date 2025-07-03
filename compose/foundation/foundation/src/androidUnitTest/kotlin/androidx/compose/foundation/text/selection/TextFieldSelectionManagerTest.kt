@@ -181,7 +181,10 @@ class TextFieldSelectionManagerTest {
     @Test
     fun TextFieldSelectionManager_init() {
         assertThat(manager.offsetMapping).isEqualTo(offsetMapping)
-        assertThat(manager.onValueChange).isEqualTo(onValueChangeLambda)
+        val textFieldValue = TextFieldValue(text = text)
+        manager.onValueChange.invoke(textFieldValue)
+        assertThat(onValueChangeInvocationCount).isEqualTo(1)
+        assertThat(value).isEqualTo(textFieldValue)
         assertThat(manager.state).isEqualTo(state)
         assertThat(manager.value).isEqualTo(value)
     }

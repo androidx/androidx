@@ -54,7 +54,7 @@ import kotlin.reflect.KProperty
  * @see mutableDoubleStateOf
  */
 @StateFactoryMarker
-fun mutableLongStateOf(value: Long): MutableLongState = createSnapshotMutableLongState(value)
+public fun mutableLongStateOf(value: Long): MutableLongState = createSnapshotMutableLongState(value)
 
 /**
  * A value holder where reads to the [longValue] property during the execution of a [Composable]
@@ -65,17 +65,18 @@ fun mutableLongStateOf(value: Long): MutableLongState = createSnapshotMutableLon
  */
 @Stable
 @JvmDefaultWithCompatibility
-interface LongState : State<Long> {
+public interface LongState : State<Long> {
     @get:AutoboxingStateValueProperty("longValue")
     override val value: Long
         @Suppress("AutoBoxing") get() = longValue
 
-    val longValue: Long
+    public val longValue: Long
 }
 
 /** Permits property delegation of `val`s using `by` for [LongState]. */
 @Suppress("NOTHING_TO_INLINE")
-inline operator fun LongState.getValue(thisObj: Any?, property: KProperty<*>): Long = longValue
+public inline operator fun LongState.getValue(thisObj: Any?, property: KProperty<*>): Long =
+    longValue
 
 /**
  * A value holder where reads to the [longValue] property during the execution of a [Composable]
@@ -89,7 +90,7 @@ inline operator fun LongState.getValue(thisObj: Any?, property: KProperty<*>): L
  */
 @Stable
 @JvmDefaultWithCompatibility
-interface MutableLongState : LongState, MutableState<Long> {
+public interface MutableLongState : LongState, MutableState<Long> {
     @get:AutoboxingStateValueProperty("longValue")
     @set:AutoboxingStateValueProperty("longValue")
     override var value: Long
@@ -103,7 +104,11 @@ interface MutableLongState : LongState, MutableState<Long> {
 
 /** Permits property delegation of `var`s using `by` for [MutableLongState]. */
 @Suppress("NOTHING_TO_INLINE")
-inline operator fun MutableLongState.setValue(thisObj: Any?, property: KProperty<*>, value: Long) {
+public inline operator fun MutableLongState.setValue(
+    thisObj: Any?,
+    property: KProperty<*>,
+    value: Long,
+) {
     longValue = value
 }
 

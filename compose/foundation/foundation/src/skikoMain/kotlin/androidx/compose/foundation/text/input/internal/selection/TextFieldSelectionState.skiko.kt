@@ -25,9 +25,10 @@ import androidx.compose.foundation.text.TextContextMenuItems.*
 import androidx.compose.foundation.text.TextItem
 import androidx.compose.runtime.State
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.Clipboard
 import kotlinx.coroutines.CoroutineScope
 
-// TODO: https://youtrack.jetbrains.com/issue/CMP-7819
+// TODO: https://youtrack.jetbrains.com/issue/CMP-7757
 internal actual fun Modifier.addBasicTextFieldTextContextMenuComponents(
     state: TextFieldSelectionState,
     coroutineScope: CoroutineScope
@@ -50,5 +51,13 @@ internal fun TextFieldSelectionState.contextMenuBuilder(
     textFieldItem(SelectAll, enabled = availability.canSelectAll)
     if (isAutofillAvailable()) {
         textFieldItem(Autofill, enabled = availability.canAutofill)
+    }
+}
+
+// TODO: https://youtrack.jetbrains.com/issue/CMP-8485
+internal actual class ClipboardPasteState actual constructor(clipboard: Clipboard) {
+    actual val hasText: Boolean get() = false
+    actual val hasClip: Boolean get() = false
+    actual suspend fun update() {
     }
 }

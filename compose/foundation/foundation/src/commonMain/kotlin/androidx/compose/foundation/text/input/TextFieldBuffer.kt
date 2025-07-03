@@ -477,7 +477,7 @@ internal constructor(
     // TODO(135556699): Remove this when [TextFieldBuffer.addStyle] is supported by all
     //  TextFieldBuffer instances when multi styled editing is implemented.
     // Context; b/424167352
-    internal var canCallAddStyle: Boolean = false
+    internal var canCallAddStyle: Boolean = offsetMappingCalculator != null
 
     internal var outputTransformationAnnotations: MutableList<PlacedAnnotation>? = null
 

@@ -35,6 +35,22 @@ internal interface PlatformSelectionBehaviors {
         text: CharSequence,
         selection: TextRange,
     ): TextRange?
+
+    /**
+     * This method is invoked by the selectable text containers (e.g. BasicTextField,
+     * SelectionContainer) just before the context menu is displayed. It provides an opportunity for
+     * the [PlatformSelectionBehaviors] implementation to perform any necessary setup or
+     * modifications based on the current text and selection, particularly for platform-specific
+     * context menu items or behaviors.
+     *
+     * For example, an implementation might use this hook to:
+     * - Prepare or pre-fetch data required for platform-specific context menu items.
+     * - Update internal state based on the selection that will be shown in the menu.
+     *
+     * @param text The full text content from which the selection is made.
+     * @param selection The [TextRange] representing the current selection in the text.
+     */
+    suspend fun onShowContextMenu(text: CharSequence, selection: TextRange)
 }
 
 /**

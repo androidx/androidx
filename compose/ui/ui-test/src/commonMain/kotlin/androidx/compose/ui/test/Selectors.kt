@@ -39,7 +39,14 @@ fun SemanticsNodeInteraction.onParent(): SemanticsNodeInteraction {
     )
 }
 
-/** Returns children of this node. */
+/**
+ * Returns children of this node at the moment of invocation, it only captures nodes that are
+ * currently present in the semantic tree.
+ *
+ * This is especially relevant for lazy layouts like 'LazyColumn' or 'LazyRow' where only a subset
+ * of items are currently composed and exist in the tree. Therefore, this function will only return
+ * those currently composed items, not all the items in the backing data set.
+ */
 fun SemanticsNodeInteraction.onChildren(): SemanticsNodeInteractionCollection {
     return SemanticsNodeInteractionCollection(
         testContext,

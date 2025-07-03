@@ -89,8 +89,11 @@ class SelectionContainerPlatformSelectionsBehaviorTest(override val testLongPres
 
         assertThat(selection!!.start.offset).isEqualTo(0)
         assertThat(selection!!.end.offset).isEqualTo(3)
-        assertThat(testPlatformSelectionBehaviors?.text).isEqualTo("ghi")
-        assertThat(testPlatformSelectionBehaviors?.selection).isEqualTo(TextRange(0, 3))
+        platformSelectionBehaviorsRule.expectSuggestSelectionForLongPressOrDoubleClick(
+            "ghi",
+            TextRange(0, 3),
+        )
+        expectOnShowContextMenu("ghi", TextRange(0, 3))
     }
 
     @Test
@@ -111,7 +114,7 @@ class SelectionContainerPlatformSelectionsBehaviorTest(override val testLongPres
             }
         }
 
-        testPlatformSelectionBehaviors?.suggestedSelection = TextRange(0, 7)
+        platformSelectionBehaviorsRule.suggestedSelection = TextRange(0, 7)
 
         performLongPressOrDoubleClick { Offset(x = fontSize.toPx() * 5, y = fontSize.toPx() / 2) }
 
@@ -119,7 +122,10 @@ class SelectionContainerPlatformSelectionsBehaviorTest(override val testLongPres
 
         assertThat(selection!!.start.offset).isEqualTo(0)
         assertThat(selection!!.end.offset).isEqualTo(7)
-        assertThat(testPlatformSelectionBehaviors?.text).isEqualTo("abc def")
-        assertThat(testPlatformSelectionBehaviors?.selection).isEqualTo(TextRange(4, 7))
+        platformSelectionBehaviorsRule.expectSuggestSelectionForLongPressOrDoubleClick(
+            "abc def",
+            TextRange(4, 7),
+        )
+        expectOnShowContextMenu("abc def", TextRange(4, 7))
     }
 }

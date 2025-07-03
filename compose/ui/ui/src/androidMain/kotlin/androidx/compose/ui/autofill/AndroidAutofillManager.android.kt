@@ -27,8 +27,6 @@ import android.view.autofill.AutofillValue
 import androidx.annotation.RequiresApi
 import androidx.collection.MutableIntSet
 import androidx.collection.mutableObjectListOf
-import androidx.compose.ui.ComposeUiFlags
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.focus.FocusListener
 import androidx.compose.ui.focus.FocusTargetModifierNode
 import androidx.compose.ui.internal.checkPreconditionNotNull
@@ -124,20 +122,6 @@ internal class AndroidAutofillManager(
                         )
                     }
                 }
-            }
-        }
-
-        // Check Focus.
-        if (@OptIn(ExperimentalComposeUiApi::class) !ComposeUiFlags.isTrackFocusEnabled) {
-            val previousFocus = prevConfig?.getOrNull(SemanticsProperties.Focused)
-            val currFocus = config?.getOrNull(SemanticsProperties.Focused)
-            if (previousFocus != true && currFocus == true && config.isAutofillable()) {
-                rectManager.rects.withRect(semanticsId) { l, t, r, b ->
-                    platformAutofillManager.notifyViewEntered(view, semanticsId, Rect(l, t, r, b))
-                }
-            }
-            if (previousFocus == true && currFocus != true && prevConfig.isAutofillable()) {
-                platformAutofillManager.notifyViewExited(view, semanticsId)
             }
         }
 

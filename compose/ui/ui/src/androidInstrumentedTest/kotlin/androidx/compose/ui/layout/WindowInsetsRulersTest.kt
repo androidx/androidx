@@ -96,6 +96,10 @@ class WindowInsetsRulersTest {
     @Before
     fun setup() {
         rule.runOnUiThread { rule.activity.enableEdgeToEdge() }
+        // Don't let the normal rulers through. We only want the sendOnApplyWindowInsets() to have
+        // an effect.
+        val contentView = rule.activity.findViewById<View>(android.R.id.content)
+        contentView.setOnApplyWindowInsetsListener { _, _ -> android.view.WindowInsets.CONSUMED }
     }
 
     private fun setContent(content: @Composable () -> Unit) {
@@ -197,6 +201,82 @@ class WindowInsetsRulersTest {
         assertWithMessage(message).that(isAnimating).isFalse()
         assertWithMessage(message).that(fraction).isEqualTo(0f)
         assertWithMessage(message).that(durationMillis).isEqualTo(0L)
+    }
+
+    @Test
+    fun noRulers() {
+        Assume.assumeTrue(ComposeUiFlags.areWindowInsetsRulersEnabled)
+        val rulerState = mutableStateOf(CaptionBar)
+
+        setSimpleRulerContent(rulerState)
+
+        // Send no insets
+        sendOnApplyWindowInsets(createInsets())
+        val normalRulersList =
+            listOf(
+                TappableElement,
+                StatusBars,
+                Ime,
+                NavigationBars,
+                CaptionBar,
+                MandatorySystemGestures,
+                SystemGestures,
+            )
+        normalRulersList.forEach { rulers ->
+            rulerState.value = rulers
+            rule.waitForIdle()
+            assertWithMessage(rulers.toString()).that(insetsRect).isNull()
+            assertWithMessage("$rulers maximum").that(maximumRect).isNull()
+        }
+    }
+
+    @Test
+    fun onlyMaximumRulers() {
+        Assume.assumeTrue(ComposeUiFlags.areWindowInsetsRulersEnabled)
+        val rulerState = mutableStateOf(CaptionBar)
+
+        setSimpleRulerContent(rulerState)
+
+        // Send one maximum ruler
+        sendOnApplyWindowInsets(
+            WindowInsetsCompat.Builder()
+                .setInsetsIgnoringVisibility(Type.captionBar(), Insets.of(1, 0, 0, 0))
+                .build()
+        )
+        rule.waitForIdle()
+        val fullSizeRect = IntRect(0, 0, contentWidth, contentHeight)
+        assertThat(insetsRect).isEqualTo(fullSizeRect)
+        assertThat(maximumRect).isEqualTo(IntRect(1, 0, contentWidth, contentHeight))
+
+        rulerState.value = NavigationBars
+        rule.waitForIdle()
+        assertThat(insetsRect).isEqualTo(fullSizeRect)
+        assertThat(maximumRect).isEqualTo(fullSizeRect)
+    }
+
+    @Test
+    fun startAndStopProvidingRulers() {
+        Assume.assumeTrue(ComposeUiFlags.areWindowInsetsRulersEnabled)
+        val rulerState = mutableStateOf(CaptionBar)
+
+        setSimpleRulerContent(rulerState)
+
+        // Send no insets
+        sendOnApplyWindowInsets(createInsets())
+        rule.waitForIdle()
+
+        // Send caption bar insets
+        sendOnApplyWindowInsets(createInsets(Type.captionBar() to Insets.of(1, 0, 0, 0)))
+        rule.waitForIdle()
+
+        assertThat(insetsRect).isEqualTo(IntRect(1, 0, contentWidth, contentHeight))
+
+        // Send no insets
+        sendOnApplyWindowInsets(createInsets())
+        rule.waitForIdle()
+
+        // Not null now that rulers have been provided once.
+        assertThat(insetsRect).isEqualTo(IntRect(0, 0, contentWidth, contentHeight))
     }
 
     @Test

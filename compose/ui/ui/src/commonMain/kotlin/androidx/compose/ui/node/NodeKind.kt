@@ -17,8 +17,6 @@
 package androidx.compose.ui.node
 
 import androidx.collection.mutableObjectIntMapOf
-import androidx.compose.ui.ComposeUiFlags
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.ExperimentalIndirectTouchTypeApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.classKeyForObject
@@ -29,7 +27,6 @@ import androidx.compose.ui.focus.FocusPropertiesModifierNode
 import androidx.compose.ui.focus.FocusTargetNode
 import androidx.compose.ui.focus.invalidateFocusEvent
 import androidx.compose.ui.focus.invalidateFocusProperties
-import androidx.compose.ui.focus.invalidateFocusTarget
 import androidx.compose.ui.input.indirect.IndirectTouchInputModifierNode
 import androidx.compose.ui.input.key.KeyInputModifierNode
 import androidx.compose.ui.input.key.SoftKeyboardInterceptionModifierNode
@@ -357,25 +354,10 @@ private fun autoInvalidateNodeSelf(node: Modifier.Node, selfKindSet: Int, phase:
             node is FocusPropertiesModifierNode &&
             node.specifiesCanFocusProperty()
     ) {
-        if (@OptIn(ExperimentalComposeUiApi::class) ComposeUiFlags.isTrackFocusEnabled)
-            node.scheduleInvalidationOfAssociatedFocusTargets()
-        else {
-            when (phase) {
-                Removed -> node.scheduleInvalidationOfAssociatedFocusTargets()
-                else -> node.invalidateFocusProperties()
-            }
-        }
+        node.invalidateFocusProperties()
     }
     if (Nodes.FocusEvent in selfKindSet && node is FocusEventModifierNode) {
         node.invalidateFocusEvent()
-    }
-}
-
-private fun FocusPropertiesModifierNode.scheduleInvalidationOfAssociatedFocusTargets() {
-    visitChildren(Nodes.FocusTarget) {
-        // Schedule invalidation for the focus target,
-        // which will cause it to recalculate focus properties.
-        it.invalidateFocusTarget()
     }
 }
 

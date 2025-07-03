@@ -126,6 +126,15 @@ private constructor(
         defaultKeylines.isNotEmpty() && availableSpace != 0f && itemMainAxisSize != 0f
 
     /**
+     * A variable in which to store the last start step and the last end step when a Carousel should
+     * skip interpolating through the default keylines.
+     *
+     * Storing this variable avoids creating a new list each time [getKeylineListForScrollOffset] is
+     * called.
+     */
+    private var lastStartAndEndKeylineListSteps: List<KeylineList>? = null
+
+    /**
      * Returns the [KeylineList] that should be used for the current [scrollOffset].
      *
      * @param scrollOffset the current scroll offset of the scrollable component
@@ -170,6 +179,24 @@ private constructor(
                 )
             shiftPoints = endShiftPoints
             steps = endKeylineSteps
+
+            // If end shifting begins at the beginning of the list (at offset = 0 but we check
+            // for < 0.01 to account for floating point imprecision), we know we are interpolating
+            // directly from the last start step to the last end step and should skip
+            // interpolating through the default step.
+            if (
+                endShiftOffset < 0.01f && startKeylineSteps.size == 2 && endKeylineSteps.size == 2
+            ) {
+                // Lazily create and cache the special case step list so this doesn't get recreated
+                // on every change in scroll offset.
+                if (lastStartAndEndKeylineListSteps == null) {
+                    lastStartAndEndKeylineListSteps =
+                        listOf(startKeylineSteps.last(), endKeylineSteps.last())
+                }
+                // Update the steps variable. interpolation and shiftPoints should be correct since
+                // an endKeylineSteps.size of 2 will always have shiftPoints of [0,1].
+                steps = lastStartAndEndKeylineListSteps!!
+            }
         }
 
         val shiftPointRange = getShiftPointRange(steps.size, shiftPoints, interpolation)

@@ -403,6 +403,8 @@ internal fun measureLazyGrid(
         // apply sticky items logic.
         val stickingItems =
             stickyItemsScrollBehavior.applyStickyItems(
+                firstItemIndex,
+                lastItemIndex,
                 positionedItems,
                 measuredItemProvider.headerIndices,
                 beforeContentPadding,

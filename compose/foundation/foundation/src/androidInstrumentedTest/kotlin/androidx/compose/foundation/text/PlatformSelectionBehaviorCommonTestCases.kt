@@ -16,14 +16,15 @@
 
 package androidx.compose.foundation.text
 
-import android.content.Context
+import android.annotation.SuppressLint
+import android.os.Build
 import androidx.compose.foundation.ComposeFoundationFlags
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.contextmenu.ProcessTextApi23Impl
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.selection.PlatformSelectionBehaviors
 import androidx.compose.foundation.text.selection.PlatformSelectionBehaviorsFactory
-import androidx.compose.foundation.text.selection.SelectedTextType
 import androidx.compose.foundation.text.selection.gestures.util.longPress
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -42,26 +43,28 @@ import androidx.compose.ui.test.performMouseInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import org.junit.AfterClass
-import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TestRule
+import org.junit.runner.Description
+import org.junit.runners.model.Statement
 
+@SdkSuppress(minSdkVersion = 28)
 @OptIn(ExperimentalFoundationApi::class)
 abstract class PlatformSelectionBehaviorCommonTestCases : FocusedWindowTest {
     @get:Rule val rule = createComposeRule()
+    @get:Rule val platformSelectionBehaviorsRule = PlatformSelectionBehaviorsRule()
     internal val TAG = "SelectableText"
 
     internal val fontSize = 10.sp
 
     internal val defaultTextStyle = TextStyle(fontFamily = TEST_FONT_FAMILY, fontSize = fontSize)
-
-    internal var testPlatformSelectionBehaviors: TestPlatformSelectionBehaviors? = null
 
     internal abstract val testLongPress: Boolean
 
@@ -77,19 +80,6 @@ abstract class PlatformSelectionBehaviorCommonTestCases : FocusedWindowTest {
         fun afterClass() {
             ComposeFoundationFlags.isSmartSelectionEnabled = false
         }
-    }
-
-    @Before
-    fun setup() {
-        testPlatformSelectionBehaviors = TestPlatformSelectionBehaviors()
-        PlatformSelectionBehaviorsFactory =
-            {
-                coroutineContext,
-                context: Context,
-                selectionType: SelectedTextType,
-                localeList: LocaleList? ->
-                testPlatformSelectionBehaviors as PlatformSelectionBehaviors
-            }
     }
 
     /** The composable component to be tested, which should be BTF1, BTF2 or SelectionContainer. */
@@ -112,8 +102,11 @@ abstract class PlatformSelectionBehaviorCommonTestCases : FocusedWindowTest {
         rule.waitForIdle()
 
         assertThat(selection).isEqualTo(TextRange(4, 7))
-        assertThat(testPlatformSelectionBehaviors?.text).isEqualTo("abc def ghi")
-        assertThat(testPlatformSelectionBehaviors?.selection).isEqualTo(TextRange(4, 7))
+        platformSelectionBehaviorsRule.expectSuggestSelectionForLongPressOrDoubleClick(
+            "abc def ghi",
+            TextRange(4, 7),
+        )
+        expectOnShowContextMenu("abc def ghi", TextRange(4, 7))
     }
 
     @Test
@@ -131,8 +124,11 @@ abstract class PlatformSelectionBehaviorCommonTestCases : FocusedWindowTest {
         rule.waitForIdle()
 
         assertThat(selection).isEqualTo(TextRange(4, 7))
-        assertThat(testPlatformSelectionBehaviors?.text).isEqualTo("abc def ghi")
-        assertThat(testPlatformSelectionBehaviors?.selection).isEqualTo(TextRange(4, 7))
+        platformSelectionBehaviorsRule.expectSuggestSelectionForLongPressOrDoubleClick(
+            "abc def ghi",
+            TextRange(4, 7),
+        )
+        expectOnShowContextMenu("abc def ghi", TextRange(4, 7))
     }
 
     @Test
@@ -154,8 +150,8 @@ abstract class PlatformSelectionBehaviorCommonTestCases : FocusedWindowTest {
         rule.waitForIdle()
 
         assertThat(selection).isEqualTo(TextRange(0, 7))
-        assertThat(testPlatformSelectionBehaviors?.text).isNull()
-        assertThat(testPlatformSelectionBehaviors?.selection).isNull()
+        expectOnShowContextMenu("abc def ghi", TextRange(0, 7))
+        platformSelectionBehaviorsRule.assertNoMoreCalls()
     }
 
     @Test
@@ -178,15 +174,18 @@ abstract class PlatformSelectionBehaviorCommonTestCases : FocusedWindowTest {
         rule.waitForIdle()
 
         assertThat(selection).isEqualTo(TextRange(0, 3))
-        assertThat(testPlatformSelectionBehaviors?.text).isEqualTo("abc def ghi")
-        assertThat(testPlatformSelectionBehaviors?.selection).isEqualTo(TextRange(0, 3))
+        platformSelectionBehaviorsRule.expectSuggestSelectionForLongPressOrDoubleClick(
+            "abc def ghi",
+            TextRange(0, 3),
+        )
+        expectOnShowContextMenu("abc def ghi", TextRange(0, 3))
     }
 
     @Test
     fun doesApplySuggestedRange() {
         val state = TextFieldState("abc def ghi")
         val suggestedSelection = TextRange(1, 5)
-        testPlatformSelectionBehaviors?.suggestedSelection = suggestedSelection
+        platformSelectionBehaviorsRule.suggestedSelection = suggestedSelection
 
         rule.setTextFieldTestContent {
             BasicTextField(
@@ -201,8 +200,11 @@ abstract class PlatformSelectionBehaviorCommonTestCases : FocusedWindowTest {
         rule.waitForIdle()
 
         assertThat(state.selection).isEqualTo(suggestedSelection)
-        assertThat(testPlatformSelectionBehaviors?.text).isEqualTo("abc def ghi")
-        assertThat(testPlatformSelectionBehaviors?.selection).isEqualTo(TextRange(0, 3))
+        platformSelectionBehaviorsRule.expectSuggestSelectionForLongPressOrDoubleClick(
+            "abc def ghi",
+            TextRange(0, 3),
+        )
+        expectOnShowContextMenu("abc def ghi", TextRange(0, 3))
     }
 
     internal fun performLongPressOrDoubleClick(position: InjectionScope.() -> Offset) {
@@ -230,21 +232,12 @@ abstract class PlatformSelectionBehaviorCommonTestCases : FocusedWindowTest {
             }
         }
     }
-}
 
-internal class TestPlatformSelectionBehaviors : PlatformSelectionBehaviors {
-    var text: String? = null
-    var selection: TextRange? = null
-
-    var suggestedSelection: TextRange? = null
-
-    override suspend fun suggestSelectionForLongPressOrDoubleClick(
-        text: CharSequence,
-        selection: TextRange,
-    ): TextRange? {
-        this.text = text.toString()
-        this.selection = selection
-        return suggestedSelection
+    internal fun expectOnShowContextMenu(text: CharSequence, selection: TextRange) {
+        // Mouse double click won't bring up the context menu.
+        if (testLongPress) {
+            platformSelectionBehaviorsRule.expectOnShowContextMenu(text, selection)
+        }
     }
 }
 
@@ -267,3 +260,97 @@ private val ViewConfiguration.defaultDoubleTapDelayMillis: Long
     get() = (doubleTapMinTimeMillis + doubleTapTimeoutMillis) / 2
 
 private const val SingleClickDelayMillis = 60L
+
+class PlatformSelectionBehaviorsRule : TestRule {
+    private var testPlatformSelectionBehaviors: TestPlatformSelectionBehaviors? = null
+
+    override fun apply(base: Statement?, description: Description?): Statement? {
+
+        return if (Build.VERSION.SDK_INT >= 28) {
+            object : Statement() {
+                @SuppressLint("VisibleForTests")
+                override fun evaluate() {
+                    val oldQueryLambda = ProcessTextApi23Impl.processTextActivitiesQuery
+
+                    val platformSelectionBehaviors =
+                        TestPlatformSelectionBehaviors().also {
+                            testPlatformSelectionBehaviors = it
+                        }
+                    PlatformSelectionBehaviorsFactory = { _, _, _, _ ->
+                        platformSelectionBehaviors as PlatformSelectionBehaviors
+                    }
+                    base?.evaluate()
+
+                    ProcessTextApi23Impl.processTextActivitiesQuery = oldQueryLambda
+                }
+            }
+        } else {
+            base
+        }
+    }
+
+    /**
+     * The returned suggested selection range if
+     * [PlatformSelectionBehaviors.suggestSelectionForLongPressOrDoubleClick] is called.
+     */
+    var suggestedSelection: TextRange?
+        set(value) {
+            testPlatformSelectionBehaviors!!.suggestedSelection = value
+        }
+        get() = testPlatformSelectionBehaviors!!.suggestedSelection
+
+    fun expectSuggestSelectionForLongPressOrDoubleClick(text: CharSequence, selection: TextRange) {
+        testPlatformSelectionBehaviors!!.expectSuggestSelectionForLongPressOrDoubleClick(
+            text,
+            selection,
+        )
+    }
+
+    fun expectOnShowContextMenu(text: CharSequence, selection: TextRange) {
+        testPlatformSelectionBehaviors!!.expectOnShowContextMenu(text, selection)
+    }
+
+    fun assertNoMoreCalls() {
+        testPlatformSelectionBehaviors!!.assertNoMoreCalls()
+    }
+}
+
+internal class TestPlatformSelectionBehaviors : PlatformSelectionBehaviors {
+    var suggestedSelection: TextRange? = null
+
+    val suggestSelectionForLongPressOrDoubleClickCalls =
+        mutableListOf<Pair<CharSequence, TextRange>>()
+
+    val onShowContextMenuCalls = mutableListOf<Pair<CharSequence, TextRange>>()
+
+    fun expectSuggestSelectionForLongPressOrDoubleClick(text: CharSequence, selection: TextRange) {
+        val firstCall = suggestSelectionForLongPressOrDoubleClickCalls.first()
+        assertThat(firstCall.first.toString()).isEqualTo(text.toString())
+        assertThat(firstCall.second).isEqualTo(selection)
+        suggestSelectionForLongPressOrDoubleClickCalls.removeAt(0)
+    }
+
+    fun expectOnShowContextMenu(text: CharSequence, selection: TextRange) {
+        val firstCall = onShowContextMenuCalls.first()
+        assertThat(firstCall.first.toString()).isEqualTo(text.toString())
+        assertThat(firstCall.second).isEqualTo(selection)
+        onShowContextMenuCalls.removeAt(0)
+    }
+
+    fun assertNoMoreCalls() {
+        assertThat(suggestSelectionForLongPressOrDoubleClickCalls).isEmpty()
+        assertThat(onShowContextMenuCalls).isEmpty()
+    }
+
+    override suspend fun suggestSelectionForLongPressOrDoubleClick(
+        text: CharSequence,
+        selection: TextRange,
+    ): TextRange? {
+        suggestSelectionForLongPressOrDoubleClickCalls.add(text to selection)
+        return suggestedSelection
+    }
+
+    override suspend fun onShowContextMenu(text: CharSequence, selection: TextRange) {
+        onShowContextMenuCalls.add(text to selection)
+    }
+}

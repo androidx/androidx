@@ -92,6 +92,37 @@ class UncontainedTest {
     }
 
     @Test
+    fun testLargeItem_largerThanHalfCarouselWidth() {
+        val carouselSize = 1000.0f
+        // With size 501px, 1 large item can fit with in 1000px, No elements will be cut off.
+        val itemSize = 501f
+        val keylineList =
+            uncontainedKeylineList(
+                density = Density,
+                carouselMainAxisSize = carouselSize,
+                itemSize = itemSize,
+                itemSpacing = 0f,
+            )
+        val strategy =
+            Strategy(
+                defaultKeylines = keylineList,
+                availableSpace = carouselSize,
+                itemSpacing = 0f,
+                beforeContentPadding = 0f,
+                afterContentPadding = 0f,
+            )
+
+        val keylines = strategy.defaultKeylines
+        val rightAnchorSize = with(Density) { CarouselDefaults.AnchorSize.toPx() }
+        assertThat(keylines.size).isEqualTo(4)
+        assertThat(keylines[0].offset).isEqualTo(-125.25f)
+        assertThat(keylines[1].size).isEqualTo(itemSize)
+        assertThat(keylines[2].size).isEqualTo(itemSize)
+        assertThat(keylines[3].size).isEqualTo(rightAnchorSize)
+        assertThat(keylines[3].offset).isEqualTo(itemSize * 2 + rightAnchorSize / 2f)
+    }
+
+    @Test
     fun testRemainingSpaceWithItemSize_fitsItemWithThirdCutoff() {
         val carouselSize = 400f
         // With size 125px, 3 large items can fit with in 400px, with 25px left. 25px * 3 = 75px,

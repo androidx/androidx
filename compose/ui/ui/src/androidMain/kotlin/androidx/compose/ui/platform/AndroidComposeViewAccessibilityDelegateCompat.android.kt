@@ -2773,11 +2773,10 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         }
 
         newNode.replacedChildren.fastForEach { child ->
-            if (currentSemanticsNodes.contains(child.id)) {
-                sendAccessibilitySemanticsStructureChangeEvents(
-                    child,
-                    previousSemanticsNodes[child.id]!!,
-                )
+            previousSemanticsNodes[child.id]?.let { previousNode ->
+                if (currentSemanticsNodes.contains(child.id)) {
+                    sendAccessibilitySemanticsStructureChangeEvents(child, previousNode)
+                }
             }
         }
     }

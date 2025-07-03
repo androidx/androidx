@@ -8,7 +8,7 @@ namespace compose_inspection {
 void logE(const char *fmt, ...) {
     va_list args;
     va_start(args, fmt);
-    __android_log_vprint(ANDROID_LOG_ERROR, "ComposeLayoutInspector", fmt, args);
+    __android_log_vprint(ANDROID_LOG_ERROR, "ComposeInspector", fmt, args);
     va_end(args);
 }
 
@@ -286,7 +286,17 @@ int compareLineNumberEntry(const void *a, const void * b) {
 
 const int ACC_BRIDGE = 0x40;
 
-jobject resolveLocation(JNIEnv *env, jclass location_class, jclass lambda_class) {
+/**
+ * Resolve the location of the lambda specified.
+ * @param env JNI environment
+ * @param location_class LambdaLocation class
+ * @param lambda_class The class where the lambda resides
+ * @param method_name The method name of the lambda (-Xlambdas=indy)
+ *                    or an empty string (-Xlambdas=class)
+ * @return An LambdaLocation instance with className, fileName, and line range of the lambda
+ */
+jobject resolveLocation(
+        JNIEnv *env, jclass location_class, jclass lambda_class, jstring method_name) {
     jmethodID location_class_constructor =
         env->GetMethodID(location_class, "<init>", "(Ljava/lang/Class;Ljava/lang/String;II)V");
     if (location_class_constructor == nullptr) {
@@ -301,6 +311,10 @@ jobject resolveLocation(JNIEnv *env, jclass location_class, jclass lambda_class)
     jvmtiError error = jvmti->GetClassMethods(lambda_class, &methodCount, &methods);
     if (CheckJvmtiError(jvmti, error)) {
         return nullptr;
+    }
+    const char* lambda_method_name = nullptr;
+    if (env->GetStringLength(method_name) > 0) {
+        lambda_method_name = env->GetStringUTFChars(method_name, nullptr);
     }
 
     int variableCount = 0;
@@ -318,7 +332,7 @@ jobject resolveLocation(JNIEnv *env, jclass location_class, jclass lambda_class)
         int modifiers = 0;
         error = jvmti->GetMethodModifiers(methodId, &modifiers);
         if (CheckJvmtiError(jvmti, error)) {
-            break;
+            continue;
         }
         if ((modifiers & ACC_BRIDGE) != 0) { // NOLINT(hicpp-signed-bitwise)
             continue; // Ignore bridge methods
@@ -327,33 +341,46 @@ jobject resolveLocation(JNIEnv *env, jclass location_class, jclass lambda_class)
         char* name;
         error = jvmti->GetMethodName(methodId, &name, nullptr, nullptr);
         if (CheckJvmtiError(jvmti, error)) {
-            break;
+            continue;
         }
-        bool isInvokeMethod = strcmp(name, "invoke") == 0;
-        bool isInvokeWithInlineParameter = strncmp(name, "invoke-", 7) == 0;
+        bool match = false;
+        if (lambda_method_name == nullptr) {
+            bool isInvokeMethod = strcmp(name, "invoke") == 0;
+            bool isInvokeWithInlineParameter = strncmp(name, "invoke-", 7) == 0;
+            match = isInvokeMethod || isInvokeWithInlineParameter;
+        } else {
+            match = strcmp(name, lambda_method_name) == 0;
+        }
         jvmti->Deallocate((unsigned char *)name);
-        if (!isInvokeMethod && !isInvokeWithInlineParameter) {
-               continue; // Ignore if the method name doesn't match "invoke"
+        if (!match) {
+            continue; // Ignore if the method name doesn't match "invoke"
         }
 
         error = jvmti->GetLocalVariableTable(methodId, &variableCount, &variables);
         if (CheckJvmtiError(jvmti, error)) {
-            break;
+            variableCount = 0;
+            variables = nullptr;
+            continue;
         }
         error = jvmti->GetLineNumberTable(methodId, &lineCount, &lines);
         if (CheckJvmtiError(jvmti, error)) {
-            break;
+            lineCount = 0;
+            lines = nullptr;
+            continue;
         }
         qsort(lines, lineCount, sizeof(jvmtiLineNumberEntry), compareLineNumberEntry);
 
         if (analyzeLines(jvmti, lineCount, lines, variableCount, variables,
                          &start_line, &end_line)) {
-            break;
+            continue;
         }
     }
     deallocateLines(jvmti, &lines);
     deallocateVariables(jvmti, variableCount, &variables);
     jvmti->Deallocate((unsigned char *)methods);
+    if (lambda_method_name != nullptr) {
+        env->ReleaseStringUTFChars(method_name, lambda_method_name);
+    }
 
     if (start_line <= 0) {
         return nullptr;
@@ -376,8 +403,8 @@ extern "C" {
 
 JNIEXPORT jobject JNICALL
 Java_androidx_compose_ui_inspection_LambdaLocation_resolveWithJvmTI(
-        JNIEnv *env, jclass location_class, jclass lambda_class) {
-    return compose_inspection::resolveLocation(env, location_class, lambda_class);
+        JNIEnv *env, jclass location_class, jclass lambda_class, jstring method_name) {
+    return compose_inspection::resolveLocation(env, location_class, lambda_class, method_name);
 }
 
 }

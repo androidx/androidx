@@ -18,7 +18,6 @@
 
 package androidx.compose.foundation.text
 
-import androidx.compose.foundation.text.input.internal.selection.TextFieldPreparedSelection.Companion.NoCharacterFound
 import kotlin.experimental.ExperimentalNativeApi
 import kotlin.math.absoluteValue
 import kotlin.math.sign
@@ -72,7 +71,7 @@ internal fun CharSequence.offsetByCodePoints(index: Int, offset: Int): Int {
 }
 
 internal actual fun String.findCodePointOrEmojiStartBefore(index: Int, ifNotFound: Int): Int {
-    if (index <= 0) return NoCharacterFound
+    if (index <= 0) return -1
 
     // Instead of trying to detect emoji sequences, which is hard, we jump to the preceding break
     // and check whether the codepoint at that index can be the start of an emoji sequence.

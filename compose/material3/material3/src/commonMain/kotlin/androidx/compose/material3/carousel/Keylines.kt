@@ -352,7 +352,8 @@ private fun calculateMediumChildSize(
         // Choose whichever is bigger between the maximum threshold of the medium child size, or
         // a size such that only 20% of the space is cut off.
         val sizeWithFifthCutOff = remainingSpace * 1.2f
-        mediumItemSize = max(largeItemThreshold, sizeWithFifthCutOff)
+        // The resulting size should not exceed the large item size.
+        mediumItemSize = min(max(largeItemThreshold, sizeWithFifthCutOff), largeItemSize)
     }
     return mediumItemSize
 }

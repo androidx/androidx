@@ -17,9 +17,11 @@
 package androidx.compose.foundation.text.contextmenu.builder
 
 import android.content.res.Resources
+import android.view.textclassifier.TextClassification
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.text.contextmenu.data.TextContextMenuItem
 import androidx.compose.foundation.text.contextmenu.data.TextContextMenuSession
+import androidx.compose.foundation.text.contextmenu.data.TextContextMenuTextClassificationItem
 
 /**
  * Adds an item to the list of text context menu components.
@@ -40,4 +42,20 @@ fun TextContextMenuBuilderScope.item(
     onClick: TextContextMenuSession.() -> Unit,
 ) {
     addComponent(TextContextMenuItem(key, label, leadingIcon, onClick))
+}
+
+/**
+ * Adds an item returned by [TextClassification] to the list of text context menu components.
+ *
+ * @param textClassification The [TextClassification] object returned by
+ *   [android.view.textclassifier.TextClassifier].
+ * @param index The index of the item in the list of [TextClassification.getActions] or a negative
+ *   value if the [TextClassification] hold an legacy assist item.
+ */
+internal fun TextContextMenuBuilderScope.textClassificationItem(
+    key: Any,
+    textClassification: TextClassification,
+    index: Int,
+) {
+    addComponent(TextContextMenuTextClassificationItem(key, textClassification, index))
 }

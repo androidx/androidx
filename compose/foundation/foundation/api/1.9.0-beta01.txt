@@ -152,6 +152,7 @@ package androidx.compose.foundation {
     property public boolean isOnScrollChangedCallbackEnabled;
     property public boolean isPausableCompositionInPrefetchEnabled;
     property public boolean isSmartSelectionEnabled;
+    property public boolean isTextFieldDpadNavigationEnabled;
     field public static boolean DragGesturePickUpEnabled;
     field public static final androidx.compose.foundation.ComposeFoundationFlags INSTANCE;
     field public static boolean isAdjustPointerInputChangeOffsetForVelocityTrackerEnabled;
@@ -164,6 +165,7 @@ package androidx.compose.foundation {
     field public static boolean isOnScrollChangedCallbackEnabled;
     field public static boolean isPausableCompositionInPrefetchEnabled;
     field public static boolean isSmartSelectionEnabled;
+    field public static boolean isTextFieldDpadNavigationEnabled;
   }
 
   public final class DarkThemeKt {

@@ -332,7 +332,8 @@ private class DerivedSnapshotState<T>(
  * @param calculation the calculation to create the value this state object represents.
  */
 @StateFactoryMarker
-fun <T> derivedStateOf(calculation: () -> T): State<T> = DerivedSnapshotState(calculation, null)
+public fun <T> derivedStateOf(calculation: () -> T): State<T> =
+    DerivedSnapshotState(calculation, null)
 
 /**
  * Creates a [State] object whose [State.value] is the result of [calculation]. The result of
@@ -347,7 +348,7 @@ fun <T> derivedStateOf(calculation: () -> T): State<T> = DerivedSnapshotState(ca
  * @param calculation the calculation to create the value this state object represents.
  */
 @StateFactoryMarker
-fun <T> derivedStateOf(policy: SnapshotMutationPolicy<T>, calculation: () -> T): State<T> =
+public fun <T> derivedStateOf(policy: SnapshotMutationPolicy<T>, calculation: () -> T): State<T> =
     DerivedSnapshotState(calculation, policy)
 
 /** Observe the recalculations performed by derived states. */

@@ -57,10 +57,10 @@ class InlineClassConverterTest {
             assertThat(value).isInstanceOf(valueType)
         }
 
-        validate(surface, "$2", Color::class.java)
-        validate(surface, "$5", Dp::class.java)
-        validate(text, "$2", Color::class.java)
-        validate(text, "$3", TextUnit::class.java)
+        validate(surface, "color", Color::class.java)
+        validate(surface, "elevation", Dp::class.java)
+        validate(text, "color", Color::class.java)
+        validate(text, "fontSize", TextUnit::class.java)
     }
 
     private fun flatten(group: Group): Sequence<Group> =

@@ -25,6 +25,7 @@ import androidx.compose.foundation.contextmenu.clickOffPopup
 import androidx.compose.foundation.contextmenu.contextMenuItemInteraction
 import androidx.compose.foundation.internal.readText
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.PlatformSelectionBehaviorsRule
 import androidx.compose.foundation.text.contextmenu.ProcessTextApi23Impl
 import androidx.compose.foundation.text.contextmenu.test.ContextMenuFlagFlipperRunner
 import androidx.compose.foundation.text.contextmenu.test.ContextMenuFlagSuppress
@@ -72,6 +73,8 @@ open class SelectionContainerContextMenuTest {
             ContextMenuItemLabels.PROCESS_TEXT_1,
             ContextMenuItemLabels.PROCESS_TEXT_2,
         )
+
+    @get:Rule val platformSelectionBehaviorsRule = PlatformSelectionBehaviorsRule()
 
     private val textTag = "text"
     private val defaultText = "Text Text Text"
@@ -158,7 +161,7 @@ open class SelectionContainerContextMenuTest {
         text: String = defaultText,
         assertionBlock: suspend (Selection?, clipboard: Clipboard) -> Unit,
     ) {
-        val clipboard = FakeClipboard(initialText = initialClipboardText, supportsClipEntry = true)
+        val clipboard = FakeClipboard(initialClipboardText)
 
         var selection by mutableStateOf<Selection?>(null)
         rule.setContent {
@@ -283,7 +286,7 @@ open class SelectionContainerContextMenuTest {
     ) {
         val text = "Text Text Text"
 
-        val clipboard = FakeClipboard(initialText = "Clipboard Text", supportsClipEntry = true)
+        val clipboard = FakeClipboard("Clipboard Text")
 
         var selection by mutableStateOf<Selection?>(null)
 

@@ -64,7 +64,7 @@ private const val DisallowDefaultMonotonicFrameClock = false
     "MonotonicFrameClocks are not globally applicable across platforms. " +
         "Use an appropriate local clock."
 )
-actual val DefaultMonotonicFrameClock: MonotonicFrameClock by lazy {
+public actual val DefaultMonotonicFrameClock: MonotonicFrameClock by lazy {
     if (DisallowDefaultMonotonicFrameClock) error("Disallowed use of DefaultMonotonicFrameClock")
 
     // When linked against Android SDK stubs and running host-side tests, APIs such as

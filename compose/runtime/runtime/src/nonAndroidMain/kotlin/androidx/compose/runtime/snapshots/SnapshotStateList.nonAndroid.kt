@@ -34,9 +34,10 @@ import kotlin.jvm.JvmName
 @Stable
 // Warning: The code of this class is duplicated in SnapshotStateList.android.kt. Any changes
 // made here should be considered to be applied there as well.
-actual class SnapshotStateList<T> internal actual constructor(persistentList: PersistentList<T>) :
+public actual class SnapshotStateList<T>
+internal actual constructor(persistentList: PersistentList<T>) :
     StateObject, MutableList<T>, RandomAccess {
-    actual constructor() : this(persistentListOf())
+    public actual constructor() : this(persistentListOf())
 
     actual override var firstStateRecord: StateRecord = stateRecordWith(persistentList)
         private set
@@ -62,24 +63,25 @@ actual class SnapshotStateList<T> internal actual constructor(persistentList: Pe
      * It is recommended to use [toList] when using returning the value of this list from
      * [androidx.compose.runtime.snapshotFlow].
      */
-    actual fun toList(): List<T> = readable.list
+    public actual fun toList(): List<T> = readable.list
 
     actual override val size: Int
         get() = readable.list.size
 
-    actual override fun contains(element: T) = readable.list.contains(element)
+    actual override fun contains(element: T): Boolean = readable.list.contains(element)
 
-    actual override fun containsAll(elements: Collection<T>) = readable.list.containsAll(elements)
+    actual override fun containsAll(elements: Collection<T>): Boolean =
+        readable.list.containsAll(elements)
 
-    actual override fun get(index: Int) = readable.list[index]
+    actual override fun get(index: Int): T = readable.list[index]
 
     actual override fun indexOf(element: T): Int = readable.list.indexOf(element)
 
-    actual override fun isEmpty() = readable.list.isEmpty()
+    actual override fun isEmpty(): Boolean = readable.list.isEmpty()
 
     actual override fun iterator(): MutableIterator<T> = listIterator()
 
-    actual override fun lastIndexOf(element: T) = readable.list.lastIndexOf(element)
+    actual override fun lastIndexOf(element: T): Int = readable.list.lastIndexOf(element)
 
     actual override fun listIterator(): MutableListIterator<T> = StateListIterator(this, 0)
 
@@ -99,34 +101,36 @@ actual class SnapshotStateList<T> internal actual constructor(persistentList: Pe
             "SnapshotStateList(value=${it.list})@${hashCode()}"
         }
 
-    actual override fun add(element: T) = conditionalUpdate { it.add(element) }
+    actual override fun add(element: T): Boolean = conditionalUpdate { it.add(element) }
 
-    actual override fun add(index: Int, element: T) = update { it.add(index, element) }
+    actual override fun add(index: Int, element: T): Unit = update { it.add(index, element) }
 
-    actual override fun addAll(index: Int, elements: Collection<T>) = mutateBoolean {
+    actual override fun addAll(index: Int, elements: Collection<T>): Boolean = mutateBoolean {
         it.addAll(index, elements)
     }
 
-    actual override fun addAll(elements: Collection<T>) = conditionalUpdate { it.addAll(elements) }
+    actual override fun addAll(elements: Collection<T>): Boolean = conditionalUpdate {
+        it.addAll(elements)
+    }
 
-    actual override fun clear() = clearImpl()
+    actual override fun clear(): Unit = clearImpl()
 
-    actual override fun remove(element: T) = conditionalUpdate { it.remove(element) }
+    actual override fun remove(element: T): Boolean = conditionalUpdate { it.remove(element) }
 
-    actual override fun removeAll(elements: Collection<T>) = conditionalUpdate {
+    actual override fun removeAll(elements: Collection<T>): Boolean = conditionalUpdate {
         it.removeAll(elements)
     }
 
     actual override fun removeAt(index: Int): T = get(index).also { update { it.removeAt(index) } }
 
-    actual override fun retainAll(elements: Collection<T>) = mutateBoolean {
+    actual override fun retainAll(elements: Collection<T>): Boolean = mutateBoolean {
         it.retainAll(elements)
     }
 
     actual override fun set(index: Int, element: T): T =
         get(index).also { update(structural = false) { it.set(index, element) } }
 
-    actual fun removeRange(fromIndex: Int, toIndex: Int) {
+    public actual fun removeRange(fromIndex: Int, toIndex: Int) {
         mutate { it.subList(fromIndex, toIndex).clear() }
     }
 

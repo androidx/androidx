@@ -28,6 +28,7 @@ import androidx.compose.foundation.text.input.TextHighlightType
 import androidx.compose.foundation.text.input.internal.selection.TextFieldSelectionState
 import androidx.compose.foundation.text.input.internal.selection.textFieldMagnifierNode
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
+import androidx.compose.foundation.text.selection.PlatformSelectionBehaviors
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Brush
@@ -91,6 +92,7 @@ internal data class TextFieldCoreModifier(
     private val scrollState: ScrollState,
     private val orientation: Orientation,
     private val toolbarRequester: ToolbarRequester,
+    private val platformSelectionBehaviors: PlatformSelectionBehaviors?,
 ) : ModifierNodeElement<TextFieldCoreModifierNode>() {
 
     override fun create(): TextFieldCoreModifierNode =
@@ -105,6 +107,7 @@ internal data class TextFieldCoreModifier(
             scrollState = scrollState,
             orientation = orientation,
             toolbarRequester = toolbarRequester,
+            platformSelectionBehaviors = platformSelectionBehaviors,
         )
 
     override fun update(node: TextFieldCoreModifierNode) {
@@ -119,6 +122,7 @@ internal data class TextFieldCoreModifier(
             scrollState = scrollState,
             orientation = orientation,
             toolbarRequester = toolbarRequester,
+            platformSelectionBehaviors = platformSelectionBehaviors,
         )
     }
 
@@ -140,6 +144,7 @@ internal class TextFieldCoreModifierNode(
     private var scrollState: ScrollState,
     private var orientation: Orientation,
     private var toolbarRequester: ToolbarRequester,
+    private var platformSelectionBehaviors: PlatformSelectionBehaviors?,
 ) :
     DelegatingNode(),
     LayoutModifierNode,
@@ -202,6 +207,10 @@ internal class TextFieldCoreModifierNode(
                 requester = toolbarRequester,
                 onShow = {
                     textFieldSelectionState.updateClipboardEntry()
+                    platformSelectionBehaviors?.onShowContextMenu(
+                        text = textFieldSelectionState.textFieldState.visualText.text,
+                        selection = textFieldSelectionState.textFieldState.visualText.selection,
+                    )
                     textFieldSelectionState.textToolbarShown = true
                 },
                 onHide = { textFieldSelectionState.textToolbarShown = false },
@@ -241,6 +250,7 @@ internal class TextFieldCoreModifierNode(
         scrollState: ScrollState,
         orientation: Orientation,
         toolbarRequester: ToolbarRequester,
+        platformSelectionBehaviors: PlatformSelectionBehaviors?,
     ) {
         val previousShowCursor = this.showCursor
         val wasFocused = this.isFocused
@@ -259,6 +269,7 @@ internal class TextFieldCoreModifierNode(
         this.scrollState = scrollState
         this.orientation = orientation
         this.toolbarRequester = toolbarRequester
+        this.platformSelectionBehaviors = platformSelectionBehaviors
 
         textFieldMagnifierNode.update(
             textFieldState = textFieldState,

@@ -29,6 +29,7 @@ private const val FLAGS_INLINED = 0b0001
 private const val FLAGS_DRAW_MODIFIER = 0b0010
 private const val FLAGS_CHILD_DRAW_MODIFIER = 0b0100
 private const val FLAGS_UNKNOWN_LOCATION = 0b1000
+private const val FLAGS_OVERRIDDEN_BOX_SIZE = 0b10000
 
 /** Node representing a Composable for the Layout Inspector. */
 class InspectorNode
@@ -190,6 +191,12 @@ internal class MutableInspectorNode {
         get() = (flags and FLAGS_CHILD_DRAW_MODIFIER) != 0
         set(value) {
             setFlag(FLAGS_CHILD_DRAW_MODIFIER, value)
+        }
+
+    var boxSizeOverridden: Boolean
+        get() = (flags and FLAGS_OVERRIDDEN_BOX_SIZE) != 0
+        set(value) {
+            setFlag(FLAGS_OVERRIDDEN_BOX_SIZE, value)
         }
 
     fun reset() {

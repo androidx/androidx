@@ -45,7 +45,7 @@ import io.reactivex.rxjava3.plugins.RxJavaPlugins
  *   with the real one once we receive it from the stream
  */
 @Composable
-fun <R, T : R & Any> Observable<T>.subscribeAsState(initial: R): State<R> =
+public fun <R, T : R & Any> Observable<T>.subscribeAsState(initial: R): State<R> =
     asState(initial) { subscribe(it) }
 
 /**
@@ -64,7 +64,7 @@ fun <R, T : R & Any> Observable<T>.subscribeAsState(initial: R): State<R> =
  *   with the real one once we receive it from the stream
  */
 @Composable
-fun <R, T : R & Any> Flowable<T>.subscribeAsState(initial: R): State<R> =
+public fun <R, T : R & Any> Flowable<T>.subscribeAsState(initial: R): State<R> =
     asState(initial) { subscribe(it) }
 
 /**
@@ -83,7 +83,7 @@ fun <R, T : R & Any> Flowable<T>.subscribeAsState(initial: R): State<R> =
  *   with the real one once we receive it from the stream
  */
 @Composable
-fun <R, T : R & Any> Single<T>.subscribeAsState(initial: R): State<R> =
+public fun <R, T : R & Any> Single<T>.subscribeAsState(initial: R): State<R> =
     asState(initial) { subscribe(it) }
 
 /**
@@ -102,7 +102,7 @@ fun <R, T : R & Any> Single<T>.subscribeAsState(initial: R): State<R> =
  *   with the real one once we receive it from the stream
  */
 @Composable
-fun <R, T : R & Any> Maybe<T>.subscribeAsState(initial: R): State<R> =
+public fun <R, T : R & Any> Maybe<T>.subscribeAsState(initial: R): State<R> =
     asState(initial) { subscribe(it) }
 
 /**
@@ -119,7 +119,7 @@ fun <R, T : R & Any> Maybe<T>.subscribeAsState(initial: R): State<R> =
  * @sample androidx.compose.runtime.rxjava3.samples.CompletableSample
  */
 @Composable
-fun Completable.subscribeAsState(): State<Boolean> =
+public fun Completable.subscribeAsState(): State<Boolean> =
     asState(false) { callback -> subscribe { callback(true) } }
 
 @Composable

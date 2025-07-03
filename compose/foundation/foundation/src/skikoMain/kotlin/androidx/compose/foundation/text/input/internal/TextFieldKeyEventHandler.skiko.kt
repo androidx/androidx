@@ -22,6 +22,7 @@ import androidx.compose.foundation.text.input.internal.selection.TextFieldSelect
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.isMetaPressed
 import androidx.compose.ui.input.key.isShiftPressed
+import androidx.compose.ui.platform.SoftwareKeyboardController
 
 /**
  * Factory function to create a platform specific [TextFieldKeyEventHandler].
@@ -36,6 +37,7 @@ internal fun createIOSTextFieldKeyEventHandler() = object : TextFieldKeyEventHan
         textLayoutState: TextLayoutState,
         textFieldSelectionState: TextFieldSelectionState,
         clipboardKeyCommandsHandler: ClipboardKeyCommandsHandler,
+        keyboardController: SoftwareKeyboardController,
         editable: Boolean,
         singleLine: Boolean,
         onSubmit: () -> Boolean
@@ -59,6 +61,7 @@ internal fun createIOSTextFieldKeyEventHandler() = object : TextFieldKeyEventHan
                     textLayoutState,
                     textFieldSelectionState,
                     clipboardKeyCommandsHandler,
+                    keyboardController,
                     editable,
                     singleLine,
                     onSubmit

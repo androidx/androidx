@@ -17,16 +17,11 @@
 package androidx.compose.ui.focus
 
 import androidx.collection.mutableScatterSetOf
-import androidx.compose.ui.ComposeUiFlags
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.focus.FocusStateImpl.ActiveParent
 import androidx.compose.ui.focus.FocusStateImpl.Inactive
-import androidx.compose.ui.internal.checkPrecondition
 import androidx.compose.ui.node.Nodes
 import androidx.compose.ui.node.Owner
 import androidx.compose.ui.node.visitAncestors
-import androidx.compose.ui.node.visitSelfAndChildren
-import androidx.compose.ui.util.fastForEach
 
 /**
  * The [FocusInvalidationManager] allows us to schedule focus related nodes for invalidation. These
@@ -39,31 +34,15 @@ internal class FocusInvalidationManager(
 ) {
     private val focusTargetNodes = mutableScatterSetOf<FocusTargetNode>()
     private val focusEventNodes = mutableScatterSetOf<FocusEventModifierNode>()
-    private val focusTargetNodesLegacy = mutableListOf<FocusTargetNode>()
-    private val focusEventNodesLegacy = mutableListOf<FocusEventModifierNode>()
-    private val focusPropertiesNodesLegacy = mutableListOf<FocusPropertiesModifierNode>()
-    private val focusTargetsWithInvalidatedFocusEventsLegacy = mutableListOf<FocusTargetNode>()
 
     private var isInvalidationScheduled = false
 
     fun scheduleInvalidation(node: FocusTargetNode) {
-        if (@OptIn(ExperimentalComposeUiApi::class) ComposeUiFlags.isTrackFocusEnabled) {
-            if (focusTargetNodes.add(node)) scheduleInvalidation()
-        } else {
-            focusTargetNodesLegacy.scheduleInvalidationLegacy(node)
-        }
+        if (focusTargetNodes.add(node)) scheduleInvalidation()
     }
 
     fun scheduleInvalidation(node: FocusEventModifierNode) {
-        if (@OptIn(ExperimentalComposeUiApi::class) ComposeUiFlags.isTrackFocusEnabled) {
-            if (focusEventNodes.add(node)) scheduleInvalidation()
-        } else {
-            focusEventNodesLegacy.scheduleInvalidationLegacy(node)
-        }
-    }
-
-    fun scheduleInvalidation(node: FocusPropertiesModifierNode) {
-        focusPropertiesNodesLegacy.scheduleInvalidationLegacy(node)
+        if (focusEventNodes.add(node)) scheduleInvalidation()
     }
 
     fun scheduleInvalidation() {
@@ -73,39 +52,9 @@ internal class FocusInvalidationManager(
         }
     }
 
-    fun hasPendingInvalidation(): Boolean {
-        return if (@OptIn(ExperimentalComposeUiApi::class) ComposeUiFlags.isTrackFocusEnabled) {
-            isInvalidationScheduled
-        } else {
-            focusTargetNodesLegacy.isNotEmpty() ||
-                focusPropertiesNodesLegacy.isNotEmpty() ||
-                focusEventNodesLegacy.isNotEmpty()
-        }
-    }
-
-    private fun <T> MutableList<T>.scheduleInvalidationLegacy(node: T) {
-        if (add(node)) {
-            // If this is the first node scheduled for invalidation,
-            // we set up a listener that runs after onApplyChanges.
-            if (
-                focusTargetNodesLegacy.size +
-                    focusEventNodesLegacy.size +
-                    focusPropertiesNodesLegacy.size == 1
-            ) {
-                owner.registerOnEndApplyChangesListener(::invalidateNodes)
-            }
-        }
-    }
+    fun hasPendingInvalidation(): Boolean = isInvalidationScheduled
 
     private fun invalidateNodes() {
-        if (@OptIn(ExperimentalComposeUiApi::class) ComposeUiFlags.isTrackFocusEnabled) {
-            invalidateNodesOptimized()
-        } else {
-            invalidateNodesLegacy()
-        }
-    }
-
-    private fun invalidateNodesOptimized() {
         val activeFocusTargetNode = focusOwner.activeFocusTargetNode
         if (activeFocusTargetNode == null) {
             // If there is no active focus node, dispatch the Inactive state to event nodes.
@@ -155,111 +104,6 @@ internal class FocusInvalidationManager(
         isInvalidationScheduled = false
     }
 
-    private fun invalidateNodesLegacy() {
-        if (!focusOwner.rootState.hasFocus) {
-            // If root doesn't have focus, skip full invalidation and default to the Inactive state.
-            focusEventNodesLegacy.fastForEach { it.onFocusEvent(Inactive) }
-            focusTargetNodesLegacy.fastForEach { node ->
-                if (node.isAttached && !node.isInitialized()) {
-                    node.initializeFocusState(Inactive)
-                }
-            }
-            focusTargetNodesLegacy.clear()
-            focusEventNodesLegacy.clear()
-            focusPropertiesNodesLegacy.clear()
-            focusTargetsWithInvalidatedFocusEventsLegacy.clear()
-            invalidateOwnerFocusState()
-            return
-        }
-
-        // Process all the invalidated FocusProperties nodes.
-        focusPropertiesNodesLegacy.fastForEach {
-            // We don't need to invalidate a focus properties node if it was scheduled for
-            // invalidation earlier in the composition but was then removed.
-            if (!it.node.isAttached) return@fastForEach
-
-            it.visitSelfAndChildren(Nodes.FocusTarget) { focusTarget ->
-                focusTargetNodesLegacy.add(focusTarget)
-            }
-        }
-        focusPropertiesNodesLegacy.clear()
-
-        // Process all the focus events nodes.
-        focusEventNodesLegacy.fastForEach { focusEventNode ->
-            // When focus nodes are removed, the corresponding focus events are scheduled for
-            // invalidation. If the focus event was also removed, we don't need to invalidate it.
-            // We call onFocusEvent with the default value, just to make it easier for the user,
-            // so that they don't have to keep track of whether they caused a focused item to be
-            // removed (Which would cause it to lose focus).
-            if (!focusEventNode.node.isAttached) {
-                focusEventNode.onFocusEvent(Inactive)
-                return@fastForEach
-            }
-
-            var requiresUpdate = true
-            var aggregatedNode = false
-            var focusTarget: FocusTargetNode? = null
-            focusEventNode.visitSelfAndChildren(Nodes.FocusTarget) {
-
-                // If there are multiple focus targets associated with this focus event node,
-                // we need to calculate the aggregated state.
-                if (focusTarget != null) {
-                    aggregatedNode = true
-                }
-
-                focusTarget = it
-
-                // If the associated focus node is already scheduled for invalidation, it will
-                // send an onFocusEvent if the invalidation causes a focus state change.
-                // However this onFocusEvent was invalidated, so we have to ensure that we call
-                // onFocusEvent even if the focus state didn't change.
-                if (it in focusTargetNodesLegacy) {
-                    requiresUpdate = false
-                    focusTargetsWithInvalidatedFocusEventsLegacy.add(it)
-                    return@visitSelfAndChildren
-                }
-            }
-
-            if (requiresUpdate) {
-                focusEventNode.onFocusEvent(
-                    if (aggregatedNode) {
-                        focusEventNode.getFocusState()
-                    } else {
-                        focusTarget?.focusState ?: Inactive
-                    }
-                )
-            }
-        }
-        focusEventNodesLegacy.clear()
-
-        // Process all the focus target nodes.
-        focusTargetNodesLegacy.fastForEach {
-            // We don't need to invalidate the focus target if it was scheduled for invalidation
-            // earlier in the composition but was then removed.
-            if (!it.isAttached) return@fastForEach
-
-            val preInvalidationState = it.focusState
-            it.invalidateFocus()
-            if (
-                preInvalidationState != it.focusState ||
-                    it in focusTargetsWithInvalidatedFocusEventsLegacy
-            ) {
-                it.dispatchFocusCallbacks()
-            }
-        }
-        focusTargetNodesLegacy.clear()
-        // Clear the set so we can reuse it
-        focusTargetsWithInvalidatedFocusEventsLegacy.clear()
-
-        invalidateOwnerFocusState()
-
-        checkPrecondition(focusPropertiesNodesLegacy.isEmpty()) {
-            "Unprocessed FocusProperties nodes"
-        }
-        checkPrecondition(focusEventNodesLegacy.isEmpty()) { "Unprocessed FocusEvent nodes" }
-        checkPrecondition(focusTargetNodesLegacy.isEmpty()) { "Unprocessed FocusTarget nodes" }
-    }
-
     /**
      * At the end of the invalidations, we need to ensure that the focus system is in a valid state.
      */
@@ -267,10 +111,7 @@ internal class FocusInvalidationManager(
         // If an active item is removed, we currently clear focus from the hierarchy. We don't
         // clear focus from the root because that could cause initial focus logic to be re-run.
         // Now that all the invalidations are complete, we run owner.clearFocus() if needed.
-        if (
-            (@OptIn(ExperimentalComposeUiApi::class) ComposeUiFlags.isTrackFocusEnabled &&
-                focusOwner.activeFocusTargetNode == null) || focusOwner.rootState == Inactive
-        ) {
+        if (focusOwner.activeFocusTargetNode == null || focusOwner.rootState == Inactive) {
             focusOwner.clearOwnerFocus()
         }
     }

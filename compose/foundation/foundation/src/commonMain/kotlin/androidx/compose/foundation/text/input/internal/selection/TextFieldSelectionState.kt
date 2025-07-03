@@ -27,7 +27,6 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.internal.checkPreconditionNotNull
-import androidx.compose.foundation.internal.hasText
 import androidx.compose.foundation.internal.readText
 import androidx.compose.foundation.internal.toClipEntry
 import androidx.compose.foundation.text.DefaultCursorThickness
@@ -82,7 +81,6 @@ import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.positionInWindow
-import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.Clipboard
 import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.text.AnnotatedString
@@ -116,6 +114,7 @@ import kotlinx.coroutines.launch
  * @param toolbarRequester The [ToolbarRequester] used to show and hide text floating toolbar.
  * @param coroutineScope The [coroutineScope] bounds to the composition.
  * @param platformSelectionBehaviors The platform specific selection behaviors.
+ * @param clipboard The [Clipboard] used to copy/cut/paste text.
  */
 @OptIn(ExperimentalFoundationApi::class)
 internal class TextFieldSelectionState(
@@ -128,7 +127,8 @@ internal class TextFieldSelectionState(
     private var isPassword: Boolean,
     private val toolbarRequester: ToolbarRequester,
     private val coroutineScope: CoroutineScope,
-    private val platformSelectionBehaviors: PlatformSelectionBehaviors?,
+    internal val platformSelectionBehaviors: PlatformSelectionBehaviors?,
+    private var clipboard: Clipboard,
 ) {
     var enabled: Boolean = enabled
         private set
@@ -141,9 +141,6 @@ internal class TextFieldSelectionState(
 
     /** A handler to trigger the [TextToolbar] to be shown or hidden */
     private var textToolbarHandler: TextToolbarHandler? = null
-
-    /** [Clipboard] to perform clipboard features. */
-    private var clipboard: Clipboard? = null
 
     /** Whether user is interacting with the UI in touch mode. */
     var isInTouchMode: Boolean by mutableStateOf(true)
@@ -383,6 +380,8 @@ internal class TextFieldSelectionState(
         if (!enabled) {
             hideTextToolbar()
         }
+        val previousClipboard = clipboard
+
         this.hapticFeedBack = hapticFeedBack
         this.clipboard = clipboard
         this.textToolbarHandler = showTextToolbar
@@ -390,6 +389,10 @@ internal class TextFieldSelectionState(
         this.enabled = enabled
         this.readOnly = readOnly
         this.isPassword = isPassword
+
+        if (previousClipboard !== clipboard) {
+            clipboardPasteState = ClipboardPasteState(clipboard)
+        }
     }
 
     /** Implements the complete set of gestures supported by the cursor handle. */
@@ -458,7 +461,6 @@ internal class TextFieldSelectionState(
 
     fun dispose() {
         hideTextToolbar()
-        clipboard = null
         hapticFeedBack = null
     }
 
@@ -1324,7 +1326,7 @@ internal class TextFieldSelectionState(
         if (text.selection.collapsed) return
 
         val textToCut = AnnotatedString(text.getSelectedText().toString())
-        clipboard?.setClipEntry(textToCut.toClipEntry())
+        clipboard.setClipEntry(textToCut.toClipEntry())
 
         textFieldState.deleteSelectedText()
     }
@@ -1355,7 +1357,7 @@ internal class TextFieldSelectionState(
         if (text.selection.collapsed) return
 
         val textToCopy = AnnotatedString(text.getSelectedText().toString())
-        clipboard?.setClipEntry(textToCopy.toClipEntry())
+        clipboard.setClipEntry(textToCopy.toClipEntry())
 
         if (!cancelSelection) return
 
@@ -1372,11 +1374,9 @@ internal class TextFieldSelectionState(
 
     // TODO(grantapher) android ClipboardManager has a way to notify primary clip changes.
     //  That could possibly be used so that this doesn't have to be updated manually.
-    private var clipEntry: ClipEntry? by mutableStateOf(null)
+    private var clipboardPasteState = ClipboardPasteState(clipboard)
 
-    suspend fun updateClipboardEntry() {
-        clipEntry = clipboard?.getClipEntry()
-    }
+    suspend fun updateClipboardEntry() = clipboardPasteState.update()
 
     /**
      * Whether a paste operation can execute now and have a meaningful effect. The paste operation
@@ -1388,16 +1388,16 @@ internal class TextFieldSelectionState(
     fun canPaste(): Boolean {
         if (!editable) return false
         // if receive content is not configured, we expect at least a text item to be present
-        if (clipEntry?.hasText() == true) return true
+        if (clipboardPasteState.hasText) return true
         // if receive content is configured, hasClip should be enough to show the paste option
-        return receiveContentConfiguration?.invoke() != null && clipEntry != null
+        return receiveContentConfiguration?.invoke() != null && clipboardPasteState.hasClip
     }
 
     suspend fun paste() {
         val receiveContentConfiguration =
             receiveContentConfiguration?.invoke() ?: return pasteAsPlainText()
 
-        val clipEntry = clipboard?.getClipEntry() ?: return pasteAsPlainText()
+        val clipEntry = clipboard.getClipEntry() ?: return pasteAsPlainText()
         val clipMetadata = clipEntry.clipMetadata
 
         val remaining =
@@ -1428,7 +1428,7 @@ internal class TextFieldSelectionState(
      * end of the newly added text.
      */
     internal suspend fun pasteAsPlainText() {
-        val clipboardText = clipboard?.getClipEntry()?.readText() ?: return
+        val clipboardText = clipboard.getClipEntry()?.readText() ?: return
 
         textFieldState.replaceSelectedText(
             clipboardText,
@@ -1755,3 +1755,19 @@ internal expect fun Modifier.addBasicTextFieldTextContextMenuComponents(
     state: TextFieldSelectionState,
     coroutineScope: CoroutineScope,
 ): Modifier
+
+/**
+ * The way we calculate whether something can be pasted from Clipboard can be different on each
+ * platform due to Clipboard permissions and access warnings. Furthermore, [update] may want to
+ * cache information to be able to evaluate [hasText] and [hasClip] more efficiently.
+ *
+ * Therefore, this class provides the necessary abstraction between platforms to help access
+ * [Clipboard] more effectively.
+ */
+internal expect class ClipboardPasteState(clipboard: Clipboard) {
+    val hasText: Boolean
+
+    val hasClip: Boolean
+
+    suspend fun update()
+}

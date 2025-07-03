@@ -1,0 +1,146 @@
+/*
+ * Copyright (C) 2024 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package androidx.compose.remote.core.operations.layout.modifiers;
+
+import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
+
+import androidx.compose.remote.core.CoreDocument;
+import androidx.compose.remote.core.Operation;
+import androidx.compose.remote.core.Operations;
+import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.WireBuffer;
+import androidx.compose.remote.core.documentation.DocumentationBuilder;
+import androidx.compose.remote.core.operations.layout.ActionOperation;
+import androidx.compose.remote.core.operations.layout.Component;
+import androidx.compose.remote.core.operations.utilities.StringSerializer;
+import androidx.compose.remote.core.serialize.MapSerializer;
+import androidx.compose.remote.core.serialize.SerializeTags;
+
+import org.jspecify.annotations.NonNull;
+
+import java.util.List;
+
+/** Apply a value change on a string variable. */
+public class ValueStringChangeActionOperation extends Operation implements ActionOperation {
+    private static final int OP_CODE = Operations.VALUE_STRING_CHANGE_ACTION;
+
+    int mTargetValueId = -1;
+    int mValueId = -1;
+
+    public ValueStringChangeActionOperation(int id, int value) {
+        mTargetValueId = id;
+        mValueId = value;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return "ValueChangeActionOperation(" + mTargetValueId + ")";
+    }
+
+    public int getActionId() {
+        return mTargetValueId;
+    }
+
+    /**
+     * The name of the operation used during serialization
+     *
+     * @return the operation serialized name
+     */
+    @NonNull
+    public String serializedName() {
+        return "VALUE_CHANGE";
+    }
+
+    @Override
+    public void serializeToString(int indent, @NonNull StringSerializer serializer) {
+        serializer.append(indent, serializedName() + " = " + mTargetValueId + " -> " + mValueId);
+    }
+
+    @Override
+    public void apply(@NonNull RemoteContext context) {}
+
+    @NonNull
+    @Override
+    public String deepToString(@NonNull String indent) {
+        return (indent != null ? indent : "") + toString();
+    }
+
+    @Override
+    public void write(@NonNull WireBuffer buffer) {}
+
+    @Override
+    public void runAction(
+            @NonNull RemoteContext context,
+            @NonNull CoreDocument document,
+            @NonNull Component component,
+            float x,
+            float y) {
+        context.overrideText(mTargetValueId, mValueId);
+    }
+
+    /**
+     * Write the operation to the buffer
+     *
+     * @param buffer a WireBuffer
+     * @param valueId the string id
+     * @param value the value to set (string id)`
+     */
+    public static void apply(@NonNull WireBuffer buffer, int valueId, int value) {
+        buffer.start(OP_CODE);
+        buffer.writeInt(valueId);
+        buffer.writeInt(value);
+    }
+
+    /**
+     * Read this operation and add it to the list of operations
+     *
+     * @param buffer the buffer to read
+     * @param operations the list of operations that will be added to
+     */
+    public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
+        int valueId = buffer.readInt();
+        int value = buffer.readInt();
+        operations.add(new ValueStringChangeActionOperation(valueId, value));
+    }
+
+    /**
+     * Populate the documentation with a description of this operation
+     *
+     * @param doc to append the description to.
+     */
+    public static void documentation(@NonNull DocumentationBuilder doc) {
+        doc.operation("Layout Operations", OP_CODE, "ValueStringChangeActionOperation")
+                .description(
+                        "ValueStrin gChange action. "
+                                + " This operation represents a String change (referenced by id) "
+                                + "for the given string id")
+                .field(INT, "TARGET_ID", "Target Value ID")
+                .field(
+                        INT,
+                        "VALUE_ID",
+                        "Value ID to be assigned to the target " + "value as a string");
+    }
+
+    @Override
+    public void serialize(@NonNull MapSerializer serializer) {
+        serializer
+                .addTags(SerializeTags.MODIFIER, SerializeTags.ACTION)
+                .addType("ValueIntegerExpressionChangeActionOperation")
+                .add("targetValueId", mTargetValueId)
+                .add("valueId", mValueId);
+    }
+}

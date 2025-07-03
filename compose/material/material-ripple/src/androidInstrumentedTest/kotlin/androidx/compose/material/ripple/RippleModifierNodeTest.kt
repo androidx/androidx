@@ -546,7 +546,7 @@ class RippleModifierNodeTest {
 
         var scope: CoroutineScope? = null
 
-        var size by mutableStateOf(400)
+        var size by mutableStateOf(100)
 
         val ripple = TestIndicationNodeFactory({ TestRippleColor }, { TestRippleAlpha })
 
@@ -606,7 +606,7 @@ class RippleModifierNodeTest {
 
         assertPixelColors(size)
 
-        val newSize = 800
+        val newSize = 200
 
         rule.runOnUiThread { size = newSize }
         rule.waitForIdle()
@@ -624,7 +624,7 @@ class RippleModifierNodeTest {
 
         var scope: CoroutineScope? = null
 
-        var size by mutableStateOf(400)
+        var size by mutableStateOf(100)
 
         val ripple = TestIndicationNodeFactory({ TestRippleColor }, { TestRippleAlpha })
 
@@ -676,7 +676,7 @@ class RippleModifierNodeTest {
 
         assertPixelColors(size)
 
-        val newSize = 800
+        val newSize = 200
 
         rule.runOnUiThread { size = newSize }
         rule.waitForIdle()

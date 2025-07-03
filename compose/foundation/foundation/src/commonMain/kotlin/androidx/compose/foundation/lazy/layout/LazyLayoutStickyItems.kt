@@ -167,6 +167,8 @@ private val LazyLayoutMeasuredItem.mainAxisOffset
  * of existing items.
  */
 internal fun <T : LazyLayoutMeasuredItem> StickyItemsPlacement?.applyStickyItems(
+    firstVisibleItemIndex: Int,
+    lastVisibleItemIndex: Int,
     positionedItems: MutableList<T>,
     stickyItems: IntList,
     beforeContentPadding: Int,
@@ -178,11 +180,7 @@ internal fun <T : LazyLayoutMeasuredItem> StickyItemsPlacement?.applyStickyItems
     return if (this != null && positionedItems.isNotEmpty() && stickyItems.isNotEmpty()) {
         // gather sticking items
         val stickingItems =
-            getStickingIndices(
-                positionedItems.first().index,
-                positionedItems.last().index,
-                stickyItems,
-            )
+            getStickingIndices(firstVisibleItemIndex, lastVisibleItemIndex, stickyItems)
 
         val positionedStickingItems = mutableListOf<T>()
         val visibleStickyItems = positionedItems.fastFilter { stickyItems.contains(it.index) }

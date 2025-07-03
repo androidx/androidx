@@ -31,7 +31,7 @@ import androidx.compose.runtime.getCompositionService
  */
 @Suppress("CallbackName")
 @ExperimentalComposeRuntimeApi
-interface CompositionRegistrationObserver {
+public interface CompositionRegistrationObserver {
 
     /**
      * Called whenever a [Composition] is registered with a [Recomposer] for which this is an
@@ -47,7 +47,7 @@ interface CompositionRegistrationObserver {
      *
      * @param composition The [Composition] instance that is being registered with the recomposer.
      */
-    fun onCompositionRegistered(composition: ObservableComposition)
+    public fun onCompositionRegistered(composition: ObservableComposition)
 
     /**
      * Called whenever a [Composition] is unregistered with a [Recomposer] for which this is an
@@ -58,7 +58,7 @@ interface CompositionRegistrationObserver {
      *
      * @param composition The [Composition] instance that is being unregistered with the recomposer.
      */
-    fun onCompositionUnregistered(composition: ObservableComposition)
+    public fun onCompositionUnregistered(composition: ObservableComposition)
 }
 
 /**
@@ -102,13 +102,13 @@ interface CompositionRegistrationObserver {
  */
 @Suppress("CallbackName")
 @ExperimentalComposeRuntimeApi
-interface CompositionObserver {
+public interface CompositionObserver {
 
     /** Called when the composition process begins for [composition] instance. */
-    fun onBeginComposition(composition: ObservableComposition)
+    public fun onBeginComposition(composition: ObservableComposition)
 
     /** Called when [scope] enters the composition. */
-    fun onScopeEnter(scope: RecomposeScope)
+    public fun onScopeEnter(scope: RecomposeScope)
 
     /**
      * Called when read of [value] is recorded in [scope] during composition.
@@ -126,13 +126,13 @@ interface CompositionObserver {
      * @param value A value that was recorded in [scope] and can invalidate it in the future. In
      *   most cases, [value] is a snapshot state instance.
      */
-    fun onReadInScope(scope: RecomposeScope, value: Any)
+    public fun onReadInScope(scope: RecomposeScope, value: Any)
 
     /** Called when [RecomposeScope] exits composition. */
-    fun onScopeExit(scope: RecomposeScope)
+    public fun onScopeExit(scope: RecomposeScope)
 
     /** Called after composition process has been completed for [composition]. */
-    fun onEndComposition(composition: ObservableComposition)
+    public fun onEndComposition(composition: ObservableComposition)
 
     /**
      * Called when [scope] is invalidated by composition or [RecomposeScope.invalidate] call.
@@ -148,13 +148,13 @@ interface CompositionObserver {
      * @param value A value that invalidated composition. Can be `null` if the scope was invalidated
      *   by calling [RecomposeScope.invalidate] directly.
      */
-    fun onScopeInvalidated(scope: RecomposeScope, value: Any?)
+    public fun onScopeInvalidated(scope: RecomposeScope, value: Any?)
 
     /**
      * Called when [RecomposeScope] is no longer used in composition. Can be called from any thread
      * whenever composition applies changes or is disposed.
      */
-    fun onScopeDisposed(scope: RecomposeScope)
+    public fun onScopeDisposed(scope: RecomposeScope)
 }
 
 /**
@@ -162,14 +162,14 @@ interface CompositionObserver {
  * prevent further composition observation events from being sent to the registered observer.
  */
 @ExperimentalComposeRuntimeApi
-interface CompositionObserverHandle {
+public interface CompositionObserverHandle {
     /** Unregister the observer. */
-    fun dispose()
+    public fun dispose()
 }
 
 /** A composition instance that supports observing lifecycle of its [RecomposeScope]. */
 @ExperimentalComposeRuntimeApi
-interface ObservableComposition {
+public interface ObservableComposition {
     /**
      * Observe the composition. Calling this twice on the same composition will implicitly dispose
      * the previous observer. the [CompositionObserver] will be called for this composition and all
@@ -183,7 +183,7 @@ interface ObservableComposition {
      *   Disposing an observer for a composition with a parent observer will begin sending the
      *   events to the parent composition's observer.
      */
-    fun setObserver(observer: CompositionObserver): CompositionObserverHandle
+    public fun setObserver(observer: CompositionObserver): CompositionObserverHandle
 }
 
 /**
@@ -197,7 +197,9 @@ interface ObservableComposition {
  * @return a handle that allows the observer to be disposed and detached from the [Recomposer].
  */
 @ExperimentalComposeRuntimeApi
-fun Recomposer.observe(observer: CompositionRegistrationObserver): CompositionObserverHandle {
+public fun Recomposer.observe(
+    observer: CompositionRegistrationObserver
+): CompositionObserverHandle {
     return addCompositionRegistrationObserver(observer)
 }
 
@@ -218,5 +220,5 @@ fun Recomposer.observe(observer: CompositionRegistrationObserver): CompositionOb
  *   observed.
  */
 @ExperimentalComposeRuntimeApi
-fun Composition.setObserver(observer: CompositionObserver): CompositionObserverHandle? =
+public fun Composition.setObserver(observer: CompositionObserver): CompositionObserverHandle? =
     getCompositionService(ObservableCompositionServiceKey)?.setObserver(observer)

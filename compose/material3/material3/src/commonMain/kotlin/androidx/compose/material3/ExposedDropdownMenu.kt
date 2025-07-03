@@ -38,6 +38,7 @@ import androidx.compose.material3.internal.getString
 import androidx.compose.material3.tokens.FilledAutocompleteTokens
 import androidx.compose.material3.tokens.OutlinedAutocompleteTokens
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
@@ -55,6 +56,12 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.KeyEventType.Companion.KeyUp
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.LayoutCoordinates
@@ -150,6 +157,7 @@ fun ExposedDropdownMenuBox(
     val anchorTypeState = remember {
         mutableStateOf(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
     }
+    val alwaysFocusable = remember { mutableStateOf(false) }
 
     val scope =
         remember(expanded, onExpandedChange, windowBoundsCalculator, density) {
@@ -175,6 +183,7 @@ fun ExposedDropdownMenuBox(
                                         anchorTypeState.value = type
                                         onExpandedChange(!expanded)
                                     },
+                                    alwaysFocusable = alwaysFocusable,
                                     anchorType = type,
                                     expandedDescription = expandedDescription,
                                     collapsedDescription = collapsedDescription,
@@ -185,6 +194,9 @@ fun ExposedDropdownMenuBox(
 
                 override val anchorType: ExposedDropdownMenuAnchorType
                     get() = anchorTypeState.value
+
+                override val alwaysFocusable: Boolean
+                    get() = alwaysFocusable.value
 
                 override fun Modifier.exposedDropdownSize(matchAnchorWidth: Boolean): Modifier =
                     layout { measurable, constraints ->
@@ -271,6 +283,8 @@ sealed class ExposedDropdownMenuBoxScope {
 
     internal abstract val anchorType: ExposedDropdownMenuAnchorType
 
+    internal abstract val alwaysFocusable: Boolean
+
     /**
      * Popup which contains content for Exposed Dropdown Menu. Should be used inside the content of
      * [ExposedDropdownMenuBox].
@@ -337,7 +351,7 @@ sealed class ExposedDropdownMenuBoxScope {
             Popup(
                 onDismissRequest = onDismissRequest,
                 popupPositionProvider = popupPositionProvider,
-                properties = popupPropertiesForAnchorType(anchorType),
+                properties = popupPropertiesForAnchorType(anchorType, alwaysFocusable),
             ) {
                 DropdownMenuContent(
                     expandedState = expandedState,
@@ -1397,6 +1411,7 @@ private fun Modifier.expandable(
     expanded: Boolean,
     onExpandedChange: () -> Unit,
     anchorType: ExposedDropdownMenuAnchorType,
+    alwaysFocusable: MutableState<Boolean>,
     expandedDescription: String,
     collapsedDescription: String,
     toggleDescription: String,
@@ -1404,9 +1419,10 @@ private fun Modifier.expandable(
 ) =
     pointerInput(onExpandedChange) {
             awaitEachGesture {
-                // Modifier.clickable doesn't work for text fields, so we use Modifier.pointerInput
-                // in the Initial pass to observe events before the text field consumes them
-                // in the Main pass.
+                // Modifier.clickable makes the ExposedDropdownMenuBox capture focus first instead
+                // of the text field, which would be a confusing user experience, so we use
+                // Modifier.pointerInput in the Initial pass to observe events before the text field
+                // consumes them in the Main pass.
                 val downEvent = awaitFirstDown(pass = PointerEventPass.Initial)
                 if (anchorType == ExposedDropdownMenuAnchorType.SecondaryEditable) {
                     downEvent.consume()
@@ -1416,6 +1432,32 @@ private fun Modifier.expandable(
                     onExpandedChange()
                 }
             }
+        }
+        .onPreviewKeyEvent {
+            // Make sure keyboard input works like if Modifier.clickable was set.
+            if (it.isClick) {
+                if (anchorType != ExposedDropdownMenuAnchorType.PrimaryEditable) {
+                    onExpandedChange()
+                } else if (it.isEnterMinusSpacebar) {
+                    // Primary editable shouldn't expand menu via spacebar.
+                    // TODO: First menu item shouldn't have darker background before gaining focus.
+                    onExpandedChange()
+                    return@onPreviewKeyEvent true
+                }
+            }
+
+            if (anchorType == ExposedDropdownMenuAnchorType.PrimaryEditable && expanded) {
+                // Since we make the popup menu not focusable for PrimaryEditable to not interrupt
+                // typing, we need to make sure the menu becomes focusable when the user try to
+                // reach the menu via keyboard navigation.
+                if (it.key == Key.Tab || it.key == Key.DirectionDown || it.key == Key.DirectionUp) {
+                    alwaysFocusable.value = true
+                    return@onPreviewKeyEvent true
+                }
+            }
+
+            alwaysFocusable.value = false
+            return@onPreviewKeyEvent false
         }
         .semantics {
             if (anchorType == ExposedDropdownMenuAnchorType.SecondaryEditable) {
@@ -1432,6 +1474,18 @@ private fun Modifier.expandable(
                 }
                 true
             }
+        }
+
+private val KeyEvent.isClick: Boolean
+    get() = type == KeyUp && (isEnterMinusSpacebar || key == Key.Spacebar)
+
+private val KeyEvent.isEnterMinusSpacebar: Boolean
+    get() =
+        when (key) {
+            Key.DirectionCenter,
+            Key.Enter,
+            Key.NumPadEnter -> true
+            else -> false
         }
 
 private fun calculateMaxHeight(
@@ -1475,7 +1529,8 @@ internal expect class WindowBoundsCalculator {
  */
 @Composable
 internal expect fun popupPropertiesForAnchorType(
-    anchorType: ExposedDropdownMenuAnchorType
+    anchorType: ExposedDropdownMenuAnchorType,
+    alwaysFocusable: Boolean,
 ): PopupProperties
 
 private val ExposedDropdownMenuItemHorizontalPadding = 16.dp

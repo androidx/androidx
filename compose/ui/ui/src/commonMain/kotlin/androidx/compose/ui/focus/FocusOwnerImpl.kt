@@ -45,6 +45,7 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.rotary.RotaryScrollEvent
 import androidx.compose.ui.internal.requirePrecondition
+import androidx.compose.ui.modifier.EmptyMap.set
 import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.NodeKind
@@ -73,8 +74,6 @@ internal class FocusOwnerImpl(
     internal var rootFocusNode = FocusTargetNode(focusability = Focusability.Never)
 
     private val focusInvalidationManager = FocusInvalidationManager(this, owner)
-
-    override val focusTransactionManager: FocusTransactionManager = FocusTransactionManager()
 
     /**
      * A [Modifier] that can be added to the [Owners][androidx.compose.ui.node.Owner] modifier list
@@ -142,13 +141,7 @@ internal class FocusOwnerImpl(
      * hierarchy.
      */
     override fun releaseFocus() {
-        if (@OptIn(ExperimentalComposeUiApi::class) ComposeUiFlags.isTrackFocusEnabled) {
-            rootFocusNode.clearFocus(forced = true, refreshFocusEvents = true)
-        } else {
-            focusTransactionManager.withExistingTransaction {
-                rootFocusNode.clearFocus(forced = true, refreshFocusEvents = true)
-            }
-        }
+        rootFocusNode.clearFocus(forced = true, refreshFocusEvents = true)
     }
 
     override fun clearOwnerFocus() {
@@ -175,38 +168,16 @@ internal class FocusOwnerImpl(
         focusDirection: FocusDirection,
     ): Boolean {
         val clearedFocusSuccessfully =
-            if (@OptIn(ExperimentalComposeUiApi::class) ComposeUiFlags.isTrackFocusEnabled) {
-                if (!force) {
-                    // Don't clear focus if an item on the focused path has a custom exit specified.
-                    when (rootFocusNode.performCustomClearFocus(focusDirection)) {
-                        Redirected,
-                        Cancelled,
-                        RedirectCancelled -> false
-                        None -> clearFocus(force, refreshFocusEvents)
-                    }
-                } else {
-                    clearFocus(force, refreshFocusEvents)
+            if (!force) {
+                // Don't clear focus if an item on the focused path has a custom exit specified.
+                when (rootFocusNode.performCustomClearFocus(focusDirection)) {
+                    Redirected,
+                    Cancelled,
+                    RedirectCancelled -> false
+                    None -> clearFocus(force, refreshFocusEvents)
                 }
             } else {
-                focusTransactionManager.withNewTransaction(
-                    onCancelled = {
-                        return@withNewTransaction
-                    }
-                ) {
-                    if (!force) {
-                        // Don't clear focus if an item on the focused path has a custom exit
-                        // specified.
-                        when (rootFocusNode.performCustomClearFocus(focusDirection)) {
-                            Redirected,
-                            Cancelled,
-                            RedirectCancelled -> return@withNewTransaction false
-                            None -> {
-                                /* Do nothing. */
-                            }
-                        }
-                    }
-                    return@withNewTransaction rootFocusNode.clearFocus(force, refreshFocusEvents)
-                }
+                clearFocus(force, refreshFocusEvents)
             }
 
         if (clearedFocusSuccessfully && clearOwnerFocus) {
@@ -249,20 +220,13 @@ internal class FocusOwnerImpl(
             return true
         }
         var requestFocusSuccess: Boolean? = false
-        val generationBefore = focusTransactionManager.generation
         val activeNodeBefore = activeFocusTargetNode
         val focusSearchSuccess =
             focusSearch(focusDirection, platformFocusOwner.getEmbeddedViewFocusRect()) {
                 requestFocusSuccess = it.requestFocus(focusDirection)
                 requestFocusSuccess
             }
-        val generationAfter = focusTransactionManager.generation
-        if (
-            focusSearchSuccess == true &&
-                (generationBefore != generationAfter ||
-                    (@OptIn(ExperimentalComposeUiApi::class) ComposeUiFlags.isTrackFocusEnabled &&
-                        activeNodeBefore !== activeFocusTargetNode))
-        ) {
+        if (focusSearchSuccess == true && activeNodeBefore !== activeFocusTargetNode) {
             // There was a successful requestFocus() during the focusSearch
             return true
         }
@@ -429,10 +393,6 @@ internal class FocusOwnerImpl(
     }
 
     override fun scheduleInvalidation(node: FocusEventModifierNode) {
-        focusInvalidationManager.scheduleInvalidation(node)
-    }
-
-    override fun scheduleInvalidation(node: FocusPropertiesModifierNode) {
         focusInvalidationManager.scheduleInvalidation(node)
     }
 

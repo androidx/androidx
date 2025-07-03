@@ -26,7 +26,6 @@ import android.view.inputmethod.InputConnection
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.focusable
-import androidx.compose.foundation.internal.readAnnotatedString
 import androidx.compose.foundation.internal.readText
 import androidx.compose.foundation.internal.toClipEntry
 import androidx.compose.foundation.layout.Box
@@ -67,8 +66,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.platform.ClipEntry
-import androidx.compose.ui.platform.Clipboard
 import androidx.compose.ui.platform.InterceptPlatformTextInput
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalDensity
@@ -76,7 +73,6 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalFontFamilyResolver
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalWindowInfo
-import androidx.compose.ui.platform.NativeClipboard
 import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
@@ -1086,21 +1082,7 @@ internal class BasicTextFieldTest {
         val shortText = "Text".repeat(2)
 
         lateinit var tfs: TextFieldState
-        val clipboard =
-            object : Clipboard {
-                var contents: AnnotatedString? = null
-
-                override suspend fun getClipEntry(): ClipEntry? {
-                    return contents?.toClipEntry()
-                }
-
-                override suspend fun setClipEntry(clipEntry: ClipEntry?) {
-                    contents = clipEntry?.readAnnotatedString()
-                }
-
-                override val nativeClipboard: NativeClipboard
-                    get() = error("FakeClipboard doesn't have a backing NativeClipboard")
-            }
+        val clipboard = FakeClipboard()
         inputMethodInterceptor.setTextFieldTestContent {
             tfs = rememberTextFieldState(shortText)
             CompositionLocalProvider(LocalClipboard provides clipboard) {
@@ -1321,6 +1303,7 @@ internal class BasicTextFieldTest {
                     toolbarRequester = FakeToolbarRequester(),
                     coroutineScope = CoroutineScope(EmptyCoroutineContext),
                     platformSelectionBehaviors = null,
+                    clipboard = FakeClipboard(),
                 )
                 .apply { requestAutofillAction = mockLambda }
 

@@ -46,7 +46,7 @@ internal fun Translations.fa() = mapOf(
     Strings.DatePickerHeadlineDescription to "‏انتخاب فعلی: %1\$s",
     Strings.DatePickerNoSelectionDescription to "هیچ‌کدام",
     Strings.DatePickerTodayDescription to "امروز",
-    Strings.DatePickerYearPickerPaneTitle to "انتخابگر سال نمایان است",
+    Strings.DatePickerYearPickerPaneTitle to "انتخاب‌گر سال نمایان است",
     Strings.DateInputTitle to "انتخاب تاریخ",
     Strings.DateInputHeadline to "تاریخ واردشده",
     Strings.DateInputLabel to "تاریخ",

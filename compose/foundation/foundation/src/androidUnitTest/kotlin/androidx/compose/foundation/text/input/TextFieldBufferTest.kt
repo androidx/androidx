@@ -17,6 +17,7 @@
 package androidx.compose.foundation.text.input
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.text.input.internal.OffsetMappingCalculator
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
@@ -614,6 +615,25 @@ class TextFieldBufferTest {
 
         assertThat(buffer.asCharSequence().toString()).isEqualTo("World")
         assertThat(state.text.toString()).isEqualTo("Hello")
+    }
+
+    @Test
+    fun toTextFieldBuffer_canCallAddStyle() {
+        val state = TextFieldState("Hello", TextRange(3))
+        val buffer = state.toTextFieldBuffer()
+
+        buffer.addStyle(SpanStyle(), 0, buffer.length)
+        // should not crash.
+    }
+
+    @Test
+    fun canCallAddStyle_isTrueByDefault_ifOffsetMappingCalculatorPresent() {
+        val buffer =
+            TextFieldBuffer(
+                TextFieldCharSequence("hello"),
+                offsetMappingCalculator = OffsetMappingCalculator(),
+            )
+        assertThat(buffer.canCallAddStyle).isTrue()
     }
 
     @Test

@@ -27,7 +27,7 @@ package androidx.compose.runtime.saveable
  *
  * @sample androidx.compose.runtime.saveable.samples.ListSaverSample
  */
-fun <Original, Saveable> listSaver(
+public fun <Original, Saveable> listSaver(
     save: SaverScope.(value: Original) -> List<Saveable>,
     restore: (list: List<Saveable>) -> Original?,
 ): Saver<Original, Any> =

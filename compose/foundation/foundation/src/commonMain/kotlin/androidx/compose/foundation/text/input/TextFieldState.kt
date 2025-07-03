@@ -764,11 +764,11 @@ private fun finalizeComposingAnnotations(
  * This is similar to calling [TextFieldState.edit], but without committing the changes back to the
  * [TextFieldState].
  *
- * **Important:** A [TextFieldBuffer] is intended for short-term use. Let the garbage collecter
+ * **Important:** A [TextFieldBuffer] is intended for short-term use. Let the garbage collector
  * dispose of it when you're finished to avoid unnecessary memory usage.
  *
  * @sample androidx.compose.foundation.samples.TextFieldStateApplyOutputTransformation
  */
 fun TextFieldState.toTextFieldBuffer(): TextFieldBuffer {
-    return TextFieldBuffer(value)
+    return TextFieldBuffer(value).apply { canCallAddStyle = true }
 }

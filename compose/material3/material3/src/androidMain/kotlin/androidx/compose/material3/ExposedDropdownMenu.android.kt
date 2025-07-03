@@ -53,7 +53,8 @@ internal actual fun OnPlatformWindowBoundsChange(block: () -> Unit) {
 
 @Composable
 internal actual fun popupPropertiesForAnchorType(
-    anchorType: ExposedDropdownMenuAnchorType
+    anchorType: ExposedDropdownMenuAnchorType,
+    alwaysFocusable: Boolean,
 ): PopupProperties {
     val a11yServicesEnabled by rememberAccessibilityServiceState()
     var flags =
@@ -70,7 +71,7 @@ internal actual fun popupPropertiesForAnchorType(
     val imeRequired =
         anchorType == ExposedDropdownMenuAnchorType.PrimaryEditable ||
             (anchorType == ExposedDropdownMenuAnchorType.SecondaryEditable && !a11yServicesEnabled)
-    if (imeRequired) {
+    if (imeRequired && !alwaysFocusable) {
         flags = flags or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
     }
 

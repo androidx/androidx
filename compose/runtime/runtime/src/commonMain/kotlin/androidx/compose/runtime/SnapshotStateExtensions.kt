@@ -27,7 +27,7 @@ package androidx.compose.runtime
  * of a state of type `Int`.
  */
 @Stable
-fun State<Int>.asIntState(): IntState = if (this is IntState) this else UnboxedIntState(this)
+public fun State<Int>.asIntState(): IntState = if (this is IntState) this else UnboxedIntState(this)
 
 internal class UnboxedIntState(private val baseState: State<Int>) : IntState {
     override val intValue: Int
@@ -50,7 +50,8 @@ internal class UnboxedIntState(private val baseState: State<Int>) : IntState {
  * representation of a state of type `Long`.
  */
 @Stable
-fun State<Long>.asLongState(): LongState = if (this is LongState) this else UnboxedLongState(this)
+public fun State<Long>.asLongState(): LongState =
+    if (this is LongState) this else UnboxedLongState(this)
 
 internal class UnboxedLongState(private val baseState: State<Long>) : LongState {
     override val longValue: Long
@@ -73,7 +74,7 @@ internal class UnboxedLongState(private val baseState: State<Long>) : LongState 
  * of a state of type `Float`.
  */
 @Stable
-fun State<Float>.asFloatState(): FloatState =
+public fun State<Float>.asFloatState(): FloatState =
     if (this is FloatState) this else UnboxedFloatState(this)
 
 internal class UnboxedFloatState(private val baseState: State<Float>) : FloatState {
@@ -97,7 +98,7 @@ internal class UnboxedFloatState(private val baseState: State<Float>) : FloatSta
  * of a state of type `Double`.
  */
 @Stable
-fun State<Double>.asDoubleState(): DoubleState =
+public fun State<Double>.asDoubleState(): DoubleState =
     if (this is DoubleState) this else UnboxedDoubleState(this)
 
 internal class UnboxedDoubleState(private val baseState: State<Double>) : DoubleState {

@@ -21,5 +21,5 @@ package androidx.compose.runtime
     level = DeprecationLevel.HIDDEN,
     message = "Made internal. It wasn't supposed to be public",
 )
-fun identityHashCode(instance: Any?): Int =
+public fun identityHashCode(instance: Any?): Int =
     androidx.compose.runtime.internal.identityHashCode(instance)

@@ -35,6 +35,7 @@ internal actual object MappedKeys {
     actual val DirectionRight: Key = Key(Key.DirectionRight.keyCode)
     actual val DirectionUp: Key = Key(Key.DirectionUp.keyCode)
     actual val DirectionDown: Key = Key(Key.DirectionDown.keyCode)
+    actual val DirectionCenter: Key = Key(Key.DirectionCenter.keyCode)
     actual val PageUp: Key = Key(Key.PageUp.keyCode)
     actual val PageDown: Key = Key(Key.PageDown.keyCode)
     actual val MoveHome: Key = Key(Key.MoveHome.keyCode)

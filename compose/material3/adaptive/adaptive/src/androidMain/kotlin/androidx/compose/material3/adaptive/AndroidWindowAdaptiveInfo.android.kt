@@ -34,9 +34,8 @@ import kotlinx.coroutines.flow.map
     level = DeprecationLevel.HIDDEN,
     message = "Moved to common source set, maintained for binary compatibility.",
 )
-@JvmName("currentWindowAdaptiveInfo")
 @Composable
-fun currentWindowAdaptiveInfoDeprecated(): WindowAdaptiveInfo = currentWindowAdaptiveInfo(false)
+fun currentWindowAdaptiveInfo(): WindowAdaptiveInfo = currentWindowAdaptiveInfo(false)
 
 /**
  * Returns and automatically update the current window size in [DpSize].

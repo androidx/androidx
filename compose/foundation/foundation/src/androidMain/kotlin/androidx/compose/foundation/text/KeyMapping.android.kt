@@ -60,6 +60,7 @@ internal actual object MappedKeys {
     actual val DirectionRight: Key = Key(AndroidKeyEvent.KEYCODE_DPAD_RIGHT)
     actual val DirectionUp: Key = Key(AndroidKeyEvent.KEYCODE_DPAD_UP)
     actual val DirectionDown: Key = Key(AndroidKeyEvent.KEYCODE_DPAD_DOWN)
+    actual val DirectionCenter: Key = Key(AndroidKeyEvent.KEYCODE_DPAD_CENTER)
     actual val PageUp: Key = Key(AndroidKeyEvent.KEYCODE_PAGE_UP)
     actual val PageDown: Key = Key(AndroidKeyEvent.KEYCODE_PAGE_DOWN)
     actual val MoveHome: Key = Key(AndroidKeyEvent.KEYCODE_MOVE_HOME)

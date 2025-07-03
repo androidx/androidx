@@ -48,7 +48,10 @@ internal actual fun OnPlatformWindowBoundsChange(block: () -> Unit) {
 }
 
 @Composable
-internal actual fun popupPropertiesForAnchorType(anchorType: ExposedDropdownMenuAnchorType): PopupProperties {
+internal actual fun popupPropertiesForAnchorType(
+    anchorType: ExposedDropdownMenuAnchorType,
+    alwaysFocusable: Boolean,
+): PopupProperties {
     val a11yServicesEnabled by rememberAccessibilityServiceState()
 
     // If typing on the IME is required, the menu should not be focusable
@@ -57,6 +60,6 @@ internal actual fun popupPropertiesForAnchorType(anchorType: ExposedDropdownMenu
         anchorType == ExposedDropdownMenuAnchorType.PrimaryEditable ||
             (anchorType == ExposedDropdownMenuAnchorType.SecondaryEditable && !a11yServicesEnabled)
     return PopupProperties(
-        focusable = !imeRequired
+        focusable = !imeRequired || alwaysFocusable
     )
 }

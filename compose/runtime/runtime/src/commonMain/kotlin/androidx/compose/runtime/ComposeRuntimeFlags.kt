@@ -19,7 +19,7 @@ package androidx.compose.runtime
 import kotlin.jvm.JvmField
 
 @ExperimentalComposeApi
-object ComposeRuntimeFlags {
+public object ComposeRuntimeFlags {
     /**
      * A feature flag that can be used to disable detecting nested movable content.
      *
@@ -32,5 +32,7 @@ object ComposeRuntimeFlags {
      * This feature flag will eventually be depreciated and removed. All applications should be
      * updated to ensure they are compatible with the new behavior.
      */
-    @JvmField @Suppress("MutableBareField") var isMovingNestedMovableContentEnabled = true
+    @JvmField
+    @Suppress("MutableBareField")
+    public var isMovingNestedMovableContentEnabled: Boolean = true
 }

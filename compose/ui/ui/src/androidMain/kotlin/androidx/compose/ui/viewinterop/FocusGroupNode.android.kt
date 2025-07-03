@@ -164,16 +164,9 @@ private class FocusGroupPropertiesNode :
                 // Focus moved to the embedded view.
                 focusedChild = newFocus
                 val focusTargetNode = getFocusTargetOfEmbeddedViewWrapper()
-                if (!focusTargetNode.focusState.hasFocus)
-                    if (
-                        @OptIn(ExperimentalComposeUiApi::class) ComposeUiFlags.isTrackFocusEnabled
-                    ) {
-                        focusTargetNode.performRequestFocus()
-                    } else {
-                        focusOwner.focusTransactionManager.withNewTransaction {
-                            focusTargetNode.performRequestFocus()
-                        }
-                    }
+                if (!focusTargetNode.focusState.hasFocus) {
+                    focusTargetNode.performRequestFocus()
+                }
             }
             subViewLostFocus -> {
                 focusedChild = null

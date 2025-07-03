@@ -27,13 +27,13 @@ import androidx.compose.runtime.snapshots.fastForEach
  * Represents a recomposable scope or section of the composition hierarchy. Can be used to manually
  * invalidate the scope to schedule it for recomposition.
  */
-interface RecomposeScope {
+public interface RecomposeScope {
     /**
      * Invalidate the corresponding scope, requesting the composer recompose this scope.
      *
      * This method is thread safe.
      */
-    fun invalidate()
+    public fun invalidate()
 }
 
 private const val changedLowBitMask = 0b001_001_001_001_001_001_001_001_001_001_0
@@ -212,6 +212,7 @@ internal class RecomposeScopeImpl(internal var owner: RecomposeScopeOwner?) :
         owner = null
         trackedInstances = null
         trackedDependencies = null
+        block = null
     }
 
     /**

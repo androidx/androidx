@@ -22,7 +22,7 @@ package androidx.compose.runtime.snapshots
  * The type of [Snapshot.snapshotId]. On most platforms this is a [Long] but may be a different type
  * if the platform target does not support [Long] efficiently (such as JavaScript).
  */
-expect class SnapshotId
+public expect class SnapshotId
 
 internal expect val SnapshotIdZero: SnapshotId
 internal expect val SnapshotIdMax: SnapshotId
@@ -44,15 +44,15 @@ internal expect operator fun SnapshotId.div(other: Int): SnapshotId
 
 internal expect operator fun SnapshotId.times(other: Int): SnapshotId
 
-expect fun SnapshotId.toInt(): Int
+public expect fun SnapshotId.toInt(): Int
 
-expect fun SnapshotId.toLong(): Long
+public expect fun SnapshotId.toLong(): Long
 
 /**
  * An array of [SnapshotId]. On most platforms this is an array of [Long] but may be a different
  * type if the platform target does not support [Long] efficiently (such as JavaScript).
  */
-expect class SnapshotIdArray
+public expect class SnapshotIdArray
 
 internal expect fun snapshotIdArrayWithCapacity(capacity: Int): SnapshotIdArray
 

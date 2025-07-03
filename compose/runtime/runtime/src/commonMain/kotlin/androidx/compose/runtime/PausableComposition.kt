@@ -63,7 +63,7 @@ import kotlin.math.min
  * @see Composition
  * @see ReusableComposition
  */
-sealed interface PausableComposition : ReusableComposition {
+public sealed interface PausableComposition : ReusableComposition {
     /**
      * Set the content of the composition. A [PausedComposition] that is currently paused. No
      * composition is performed until [PausedComposition.resume] is called.
@@ -74,7 +74,7 @@ sealed interface PausableComposition : ReusableComposition {
      * @see Composition.setContent
      * @see ReusableComposition.setContentWithReuse
      */
-    fun setPausableContent(content: @Composable () -> Unit): PausedComposition
+    public fun setPausableContent(content: @Composable () -> Unit): PausedComposition
 
     /**
      * Set the content of a reusable composition. A [PausedComposition] that is currently paused. No
@@ -86,18 +86,18 @@ sealed interface PausableComposition : ReusableComposition {
      * @see Composition.setContent
      * @see ReusableComposition.setContentWithReuse
      */
-    fun setPausableContentWithReuse(content: @Composable () -> Unit): PausedComposition
+    public fun setPausableContentWithReuse(content: @Composable () -> Unit): PausedComposition
 }
 
 /** The callback type used in [PausedComposition.resume]. */
-fun interface ShouldPauseCallback {
+public fun interface ShouldPauseCallback {
     /**
      * Called to determine if a resumed [PausedComposition] should pause.
      *
      * @return Return `true` to indicate that the composition should pause. Otherwise the
      *   composition will continue normally.
      */
-    @Suppress("CallbackMethodName") fun shouldPause(): Boolean
+    @Suppress("CallbackMethodName") public fun shouldPause(): Boolean
 }
 
 /**
@@ -109,7 +109,7 @@ fun interface ShouldPauseCallback {
  * A [PausedComposition] is created paused and will only compose the `content` parameter when
  * [resume] is called the first time.
  */
-sealed interface PausedComposition {
+public sealed interface PausedComposition {
     /**
      * Returns `true` when the [PausedComposition] is complete. [isComplete] matches the last value
      * returned from [resume]. Once a [PausedComposition] is [isComplete] the [apply] method should
@@ -118,14 +118,14 @@ sealed interface PausedComposition {
      * paused composition while it is paused will cause the composition to require the paused
      * composition to need to be resumed before it is used.
      */
-    val isComplete: Boolean
+    public val isComplete: Boolean
 
     /**
      * Returns `true` when the [PausedComposition] is applied. [isApplied] becomes `true` after
      * calling [apply]. Calling any method on the [PausedComposition] when [isApplied] is `true`
      * will throw an exception.
      */
-    val isApplied: Boolean
+    public val isApplied: Boolean
 
     /**
      * Returns `true` when the [PausedComposition] is cancelled. [isCancelled] becomes `true` after
@@ -133,7 +133,7 @@ sealed interface PausedComposition {
      * will throw an exception. If [isCancelled] is `true` then the [Composition] that was used to
      * create [PausedComposition] is in an uncertain state and must be discarded.
      */
-    @get:Suppress("GetterSetterNames") val isCancelled: Boolean
+    @get:Suppress("GetterSetterNames") public val isCancelled: Boolean
 
     /**
      * Resume the composition that has been paused. This method should be called until [resume]
@@ -153,7 +153,7 @@ sealed interface PausedComposition {
      * @return `true` if the composition is complete and `false` if one or more calls to `resume`
      *   are required to complete composition.
      */
-    @Suppress("ExecutorRegistration") fun resume(shouldPause: ShouldPauseCallback): Boolean
+    @Suppress("ExecutorRegistration") public fun resume(shouldPause: ShouldPauseCallback): Boolean
 
     /**
      * Apply the composition. This is the last step of a paused composition and is required to be
@@ -165,13 +165,13 @@ sealed interface PausedComposition {
      * Any state that was read that changed between when [resume] being called and [apply] being
      * called may require the paused composition to be resumed before applied.
      */
-    fun apply()
+    public fun apply()
 
     /**
      * Cancels the paused composition. This should only be used if the composition is going to be
      * disposed and the entire composition is not going to be used.
      */
-    fun cancel()
+    public fun cancel()
 }
 
 /**
@@ -184,8 +184,10 @@ sealed interface PausedComposition {
  * @see CompositionContext
  * @see PausableComposition
  */
-fun PausableComposition(applier: Applier<*>, parent: CompositionContext): PausableComposition =
-    CompositionImpl(parent, applier)
+public fun PausableComposition(
+    applier: Applier<*>,
+    parent: CompositionContext,
+): PausableComposition = CompositionImpl(parent, applier)
 
 internal enum class PausedCompositionState {
     Invalid,

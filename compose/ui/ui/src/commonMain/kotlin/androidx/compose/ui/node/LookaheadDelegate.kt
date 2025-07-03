@@ -289,7 +289,7 @@ internal abstract class LookaheadCapablePlaceable :
             placeableResult.result.rulers?.invoke(rulerScope)
         }
         // Notify changes
-        newValues.notifyChanged(isLookingAhead, parent, rulerReaders)
+        newValues.notifyChanged(isLookingAhead, this, rulerReaders)
     }
 
     private fun captureRulersIfNeeded(placeableResult: PlaceableResult) {
@@ -605,7 +605,7 @@ private class RulerTrackingMap {
      */
     fun notifyChanged(
         isLookingAhead: Boolean,
-        parent: LookaheadCapablePlaceable?,
+        node: LookaheadCapablePlaceable,
         rulerReaders: MutableScatterMap<Ruler, MutableScatterSet<WeakReference<LayoutNode>>>?,
     ) {
         for (i in 0 until size) {
@@ -635,7 +635,12 @@ private class RulerTrackingMap {
         }
         size -= removed
 
-        parent?.let { newRulers.forEach { ruler -> it.invalidateChildrenOfDefiningRuler(ruler) } }
+        val parent = node.parent
+        newRulers.forEach { ruler ->
+            // The root node collects all readers, so invalidate all readers from there if there
+            // isn't a parent
+            (parent ?: node).invalidateChildrenOfDefiningRuler(ruler)
+        }
         newRulers.clear()
 
         layoutNodes.forEach { layoutNodeRef ->

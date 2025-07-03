@@ -22,7 +22,7 @@ import kotlinx.coroutines.delay
     "MonotonicFrameClocks are not globally applicable across platforms. " +
         "Use an appropriate local clock."
 )
-actual val DefaultMonotonicFrameClock: MonotonicFrameClock
+public actual val DefaultMonotonicFrameClock: MonotonicFrameClock
     get() = SixtyFpsMonotonicFrameClock
 
 private object SixtyFpsMonotonicFrameClock : MonotonicFrameClock {
