@@ -378,6 +378,13 @@ public final class androidx/compose/foundation/content/TransferableContent$Sourc
 	public final fun getKeyboard-kB6V9T0 ()I
 }
 
+public final class androidx/compose/foundation/contextmenu/ComposableSingletons$ContextMenuUi_skikoKt {
+	public static final field INSTANCE Landroidx/compose/foundation/contextmenu/ComposableSingletons$ContextMenuUi_skikoKt;
+	public fun <init> ()V
+	public final fun getLambda$-1846138604$foundation ()Lkotlin/jvm/functions/Function3;
+	public final fun getLambda$-417510039$foundation ()Lkotlin/jvm/functions/Function8;
+}
+
 public final class androidx/compose/foundation/draganddrop/DragAndDropSourceKt {
 	public static final fun dragAndDropSource (Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function1;)Landroidx/compose/ui/Modifier;
 	public static final fun dragAndDropSource (Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)Landroidx/compose/ui/Modifier;

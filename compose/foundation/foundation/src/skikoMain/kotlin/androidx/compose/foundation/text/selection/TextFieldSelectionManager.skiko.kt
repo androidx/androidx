@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.text.input.internal.selection
+package androidx.compose.foundation.text.selection
 
 import androidx.compose.foundation.contextmenu.ContextMenuScope
 import androidx.compose.foundation.contextmenu.ContextMenuState
@@ -24,31 +24,26 @@ import androidx.compose.foundation.text.TextContextMenuItems
 import androidx.compose.foundation.text.TextContextMenuItems.*
 import androidx.compose.foundation.text.TextItem
 import androidx.compose.runtime.State
-import androidx.compose.ui.Modifier
-import kotlinx.coroutines.CoroutineScope
 
-// TODO: https://youtrack.jetbrains.com/issue/CMP-7819
-internal actual fun Modifier.addBasicTextFieldTextContextMenuComponents(
-    state: TextFieldSelectionState,
-    coroutineScope: CoroutineScope
-): Modifier = this
 
-internal fun TextFieldSelectionState.contextMenuBuilder(
-    state: ContextMenuState,
+//TODO: remove this file
+// when this will be in JB fork
+// https://android.googlesource.com/platform/frameworks/support/+/d8bc9d81dffa35162626e45ee68d4a7e271c6ada
+
+internal fun TextFieldSelectionManager.contextMenuBuilder(
+    contextMenuState: ContextMenuState,
     itemsAvailability: State<MenuItemsAvailability>,
-    onMenuItemClicked: TextFieldSelectionState.(TextContextMenuItems) -> Unit,
 ): ContextMenuScope.() -> Unit = {
-    fun textFieldItem(label: TextContextMenuItems, enabled: Boolean) {
-        TextItem(state, label, enabled) { onMenuItemClicked(label) }
+    fun textFieldItem(label: TextContextMenuItems, enabled: Boolean, operation: () -> Unit) {
+        TextItem(contextMenuState, label, enabled, operation)
     }
 
     val availability: MenuItemsAvailability = itemsAvailability.value
-
-    textFieldItem(Cut, enabled = availability.canCut)
-    textFieldItem(Copy, enabled = availability.canCopy)
-    textFieldItem(Paste, enabled = availability.canPaste)
-    textFieldItem(SelectAll, enabled = availability.canSelectAll)
+    textFieldItem(Cut, enabled = availability.canCut) { cut() }
+    textFieldItem(Copy, enabled = availability.canCopy) { copy(cancelSelection = false) }
+    textFieldItem(Paste, enabled = availability.canPaste) { paste() }
+    textFieldItem(SelectAll, enabled = availability.canSelectAll) { selectAll() }
     if (isAutofillAvailable()) {
-        textFieldItem(Autofill, enabled = availability.canAutofill)
+        textFieldItem(Autofill, enabled = availability.canAutofill) { autofill() }
     }
 }

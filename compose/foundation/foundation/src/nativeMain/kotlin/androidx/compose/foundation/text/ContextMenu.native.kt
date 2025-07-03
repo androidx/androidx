@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,33 +20,22 @@ import androidx.compose.foundation.text.input.internal.selection.TextFieldSelect
 import androidx.compose.foundation.text.selection.SelectionManager
 import androidx.compose.foundation.text.selection.TextFieldSelectionManager
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import kotlinx.coroutines.flow.collect
 
 @Composable
 internal actual fun ContextMenuArea(
     manager: TextFieldSelectionManager,
     content: @Composable () -> Unit
-) {
-    content()
-}
+) = CommonContextMenuArea(manager, content)
 
 @Composable
 internal actual fun ContextMenuArea(
     selectionState: TextFieldSelectionState,
     enabled: Boolean,
     content: @Composable () -> Unit
-) {
-    content()
-}
+) = CommonContextMenuArea(selectionState, enabled, content)
 
 @Composable
 internal actual fun ContextMenuArea(
     manager: SelectionManager,
     content: @Composable () -> Unit
-) {
-    content()
-}
-
+) = CommonContextMenuArea(manager, content)

@@ -45,8 +45,10 @@ import androidx.compose.ui.platform.LocalInternalViewModelStoreOwner
 import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.platform.PlatformDragAndDropManager
 import androidx.compose.ui.platform.PlatformTextInputMethodRequest
+import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.WebTextInputService
+import androidx.compose.ui.platform.WebTextToolbar
 import androidx.compose.ui.platform.WindowInfoImpl
 import androidx.compose.ui.scene.CanvasLayersComposeScene
 import androidx.compose.ui.scene.ComposeSceneDragAndDropNode
@@ -231,6 +233,8 @@ internal class ComposeWindow(
             // Update this implementation when implementing https://youtrack.jetbrains.com/issue/CMP-8359
             return super.convertWindowToLocalPosition(positionInWindow)
         }
+
+        override val textToolbar: TextToolbar = WebTextToolbar()
 
         override val textInputService = object : WebTextInputService() {
 
