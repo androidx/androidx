@@ -39,5 +39,8 @@ internal interface OwnedLayerManager {
 
     fun notifyLayerIsDirty(layer: OwnedLayer, isDirty: Boolean)
 
+    /**
+     * Triggers redrawing of Compose content during the next frame.
+     */
     fun invalidate()
 }
