@@ -16,20 +16,18 @@
 
 package androidx.compose.ui.viewinterop
 
-import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.viewinterop.UIKitInteropInteractionMode.Cooperative.Companion.DefaultDelayMillis
 import platform.UIKit.UIScrollView
 
 /**
  * Represents a set of strategies on how the touches are processed when user interacts with the
  * interop view.
  */
-@ExperimentalComposeUiApi
 sealed interface UIKitInteropInteractionMode {
     /**
      * Represents a mode where the touches are not processed by the Compose UI if the interop view
      * is hit by the initial touch in the gesture.
      */
-    @ExperimentalComposeUiApi
     data object NonCooperative : UIKitInteropInteractionMode
 
     /**
@@ -48,7 +46,6 @@ sealed interface UIKitInteropInteractionMode {
      * @property delayMillis Indicates how much time in milliseconds is given for Compose to intercept
      * the touches before delivering them to the interop view. The default value is [DefaultDelayMillis].
      */
-    @ExperimentalComposeUiApi
     class Cooperative(
         val delayMillis: Int = DefaultDelayMillis
     ) : UIKitInteropInteractionMode {

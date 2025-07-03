@@ -20,6 +20,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.Button
 import androidx.compose.material.Checkbox
@@ -38,7 +39,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
@@ -55,9 +55,9 @@ import androidx.compose.ui.test.assertAccessibilityTree
 import androidx.compose.ui.test.findNodeWithTag
 import androidx.compose.ui.test.runUIKitInstrumentedTest
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.UIKitInteropProperties
 import androidx.compose.ui.viewinterop.UIKitView
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -583,7 +583,6 @@ class ComponentsAccessibilitySemanticTest {
         }
     }
 
-    @Ignore // TODO https://youtrack.jetbrains.com/issue/CMP-7030
     @Test
     fun testAccessibilityTraversalGrouping() = runUIKitInstrumentedTest {
         setContent {
@@ -626,8 +625,6 @@ class ComponentsAccessibilitySemanticTest {
         }
     }
 
-    @Ignore // TODO https://youtrack.jetbrains.com/issue/CMP-7030
-    @ExperimentalComposeUiApi
     @Test
     fun testAccessibilityInterop() = runUIKitInstrumentedTest {
         setContent {
@@ -639,7 +636,8 @@ class ComponentsAccessibilitySemanticTest {
                         view.setAccessibilityLabel("Disabled")
                         view
                     },
-                    properties = UIKitInteropProperties(isNativeAccessibilityEnabled = false)
+                    properties = UIKitInteropProperties(isNativeAccessibilityEnabled = false),
+                    modifier = Modifier.size(10.dp)
                 )
                 UIKitView(
                     factory = {
@@ -648,7 +646,8 @@ class ComponentsAccessibilitySemanticTest {
                         view.setAccessibilityLabel("Enabled")
                         view
                     },
-                    properties = UIKitInteropProperties(isNativeAccessibilityEnabled = true)
+                    properties = UIKitInteropProperties(isNativeAccessibilityEnabled = true),
+                    modifier = Modifier.size(10.dp)
                 )
                 UIKitView(
                     factory = {
@@ -658,14 +657,26 @@ class ComponentsAccessibilitySemanticTest {
                         view
                     },
                     properties = UIKitInteropProperties(isNativeAccessibilityEnabled = true),
-                    modifier = Modifier.testTag("Container Tag")
+                    modifier = Modifier.testTag("Container Tag").size(10.dp),
+                )
+                UIKitView(
+                    factory = {
+                        val view = UIView()
+                        view.setIsAccessibilityElement(true)
+                        view.setAccessibilityLabel("Non-interactive")
+                        view
+                    },
+                    properties = UIKitInteropProperties(interactionMode = null, isNativeAccessibilityEnabled = true),
+                    modifier = Modifier.size(10.dp)
                 )
             }
         }
 
         assertAccessibilityTree {
-            identifier = "Container"
-            isAccessibilityElement = false
+            node {
+                identifier = "Container"
+                isAccessibilityElement = false
+            }
             node {
                 label = "Enabled"
                 isAccessibilityElement = true
@@ -681,7 +692,6 @@ class ComponentsAccessibilitySemanticTest {
         }
     }
 
-    @Ignore
     @Test
     fun testChildrenOfCollapsedNode() = runUIKitInstrumentedTest {
         setContent {
@@ -695,16 +705,16 @@ class ComponentsAccessibilitySemanticTest {
 
         assertAccessibilityTree {
             node {
-                label = "Foo\nBar"
-                identifier = "row"
-                isAccessibilityElement = true
-                traits(UIAccessibilityTraitButton)
-            }
-            node {
                 label = "Foo"
                 identifier = "row_title"
                 isAccessibilityElement = false
                 traits(UIAccessibilityTraitStaticText)
+            }
+            node {
+                label = "Foo\nBar"
+                identifier = "row"
+                isAccessibilityElement = true
+                traits(UIAccessibilityTraitButton)
             }
             node {
                 label = "Bar"

@@ -42,6 +42,8 @@ internal class DesktopTextInputService2(
 
     private var receivedInputMethodEventsSinceStartInput = false
 
+    private var composingText: String = ""
+
     fun startInput(request: PlatformTextInputMethodRequest) {
         receivedInputMethodEventsSinceStartInput = false
         component.enableInput(
@@ -92,14 +94,12 @@ internal class DesktopTextInputService2(
         val isFirstEventAfterStartInput = !receivedInputMethodEventsSinceStartInput
         receivedInputMethodEventsSinceStartInput = true
 
-        // Note that we need to handle two cases:
-        // - Focus moves between Compose text fields.
-        // - Focus moves from a Swing text component into a Compose text field
-        // The 2nd case is why we can't have a more surgical check here, i.e. check that the
-        // previous composition matches the committed text.
-        // But this check is hopefully good enough; the IME should not be asking to immediately
-        // commit something without putting it into a composition first.
-        return isFirstEventAfterStartInput && event.committedText.isNotEmpty()
+        val currentComposingText = composingText
+        composingText = event.composingText
+
+        return isFirstEventAfterStartInput &&
+            event.committedText == currentComposingText &&
+            event.composingText.isEmpty()
     }
 }
 

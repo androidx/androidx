@@ -45,9 +45,24 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 
+/**
+ * A class representing a layer that owns and manages a `GraphicsLayer` for composable rendering.
+ *
+ * This layer is responsible for managing graphical properties, transformations, and rendering
+ * tasks associated with a `GraphicsLayer`. It provides mechanisms for updating layer properties,
+ * triggering invalidations, resizing, and mapping offsets or bounds using transformation matrices.
+ *
+ * @constructor
+ * @param graphicsLayer The initial `GraphicsLayer` for this layer.
+ * @param context The graphics context responsible for managing this layer, or `null` if externally
+ *   managed. When context is not null, it means the object is created internally, and we need to
+ *   release it during disposal.
+ * @param layerManager The manager responsible for handling the ownership and lifecycle of this layer.
+ * @param drawBlock The lambda function invoked to perform custom drawing on the canvas.
+ * @param invalidateParentLayer Callback to invalidate the parent layer when necessary.
+ */
 internal class GraphicsLayerOwnerLayer(
     graphicsLayer: GraphicsLayer,
-    // when we have a context it means the object is created by us and we need to release it
     private val context: GraphicsContext?,
     private val layerManager: OwnedLayerManager,
     drawBlock: (canvas: Canvas, parentLayer: GraphicsLayer?) -> Unit,
@@ -175,8 +190,15 @@ internal class GraphicsLayerOwnerLayer(
 
         mutatedFields = scope.mutatedFields
         if (maybeChangedFields != 0 || outlineChanged) {
-            invalidate()
+            triggerRepaint()
         }
+    }
+
+    /**
+     * Triggers redrawing of Compose content during the next frame.
+     */
+    private fun triggerRepaint() {
+        layerManager.invalidate()
     }
 
     private fun updateOutline() {
@@ -197,7 +219,7 @@ internal class GraphicsLayerOwnerLayer(
 
     override fun move(position: IntOffset) {
         graphicsLayer.topLeft = position
-        invalidate()
+        triggerRepaint()
     }
 
     override fun resize(size: IntSize) {
@@ -236,6 +258,9 @@ internal class GraphicsLayerOwnerLayer(
         }
     }
 
+    /**
+     * Marks content as dirty and triggers redrawing.
+     */
     override fun invalidate() {
         if (isDestroyed) return
         isDirty = true

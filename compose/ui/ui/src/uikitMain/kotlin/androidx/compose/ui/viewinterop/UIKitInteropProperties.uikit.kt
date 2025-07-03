@@ -17,7 +17,6 @@
 package androidx.compose.ui.viewinterop
 
 import androidx.compose.runtime.Immutable
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.semantics
 
@@ -53,7 +52,7 @@ import androidx.compose.ui.semantics.semantics
  * @see Modifier.semantics
  */
 @Immutable
-class UIKitInteropProperties @ExperimentalComposeUiApi constructor(
+class UIKitInteropProperties(
     val interactionMode: UIKitInteropInteractionMode? = UIKitInteropInteractionMode.Cooperative(),
     val isNativeAccessibilityEnabled: Boolean = false
 ) {
