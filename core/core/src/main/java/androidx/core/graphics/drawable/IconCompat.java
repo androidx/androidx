@@ -1274,7 +1274,7 @@ public class IconCompat extends CustomVersionedParcelable {
                     }
                     try {
                         is.close();
-                    } catch (IOException e) {
+                    } catch (Exception e) {
                         /* ignore */
                     }
                     break;
