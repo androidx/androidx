@@ -45,11 +45,3 @@ internal fun TextFieldSelectionState.contextMenuBuilder(
         textFieldItem(Autofill, enabled = availability.canAutofill)
     }
 }
-
-// TODO: https://youtrack.jetbrains.com/issue/CMP-8485
-internal actual class ClipboardPasteState actual constructor(clipboard: Clipboard) {
-    actual val hasText: Boolean get() = false
-    actual val hasClip: Boolean get() = false
-    actual suspend fun update() {
-    }
-}

@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.text.input.internal.selection
 
+import androidx.compose.foundation.internal.nativeClipboardHasText
 import androidx.compose.foundation.text.DesktopTextContextMenuItems
 import androidx.compose.foundation.text.DesktopTextContextMenuItems.Copy
 import androidx.compose.foundation.text.DesktopTextContextMenuItems.Cut
@@ -24,7 +25,9 @@ import androidx.compose.foundation.text.DesktopTextContextMenuItems.SelectAll
 import androidx.compose.foundation.text.contextmenu.builder.TextContextMenuBuilderScope
 import androidx.compose.foundation.text.contextmenu.builder.item
 import androidx.compose.foundation.text.contextmenu.modifier.addTextContextMenuComponentsWithLocalization
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.Clipboard
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.launch
@@ -66,5 +69,19 @@ internal actual fun Modifier.addBasicTextFieldTextContextMenuComponents(
         textFieldSuspendItem(Paste, enabled = canPaste()) { paste() }
         textFieldItem(SelectAll, enabled = canSelectAll()) { selectAll() }
         separator()
+    }
+}
+
+internal actual class ClipboardPasteState actual constructor(private val clipboard: Clipboard) {
+    private var _hasClip = false
+    private var _hasText = false
+
+    actual val hasText: Boolean get() = _hasText
+    actual val hasClip: Boolean get() = _hasClip
+
+    actual suspend fun update() {
+        val nativeClipboard = (clipboard.nativeClipboard as? java.awt.datatransfer.Clipboard)
+        _hasClip = nativeClipboard?.availableDataFlavors?.isNotEmpty() ?: false
+        _hasText = nativeClipboard?.nativeClipboardHasText() ?: false
     }
 }

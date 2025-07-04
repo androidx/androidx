@@ -20,6 +20,7 @@ package androidx.compose.foundation.internal
 
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.NativeClipboard
 import androidx.compose.ui.text.AnnotatedString
 
 
@@ -36,3 +37,7 @@ internal actual fun AnnotatedString?.toClipEntry(): ClipEntry? {
 }
 
 internal actual fun ClipEntry?.hasText(): Boolean = this?.getPlainText() != null
+
+internal fun NativeClipboard.hasText(): Boolean {
+    return this.types?.contains(platform.AppKit.NSPasteboardTypeString) ?: false
+}

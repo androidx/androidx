@@ -44,6 +44,7 @@ import androidx.compose.foundation.text.selection.SelectionAdjustment
 import androidx.compose.foundation.text.selection.isPrecisePointer
 import androidx.compose.foundation.text.selection.mouseSelectionBtf2
 import androidx.compose.foundation.text.selection.touchSelectionFirstPress
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.isSpecified
@@ -51,6 +52,7 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.isPrimaryPressed
+import androidx.compose.ui.platform.Clipboard
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.util.fastAll
 import kotlinx.coroutines.CoroutineScope
@@ -371,3 +373,17 @@ internal actual fun Modifier.addBasicTextFieldTextContextMenuComponents(
     state: TextFieldSelectionState,
     coroutineScope: CoroutineScope
 ): Modifier = this
+
+internal actual class ClipboardPasteState actual constructor(private val clipboard: Clipboard) {
+    private var _hasClip = false
+    private var _hasText = false
+
+    actual val hasText: Boolean get() = _hasText
+    actual val hasClip: Boolean get() = _hasClip
+
+    actual suspend fun update() {
+        val nativeClipboard = clipboard.nativeClipboard
+        _hasClip = nativeClipboard.numberOfItems > 0
+        _hasText = nativeClipboard.hasStrings
+    }
+}
